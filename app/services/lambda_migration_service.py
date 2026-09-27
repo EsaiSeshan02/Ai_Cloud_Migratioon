@@ -15,7 +15,6 @@ import shutil
 import stat
 import tempfile
 import zipfile
-from datetime import datetime
 
 import requests
 from botocore.exceptions import BotoCoreError, ClientError
@@ -24,6 +23,7 @@ from sqlalchemy import inspect
 from sqlalchemy.exc import IntegrityError
 
 from app.extensions import db
+from app.utils.time import utc_now
 from app.models.migration import Migration
 
 try:  # Kept lazy-safe for developers until requirements are installed.
@@ -286,7 +286,7 @@ def _persist_lambda_outcome(migration_id, status, failure_reason=None):
     migration.status = status
     migration.active_identity = None
     migration.failure_reason = failure_reason[:255] if failure_reason else None
-    migration.completed_at = datetime.utcnow()
+    migration.completed_at = utc_now()
     db.session.commit()
     return migration
 
@@ -307,7 +307,7 @@ def mark_incomplete_lambda_migrations_requires_review():
         Migration.status: "manual_review_required",
         Migration.active_identity: None,
         Migration.failure_reason: "Deployment was interrupted by an application restart; inspect the target before retrying.",
-        Migration.completed_at: datetime.utcnow(),
+        Migration.completed_at: utc_now(),
     }, synchronize_session=False)
     if updated:
         db.session.commit()
@@ -334,11 +334,11 @@ def deploy_lambda(aws_session, azure_target, function_name, configuration, user_
                    "resource_group": str(configuration.get("resource_group") or "").strip(),
                    "deployment_slot": str(configuration.get("deployment_slot") or "").strip(),
                    "compatibility": assessment}
-    migration = Migration(migration_id=hashlib.sha256((identity + str(datetime.utcnow())).encode()).hexdigest()[:32], user_id=user_id,
+    migration = Migration(migration_id=hashlib.sha256((identity + str(utc_now())).encode()).hexdigest()[:32], user_id=user_id,
                           plan_id=plan_id, active_identity=identity, source_cloud="aws", target_cloud="azure", resource_type="lambda",
                           resource_name=details["function_name"], status="preparing", destination_resource_group=safe_config["resource_group"],
                           destination_storage_account=safe_config["function_app_name"], destination_container=safe_config["deployment_slot"] or None,
-                          execution_configuration=json.dumps(safe_config, separators=(",", ":")), started_at=datetime.utcnow())
+                          execution_configuration=json.dumps(safe_config, separators=(",", ":")), started_at=utc_now())
     try:
         db.session.add(migration); db.session.commit()
     except IntegrityError:
@@ -363,7 +363,7 @@ def deploy_lambda(aws_session, azure_target, function_name, configuration, user_
         response.raise_for_status()
         migration.status = "validating"; db.session.commit()
         _validate_deployed_function(target)
-        migration.status = "completed"; migration.completed_at = datetime.utcnow(); migration.active_identity = None; db.session.commit()
+        migration.status = "completed"; migration.completed_at = utc_now(); migration.active_identity = None; db.session.commit()
         return {"success": True, "migration_id": migration.migration_id, "status": "completed", "message": "Azure Functions deployment completed and target validation succeeded."}
     except ManualReviewRequired as exc:
         db.session.rollback()

@@ -86,6 +86,27 @@ $env:APP_ENV = "development"
 python app.py
 ```
 
+## Database schema migrations
+
+Flask-Migrate/Alembic maintains the forward-only schema history in
+`Migrations/`. Apply it explicitly before running a new persistent database or
+upgrading a database created by an earlier release:
+
+```powershell
+$env:APP_ENV = "development"
+flask --app app.py db upgrade
+```
+
+The baseline revision creates missing current tables and adds only required
+legacy columns/indexes; it never drops tables or deletes migration data. The
+application retains its additive startup compatibility check for older local
+databases, but `flask --app app.py db upgrade` records the baseline revision
+and is the reproducible deployment procedure. SQLite remains appropriate for
+local development and a single-process demo, not multi-worker migration
+execution. Existing historical duplicate object rows can prevent the legacy
+unique object index from being created and must be reviewed manually before
+retrying that upgrade.
+
 For production-like configuration, set at least `SECRET_KEY`; startup rejects a
 missing production secret. Common configuration includes `DATABASE_URL`,
 `SESSION_COOKIE_SECURE`, `SESSION_COOKIE_SAMESITE`, `HSTS_ENABLED`,
@@ -143,8 +164,8 @@ assessment/manual-review items and do not show an executable migration control.
 This is a production-oriented prototype, not a production deployment claim.
 The in-process worker/execution-session design must be replaced with a shared
 credential/session and durable job system for multi-process production use.
-Formal Alembic revision history is not yet initialized; the app uses safe,
-additive schema upgrades for existing SQLite data. EC2/RDS/DynamoDB execution
+The included Alembic baseline provides safe, additive upgrades for existing
+SQLite data. EC2/RDS/DynamoDB execution
 must not be claimed until separate real execution, verification, cutover, and
 rollback implementations exist. Lambda execution is limited strictly to the
 documented Python ZIP subset and does not translate AWS triggers, IAM, VPC

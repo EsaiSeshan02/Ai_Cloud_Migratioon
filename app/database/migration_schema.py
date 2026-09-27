@@ -1,10 +1,8 @@
-"""Forward-only, additive schema updates for persisted migration state.
+"""Forward-only compatibility helpers used by the Alembic baseline.
 
-The project does not currently have an initialized Alembic repository.  This
-small compatibility upgrade deliberately uses only ``ADD COLUMN`` after
-inspecting the live schema; it never drops tables, recreates the SQLite file,
-or changes existing migration rows.  It can be replaced by an Alembic revision
-once the application adopts a full migration repository.
+The helpers deliberately add missing legacy columns and indexes only. They
+never drop, recreate, or delete application data. New databases are created
+from SQLAlchemy metadata by the baseline revision.
 """
 
 from sqlalchemy import inspect, text
@@ -39,9 +37,10 @@ _COLUMNS = {
 }
 
 
-def upgrade_phase2_migration_schema():
-    """Safely add Phase 2 columns to databases created before this release."""
-    inspector = inspect(db.engine)
+def upgrade_legacy_schema(connection=None):
+    """Bring pre-Alembic application databases to the baseline schema safely."""
+    bind = connection or db.engine
+    inspector = inspect(bind)
     existing_tables = set(inspector.get_table_names())
     for table_name, columns in _COLUMNS.items():
         if table_name not in existing_tables:
@@ -49,33 +48,41 @@ def upgrade_phase2_migration_schema():
         present = {column["name"] for column in inspector.get_columns(table_name)}
         for column_name, sql_type in columns.items():
             if column_name not in present:
-                db.session.execute(
-                    text(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {sql_type}")
-                )
-    db.session.commit()
+                bind.execute(text(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {sql_type}"))
 
     # Migration plans are new additive tables.  Creating them with checkfirst
     # preserves all existing user, migration, and migration-file records.
     if "users" in existing_tables:
-        MigrationPlan.__table__.create(bind=db.engine, checkfirst=True)
-        MigrationPlanResource.__table__.create(bind=db.engine, checkfirst=True)
-        Report.__table__.create(bind=db.engine, checkfirst=True)
-        AuditEvent.__table__.create(bind=db.engine, checkfirst=True)
+        MigrationPlan.__table__.create(bind=bind, checkfirst=True)
+        MigrationPlanResource.__table__.create(bind=bind, checkfirst=True)
+        Report.__table__.create(bind=bind, checkfirst=True)
+        AuditEvent.__table__.create(bind=bind, checkfirst=True)
 
     # Historical records receive NULL active identities and remain compatible.
-    if "migrations" in set(inspect(db.engine).get_table_names()):
-        db.session.execute(text(
+    if "migrations" in set(inspect(bind).get_table_names()):
+        bind.execute(text(
             "CREATE UNIQUE INDEX IF NOT EXISTS uq_migrations_active_identity "
             "ON migrations (active_identity)"
         ))
-    if "migration_files" in set(inspect(db.engine).get_table_names()):
+    if "migration_files" in set(inspect(bind).get_table_names()):
         # Existing historical duplicate rows must not be deleted by an
         # upgrade. New databases receive the model-level unique constraint.
         try:
-            db.session.execute(text(
+            bind.execute(text(
                 "CREATE UNIQUE INDEX IF NOT EXISTS uq_migration_files_object "
                 "ON migration_files (migration_id, object_key)"
             ))
         except Exception:
-            db.session.rollback()
-    db.session.commit()
+            # Existing duplicate historical rows prevent a unique index.
+            # Preserve them and let the operator resolve them before retrying.
+            pass
+
+
+def upgrade_phase2_migration_schema():
+    """Backward-compatible public alias for older callers.
+
+    New application code must use ``flask db upgrade`` rather than mutating
+    schemas at startup.
+    """
+    with db.engine.begin() as connection:
+        upgrade_legacy_schema(connection)

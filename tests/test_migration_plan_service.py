@@ -67,6 +67,7 @@ class MigrationPlanServiceTests(unittest.TestCase):
         with self.app.app_context():
             db.session.remove()
             db.drop_all()
+            db.engine.dispose()
 
     def _plan(self, user_id=None, resources=None):
         return generate_migration_plan(

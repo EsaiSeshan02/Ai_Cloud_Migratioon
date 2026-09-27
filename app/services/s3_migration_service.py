@@ -9,7 +9,6 @@ import re
 import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
 from collections import defaultdict
 
 from botocore.exceptions import ClientError, EndpointConnectionError
@@ -23,6 +22,7 @@ from sqlalchemy.exc import IntegrityError
 from app.extensions import db
 from app.models.migration import Migration, MigrationFile
 from app.security.logging_utils import log_event
+from app.utils.time import utc_now
 
 GB = 1024 * 1024 * 1024
 BATCH_SIZE_LIMIT = 10 * GB
@@ -204,7 +204,7 @@ def _set_file_result(record, status, message=None, verification=None, destinatio
     record.destination_etag = destination_etag
     record.bytes_transferred = int(bytes_transferred or 0) if status == "verified" else 0
     if status in {"verified", "skipped", "failed", "manual_review"}:
-        record.completed_at = datetime.utcnow()
+        record.completed_at = utc_now()
 
 
 def _blob_size_and_etag(blob_client):
@@ -245,7 +245,7 @@ def _transfer_one(s3_client, bucket_name, record, container_client):
         body = None
         try:
             record.attempt_count = (record.attempt_count or 0) + 1
-            record.last_attempt_at = datetime.utcnow()
+            record.last_attempt_at = utc_now()
             # Persist retry evidence before making a provider request so a
             # restart does not erase the fact that a transfer was attempted.
             db.session.commit()
@@ -298,7 +298,7 @@ def _finalize(migration):
     if not _transition(migration, final_status):
         current_app.logger.error("s3_invalid_state_transition operation=finalize category=state")
         return False
-    migration.completed_at = datetime.utcnow()
+    migration.completed_at = utc_now()
     db.session.commit()
     return True
 
@@ -359,7 +359,7 @@ def execute_s3_migration(migration_id, aws_session, azure_session):
     try:
         if not _transition(migration, "running"):
             return {"success": False, "migration_id": migration_id, "message": "Migration state transition was rejected."}
-        migration.started_at = migration.started_at or datetime.utcnow()
+        migration.started_at = migration.started_at or utc_now()
         db.session.commit()
         s3_client, container_client = aws_session.client("s3"), _container_client(azure_session, migration)
         records = MigrationFile.query.filter_by(migration_id=migration.id).order_by(MigrationFile.batch_number, MigrationFile.id).all()
@@ -371,7 +371,7 @@ def execute_s3_migration(migration_id, aws_session, azure_session):
                 db.session.commit()
                 continue
             record.status = "transferring"
-            record.started_at = record.started_at or datetime.utcnow()
+            record.started_at = record.started_at or utc_now()
             record.error_message = None
             db.session.commit()
             status, message, verification, destination_etag, transferred = _transfer_one(s3_client, migration.resource_name, record, container_client)
@@ -435,7 +435,7 @@ def _prepare_migration(aws_session, azure_session, bucket_name, configuration, u
                           resource_type="s3", resource_name=bucket_name, status="preparing", total_files=len(objects),
                           total_size_bytes=sum(obj["size"] for obj in objects), total_batches=len(batches),
                           execution_configuration=json.dumps(_safe_execution_configuration(configuration), separators=(",", ":")),
-                          started_at=datetime.utcnow())
+                          started_at=utc_now())
     db.session.add(migration)
     try:
         db.session.flush()
@@ -456,7 +456,7 @@ def _prepare_migration(aws_session, azure_session, bucket_name, configuration, u
     try:
         if not objects:
             _transition(migration, "completed")
-            migration.completed_at = datetime.utcnow()
+            migration.completed_at = utc_now()
             db.session.commit()
             return migration_progress(migration)
         resource_group, account, region = _destination_from_configuration(azure_session, migration, configuration, bucket_name)

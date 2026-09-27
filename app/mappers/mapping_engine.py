@@ -7,7 +7,7 @@ MAPPING ENGINE
 Generates migration plans from AI recommendations.
 """
 
-from datetime import datetime
+from app.utils.time import utc_now
 
 
 class MappingEngine:
@@ -22,7 +22,7 @@ class MappingEngine:
         plan = {
 
             "migration_id":
-                datetime.now().strftime(
+                utc_now().strftime(
                     "MIG-%Y%m%d-%H%M%S"
                 ),
 
@@ -33,7 +33,7 @@ class MappingEngine:
                 target_cloud,
 
             "created_at":
-                datetime.now().strftime(
+                utc_now().strftime(
                     "%d-%m-%Y %H:%M:%S"
                 ),
 

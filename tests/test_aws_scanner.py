@@ -3,6 +3,7 @@ import unittest
 from botocore.exceptions import ClientError
 
 from app import create_app
+from app.extensions import db
 from app.ai.ai_engine import ai_engine
 from app.mappers.cloud_mapper import PLANNING_ONLY, SUPPORTED_EXECUTION
 from app.scanners.aws_scanner import scan_all_resources, scan_ec2, scan_lambda, scan_rds, scan_s3
@@ -104,6 +105,11 @@ class AwsScannerTests(unittest.TestCase):
             "SECRET_KEY": "test-only-secret-key-not-used-in-production",
             "SQLALCHEMY_DATABASE_URI": "sqlite://",
         })
+
+    def tearDown(self):
+        with self.app.app_context():
+            db.session.remove()
+            db.engine.dispose()
 
     def test_ec2_pagination_and_assessment_metadata(self):
         client = FakeEc2Client()

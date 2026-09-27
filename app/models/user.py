@@ -8,6 +8,7 @@ USER MODEL
 from flask_login import UserMixin
 
 from app.extensions import db
+from app.utils.time import UTCDateTime, utc_now
 
 
 # ==========================================================
@@ -62,9 +63,9 @@ class User(
 
     created_at = db.Column(
 
-        db.DateTime,
+        UTCDateTime(),
 
-        server_default=db.func.now()
+        default=utc_now
 
     )
 

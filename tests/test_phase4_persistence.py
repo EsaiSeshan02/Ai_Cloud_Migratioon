@@ -34,6 +34,7 @@ class Phase4PersistenceTests(unittest.TestCase):
         with self.app.app_context():
             db.session.remove()
             db.drop_all()
+            db.engine.dispose()
 
     def test_active_identity_database_constraint_prevents_duplicate_active_rows(self):
         with self.app.app_context():

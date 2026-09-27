@@ -24,7 +24,7 @@ class LambdaMigrationServiceTests(unittest.TestCase):
             self.user_id = user.id
 
     def tearDown(self):
-        with self.app.app_context(): db.session.remove(); db.drop_all()
+        with self.app.app_context(): db.session.remove(); db.drop_all(); db.engine.dispose()
 
     def test_details_exclude_environment_values(self):
         client = Mock(); client.get_function.return_value = {"Code": {"Location": "https://signed.example/package"}, "Configuration": {

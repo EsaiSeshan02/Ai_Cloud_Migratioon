@@ -16,6 +16,7 @@ from app.extensions import (
     bcrypt,
     csrf,
     login_manager,
+    migrate,
 )
 from app.error_handlers import register_error_handlers
 from app.security.logging_utils import configure_logging, log_event
@@ -60,6 +61,7 @@ def create_app(test_config=None):
     # ======================================================
 
     db.init_app(app)
+    migrate.init_app(app, db)
     bcrypt.init_app(app)
     login_manager.init_app(app)
     csrf.init_app(app)
@@ -78,10 +80,11 @@ def create_app(test_config=None):
     )
     from app.models.report import Report
     from app.database.migration_schema import upgrade_phase2_migration_schema
-
-    # Add only the Phase 2 persistence columns when upgrading an existing
-    # database.  This never creates, deletes, or resets a user's database.
     with app.app_context():
+        # Preserve the pre-Alembic startup compatibility path: a database from
+        # an earlier release can be opened safely before its formal baseline
+        # revision is stamped. The helper is additive only; ``flask db
+        # upgrade`` remains the reproducible versioning command.
         upgrade_phase2_migration_schema()
         # A worker cannot survive a Flask process restart.  Persist the
         # interruption so its owner can explicitly reconnect and resume.

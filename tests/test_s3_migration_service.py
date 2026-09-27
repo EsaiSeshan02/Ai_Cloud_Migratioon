@@ -149,6 +149,7 @@ class S3MigrationServiceTests(unittest.TestCase):
         with self.app.app_context():
             db.session.remove()
             db.drop_all()
+            db.engine.dispose()
 
     def test_streamed_object_is_verified_and_persisted(self):
         blob, s3 = _Blob(), _S3Client(b"payload")

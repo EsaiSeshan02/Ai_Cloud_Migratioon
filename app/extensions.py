@@ -11,10 +11,14 @@ Centralized initialization for:
     - User login management
 """
 
+from pathlib import Path
+
+from flask import current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
+from flask_migrate import Migrate
 
 
 # ==========================================================
@@ -22,6 +26,23 @@ from flask_wtf.csrf import CSRFProtect
 # ==========================================================
 
 db = SQLAlchemy()
+migrate = Migrate()
+
+
+@migrate.configure
+def configure_alembic(config):
+    """Point Flask-Migrate at the repository-level Alembic configuration.
+
+    Flask-Migrate otherwise looks for ``alembic.ini`` inside its default
+    migration-script directory.  This project deliberately keeps that
+    configuration at the repository root and its script environment in
+    ``Migrations``.  Deriving both paths from the Flask application keeps the
+    setup portable without an absolute local path.
+    """
+    project_root = Path(current_app.root_path).parent
+    config.config_file_name = str(project_root / "alembic.ini")
+    config.set_main_option("script_location", str(project_root / "Migrations"))
+    return config
 
 
 # ==========================================================

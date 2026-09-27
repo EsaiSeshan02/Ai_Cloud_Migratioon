@@ -3,6 +3,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from app import create_app
+from app.extensions import db
 from app.mappers.cloud_mapper import get_cloud_mapping
 from app.scanners.azure_scanner import (
     scan_all_resources,
@@ -72,6 +73,11 @@ class AzureScannerTests(unittest.TestCase):
             "SECRET_KEY": "test-only-secret-key-not-used-in-production",
             "SQLALCHEMY_DATABASE_URI": "sqlite://",
         })
+
+    def tearDown(self):
+        with self.app.app_context():
+            db.session.remove()
+            db.engine.dispose()
 
     def test_vm_discovery_is_normalized_and_secret_free(self):
         with self.app.app_context():

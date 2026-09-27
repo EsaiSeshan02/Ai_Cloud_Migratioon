@@ -31,7 +31,7 @@ class LambdaRouteSecurityTests(unittest.TestCase):
     def tearDown(self):
         migration_sessions.clear(); azure_sessions.clear()
         with self.app.app_context():
-            db.session.remove(); db.drop_all()
+            db.session.remove(); db.drop_all(); db.engine.dispose()
 
     def _create_plan(self, user_id, plan_id):
         plan = MigrationPlan(plan_id=plan_id, user_id=user_id, source_cloud="aws", target_cloud="azure")

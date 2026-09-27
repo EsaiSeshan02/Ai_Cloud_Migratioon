@@ -22,9 +22,8 @@ These models will later be used for:
 """
 
 
-from datetime import datetime
-
 from app.extensions import db
+from app.utils.time import UTCDateTime, utc_now
 
 
 class MigrationPlan(db.Model):
@@ -43,8 +42,8 @@ class MigrationPlan(db.Model):
     resource_count = db.Column(db.Integer, nullable=False, default=0)
     execution_ready_count = db.Column(db.Integer, nullable=False, default=0)
     planning_review_count = db.Column(db.Integer, nullable=False, default=0)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(UTCDateTime(), nullable=False, default=utc_now)
+    updated_at = db.Column(UTCDateTime(), nullable=False, default=utc_now, onupdate=utc_now)
 
     resources = db.relationship(
         "MigrationPlanResource", backref="plan", lazy=True, cascade="all, delete-orphan"
@@ -74,8 +73,8 @@ class MigrationPlanResource(db.Model):
     manual_review_reasons = db.Column(db.Text, nullable=False, default="[]")
     recommendation_data = db.Column(db.Text, nullable=False, default="{}")
     source_metadata = db.Column(db.Text, nullable=False, default="{}")
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(UTCDateTime(), nullable=False, default=utc_now)
+    updated_at = db.Column(UTCDateTime(), nullable=False, default=utc_now, onupdate=utc_now)
 
 
 # ==========================================================
@@ -234,19 +233,19 @@ class Migration(db.Model):
     # ------------------------------------------------------
 
     started_at = db.Column(
-        db.DateTime,
-        default=datetime.utcnow,
+        UTCDateTime(),
+        default=utc_now,
         nullable=True
     )
 
     completed_at = db.Column(
-        db.DateTime,
+        UTCDateTime(),
         nullable=True
     )
 
     created_at = db.Column(
-        db.DateTime,
-        default=datetime.utcnow,
+        UTCDateTime(),
+        default=utc_now,
         nullable=False
     )
 
@@ -363,7 +362,7 @@ class MigrationFile(db.Model):
     destination_etag = db.Column(db.String(256), nullable=True)
     verification_status = db.Column(db.String(40), nullable=True)
     attempt_count = db.Column(db.Integer, default=0, nullable=False)
-    last_attempt_at = db.Column(db.DateTime, nullable=True)
+    last_attempt_at = db.Column(UTCDateTime(), nullable=True)
     bytes_transferred = db.Column(db.BigInteger, default=0, nullable=False)
 
     # ------------------------------------------------------
@@ -371,18 +370,18 @@ class MigrationFile(db.Model):
     # ------------------------------------------------------
 
     started_at = db.Column(
-        db.DateTime,
+        UTCDateTime(),
         nullable=True
     )
 
     completed_at = db.Column(
-        db.DateTime,
+        UTCDateTime(),
         nullable=True
     )
 
     created_at = db.Column(
-        db.DateTime,
-        default=datetime.utcnow,
+        UTCDateTime(),
+        default=utc_now,
         nullable=False
     )
 

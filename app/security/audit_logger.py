@@ -1,11 +1,10 @@
 """Audit-log facade for sensitive operations without credential data."""
 
-from datetime import datetime
-
 from flask import current_app
 
 from app.extensions import db
 from app.security.logging_utils import log_event
+from app.utils.time import UTCDateTime, utc_now
 
 
 class AuditEvent(db.Model):
@@ -19,7 +18,7 @@ class AuditEvent(db.Model):
     migration_id = db.Column(db.String(64), nullable=True, index=True)
     status = db.Column(db.String(48), nullable=True)
     category = db.Column(db.String(48), nullable=True)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, index=True)
+    created_at = db.Column(UTCDateTime(), nullable=False, default=utc_now, index=True)
 
 
 def audit_event(event, *, user_id=None, migration_id=None, operation=None, status=None, category=None):

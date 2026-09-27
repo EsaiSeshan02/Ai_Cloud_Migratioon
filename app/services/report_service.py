@@ -2,12 +2,12 @@
 
 import json
 import uuid
-from datetime import datetime
 
 from app.extensions import db
 from app.models.migration import Migration, MigrationFile
 from app.models.report import Report
 from app.services.s3_migration_service import migration_progress
+from app.utils.time import utc_now
 
 
 def build_report_payload(migration):
@@ -77,7 +77,7 @@ def generate_report(migration):
     report.status = migration.status
     report.plan_id = migration.plan_id
     report.report_data = json.dumps(build_report_payload(migration), separators=(",", ":"))
-    report.generated_at = datetime.utcnow()
+    report.generated_at = utc_now()
     db.session.commit()
     return report
 
