@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+
+Connect Azure | AI Cloud Migration
+
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for(
+        'static',
+        filename='css/azure-target.css'
+    ) }}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<section class="migration-target-page">
+
+
+    <div class="container">
+
+
+        <!-- ================================================
+                        PAGE HEADER
+        ================================================= -->
+
+        <div class="target-header">
+
+
+            <span class="target-badge">
+
+                <i data-lucide="cloud"></i>
+
+                Target Cloud Connection
+
+            </span>
+
+
+            <h1>
+
+                Connect
+
+                <span>Microsoft Azure</span>
+
+            </h1>
+
+
+            <p>
+
+                Connect your Azure environment as the
+                target cloud for your AWS migration.
+
+            </p>
+
+
+        </div>
+
+
+
+        <!-- ================================================
+                    MIGRATION PATH
+        ================================================= -->
+
+        <div class="target-migration-path">
+
+
+            <div class="target-cloud source-cloud">
+
+
+                <img
+                    src="{{ url_for(
+                        'static',
+                        filename='images/clouds/aws.svg'
+                    ) }}"
+                    alt="AWS"
+                >
+
+
+                <span>
+
+                    AWS
+
+                </span>
+
+
+            </div>
+
+
+
+            <div class="target-path-arrow">
+
+                <i data-lucide="arrow-right"></i>
+
+            </div>
+
+
+
+            <div class="target-cloud azure-cloud">
+
+
+                <img
+                    src="{{ url_for(
+                        'static',
+                        filename='images/clouds/azure.svg'
+                    ) }}"
+                    alt="Microsoft Azure"
+                >
+
+
+                <span>
+
+                    Azure
+
+                </span>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- ================================================
+                    AZURE CONNECTION CARD
+        ================================================= -->
+
+        <div class="target-connection-card">
+
+
+            <div class="connection-card-header">
+
+
+                <div class="connection-icon">
+
+                    <i data-lucide="shield-check"></i>
+
+                </div>
+
+
+                <div>
+
+
+                    <span class="card-label">
+
+                        TARGET AUTHENTICATION
+
+                    </span>
+
+
+                    <h2>
+
+                        Azure Credentials
+
+                    </h2>
+
+
+                    <p>
+
+                        Enter your Azure application credentials
+                        to allow the migration assistant to
+                        access your target environment.
+
+                    </p>
+
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- ============================================
+                        AZURE FORM
+            ============================================= -->
+
+            <form
+                id="azure-target-form"
+                class="target-connection-form"
+            >
+
+
+                <!-- TENANT ID -->
+
+                <div class="form-group">
+
+
+                    <label for="azure-tenant-id">
+
+                        Tenant ID
+
+                    </label>
+
+
+                    <input
+                        type="text"
+                        id="azure-tenant-id"
+                        placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                        autocomplete="off"
+                        required
+                    >
+
+
+                </div>
+
+
+
+                <!-- CLIENT ID -->
+
+                <div class="form-group">
+
+
+                    <label for="azure-client-id">
+
+                        Client ID
+
+                    </label>
+
+
+                    <input
+                        type="text"
+                        id="azure-client-id"
+                        placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                        autocomplete="off"
+                        required
+                    >
+
+
+                </div>
+
+
+
+                <!-- CLIENT SECRET -->
+
+                <div class="form-group">
+
+
+                    <label for="azure-client-secret">
+
+                        Client Secret
+
+                    </label>
+
+
+                    <div class="secret-input-wrapper">
+
+
+                        <input
+                            type="password"
+                            id="azure-client-secret"
+                            placeholder="Enter Azure client secret"
+                            autocomplete="off"
+                            required
+                        >
+
+
+                        <button
+                            type="button"
+                            class="secret-toggle"
+                            id="azure-secret-toggle"
+                        >
+
+                            <i data-lucide="eye"></i>
+
+                        </button>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- SUBSCRIPTION ID -->
+
+                <div class="form-group">
+
+
+                    <label for="azure-subscription-id">
+
+                        Subscription ID
+
+                    </label>
+
+
+                    <input
+                        type="text"
+                        id="azure-subscription-id"
+                        placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                        autocomplete="off"
+                        required
+                    >
+
+
+                </div>
+
+
+
+                <!-- SOURCE INFORMATION -->
+
+                <input
+                    type="hidden"
+                    id="source-cloud"
+                    value="{{ source }}"
+                >
+
+
+                <input
+                    type="hidden"
+                    id="aws-session-id"
+                    value="{{ session_id }}"
+                >
+
+
+
+                <!-- SUBMIT -->
+
+                <button
+                    type="submit"
+                    class="target-connect-btn"
+                >
+
+
+                    <i data-lucide="plug-zap"></i>
+
+                    Connect Azure & Continue
+
+                    <i data-lucide="arrow-right"></i>
+
+
+                </button>
+
+
+            </form>
+
+
+        </div>
+
+
+    </div>
+
+
+</section>
+
+
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+<script
+    src="{{ url_for(
+        'static',
+        filename='js/azure-target.js'
+    ) }}"
+></script>
+
+{% endblock %}

@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | AI Cloud Migration{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-layout">
+
+    <!-- ==========================================
+                    SIDEBAR
+    =========================================== -->
+
+    {% include "components/sidebar.html" %}
+
+    <!-- ==========================================
+                    MAIN CONTENT
+    =========================================== -->
+
+    <main class="dashboard-main">
+
+        <!-- ==========================================
+                    TOPBAR
+        =========================================== -->
+
+        <header class="dashboard-topbar">
+
+            <div>
+
+                <h1>
+
+                    Welcome Back 👋
+
+                </h1>
+
+                <p>
+
+                    Here's your AI cloud migration overview.
+
+                </p>
+
+            </div>
+
+            <div class="topbar-actions">
+
+                <button class="btn btn-outline">
+
+                    <i class="fas fa-bell"></i>
+
+                </button>
+
+                <button class="btn btn-outline">
+
+                    <i class="fas fa-user"></i>
+
+                </button>
+
+            </div>
+
+        </header>
+
+        <!-- ==========================================
+                    QUICK STATS
+        =========================================== -->
+
+        <section class="dashboard-stats">
+
+            <div class="stat-card pixel-card">
+
+                <h4>
+
+                    Total Projects
+
+                </h4>
+
+                <h2 class="counter" data-target="12">
+
+                    0
+
+                </h2>
+
+            </div>
+
+            <div class="stat-card pixel-card">
+
+                <h4>
+
+                    AI Reports
+
+                </h4>
+
+                <h2 class="counter" data-target="38">
+
+                    0
+
+                </h2>
+
+            </div>
+
+            <div class="stat-card pixel-card">
+
+                <h4>
+
+                    Cloud Providers
+
+                </h4>
+
+                <h2>
+
+                    AWS • Azure • GCP
+
+                </h2>
+
+            </div>
+
+            <div class="stat-card pixel-card">
+
+                <h4>
+
+                    Estimated Savings
+
+                </h4>
+
+                <h2>
+
+                    18%
+
+                </h2>
+
+            </div>
+
+        </section>
+
+        <!-- ==========================================
+                DASHBOARD GRID
+        =========================================== -->
+
+        <section class="dashboard-grid">
+
+            <!-- Upload -->
+
+            <div class="widget upload-widget pixel-card">
+
+                <h3>
+
+                    Upload Infrastructure
+
+                </h3>
+
+                <p>
+
+                    Drag & drop Terraform, ARM or CloudFormation files.
+
+                </p>
+
+                <button class="btn btn-primary">
+
+                    Upload Files
+
+                </button>
+
+            </div>
+
+            <!-- AI Status -->
+
+            <div class="widget ai-widget pixel-card">
+
+                <h3>
+
+                    AI Engine
+
+                </h3>
+
+                <div class="status success">
+
+                    ● Online
+
+                </div>
+
+                <p>
+
+                    Ready to analyse infrastructure.
+
+                </p>
+
+            </div>
+
+            <!-- Terminal -->
+
+            <div class="widget terminal-widget pixel-card">
+
+                <div class="terminal-header">
+
+                    <span class="terminal-dot red"></span>
+
+                    <span class="terminal-dot yellow"></span>
+
+                    <span class="terminal-dot green"></span>
+
+                    <span>
+
+                        live-terminal.sh
+
+                    </span>
+
+                </div>
+
+                <div class="terminal-body">
+
+<pre id="dashboardTerminal">
+
+$ Waiting for upload...
+
+█
+
+</pre>
+
+                </div>
+
+            </div>
+
+            <!-- Cost -->
+
+            <div class="widget cost-widget pixel-card">
+
+                <h3>
+
+                    Estimated Monthly Cost
+
+                </h3>
+
+                <h1>
+
+                    $327
+
+                </h1>
+
+                <span>
+
+                    ▼ 18% Lower Than AWS
+
+                </span>
+
+            </div>
+
+            <!-- Cloud Comparison -->
+
+            <div class="widget comparison-widget pixel-card">
+
+                <h3>
+
+                    Cloud Comparison
+
+                </h3>
+
+                <div class="cloud-item">
+
+                    <span>AWS</span>
+
+                    <div class="progress">
+
+                        <div class="progress-fill aws"></div>
+
+                    </div>
+
+                </div>
+
+                <div class="cloud-item">
+
+                    <span>Azure</span>
+
+                    <div class="progress">
+
+                        <div class="progress-fill azure"></div>
+
+                    </div>
+
+                </div>
+
+                <div class="cloud-item">
+
+                    <span>Google</span>
+
+                    <div class="progress">
+
+                        <div class="progress-fill gcp"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Recent Reports -->
+
+            <div class="widget reports-widget pixel-card">
+
+                <h3>
+
+                    Recent Reports
+
+                </h3>
+
+                <ul>
+
+                    <li>
+
+                        Terraform Migration.pdf
+
+                    </li>
+
+                    <li>
+
+                        Azure Cost Analysis.pdf
+
+                    </li>
+
+                    <li>
+
+                        AI Recommendation.pdf
+
+                    </li>
+
+                    <li>
+
+                        Security Assessment.pdf
+
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+{% endblock %}

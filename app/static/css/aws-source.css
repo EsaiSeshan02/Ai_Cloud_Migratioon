@@ -1,0 +1,677 @@
+/* ==========================================================
+                    AZURE SOURCE PAGE
+========================================================== */
+
+.cloud-connection-page {
+    padding: 70px 0 100px;
+    min-height: 100vh;
+}
+
+
+/* ==========================================================
+                    PAGE HEADER
+========================================================== */
+
+.connection-page-header {
+    text-align: center;
+    max-width: 720px;
+    margin: 0 auto 50px;
+}
+
+
+.connection-badge {
+    display: inline-block;
+
+    font-size: 0.75rem;
+
+    font-weight: 600;
+
+    letter-spacing: 0.08em;
+
+    color: var(--text-secondary);
+
+    margin-bottom: 18px;
+}
+
+
+.connection-page-header h1 {
+    font-size: 2.5rem;
+
+    font-weight: 500;
+
+    color: var(--text-primary);
+
+    margin-bottom: 16px;
+}
+
+
+.connection-page-header h1 span {
+    color: var(--color-primary);
+}
+
+
+.connection-page-header p {
+    color: var(--text-secondary);
+
+    font-size: 1rem;
+
+    line-height: 1.7;
+}
+
+
+/* ==========================================================
+                    CONNECTION LAYOUT
+========================================================== */
+
+.connection-layout {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+
+    gap: 28px;
+
+    max-width: 980px;
+
+    margin: 0 auto;
+
+    align-items: stretch;
+}
+
+
+/* ==========================================================
+                    CONNECTION CARD
+========================================================== */
+
+.connection-card,
+.security-card {
+    background:
+        var(--bg-card);
+
+    border:
+        1px solid
+        var(--border-color);
+
+    border-radius:
+        22px;
+
+    padding:
+        32px;
+
+    box-shadow:
+        0 12px 40px
+        rgba(0, 0, 0, 0.05);
+}
+
+
+/* ==========================================================
+                    CARD HEADER
+========================================================== */
+
+.connection-card-header,
+.security-card-header {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 16px;
+}
+
+
+.connection-icon,
+.security-icon {
+    width: 48px;
+
+    height: 48px;
+
+    min-width: 48px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 14px;
+
+    background:
+        rgba(212, 175, 55, 0.12);
+
+    color:
+        var(--color-primary);
+}
+
+
+.security-icon {
+    background:
+        rgba(34, 197, 94, 0.10);
+
+    color:
+        #22a06b;
+}
+
+
+.connection-icon svg,
+.security-icon svg {
+    width: 21px;
+
+    height: 21px;
+}
+
+
+.connection-card-header h2,
+.security-card-header h2 {
+    margin: 0 0 7px;
+
+    font-size: 1.25rem;
+
+    font-weight: 500;
+
+    color:
+        var(--text-primary);
+}
+
+
+.connection-card-header p,
+.security-card-header p {
+    margin: 0;
+
+    color:
+        var(--text-secondary);
+
+    font-size: 0.86rem;
+
+    line-height: 1.6;
+}
+
+
+/* ==========================================================
+                    DIVIDER
+========================================================== */
+
+.connection-divider {
+    height: 1px;
+
+    background:
+        var(--border-color);
+
+    margin:
+        24px 0;
+}
+
+
+/* ==========================================================
+                    FORM
+========================================================== */
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+
+.form-group label {
+    display: block;
+
+    margin-bottom: 9px;
+
+    font-size: 0.82rem;
+
+    font-weight: 500;
+
+    color:
+        var(--text-primary);
+}
+
+
+/* ==========================================================
+                    INPUT WRAPPER
+========================================================== */
+
+.input-wrapper {
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+}
+
+
+.input-wrapper > svg {
+    position: absolute;
+
+    left: 16px;
+
+    width: 18px;
+
+    height: 18px;
+
+    color:
+        var(--text-secondary);
+
+    pointer-events: none;
+}
+
+
+.input-wrapper input {
+    width: 100%;
+
+    height: 50px;
+
+    padding:
+        0 50px
+        0 48px;
+
+    border:
+        1px solid
+        var(--border-color);
+
+    border-radius:
+        12px;
+
+    background:
+        var(--bg-secondary);
+
+    color:
+        var(--text-primary);
+
+    font-size: 0.9rem;
+
+    outline: none;
+
+    transition:
+        border 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+
+.input-wrapper input::placeholder {
+    color:
+        var(--text-muted);
+}
+
+
+.input-wrapper input:focus {
+    border-color:
+        var(--color-primary);
+
+    background:
+        var(--bg-card);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(212, 175, 55, 0.10);
+}
+
+
+/* ==========================================================
+                    SECRET TOGGLE
+========================================================== */
+
+.secret-toggle {
+    position: absolute;
+
+    right: 12px;
+
+    width: 34px;
+
+    height: 34px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: none;
+
+    background: transparent;
+
+    color:
+        var(--text-secondary);
+
+    cursor: pointer;
+
+    border-radius: 8px;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+
+.secret-toggle:hover {
+    background:
+        rgba(0, 0, 0, 0.05);
+
+    color:
+        var(--text-primary);
+}
+
+
+.secret-toggle svg {
+    width: 18px;
+
+    height: 18px;
+}
+
+
+/* ==========================================================
+                    CONNECT BUTTON
+========================================================== */
+
+.cloud-connect-btn {
+    width: 100%;
+
+    min-height: 52px;
+
+    border: none;
+
+    border-radius:
+        999px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    cursor: pointer;
+
+    background:
+        var(--color-primary);
+
+    color:
+        var(--text-primary);
+
+    font-size: 0.92rem;
+
+    font-weight: 600;
+
+    margin-top: 8px;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease;
+}
+
+
+.cloud-connect-btn:hover {
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 10px 25px
+        rgba(212, 175, 55, 0.25);
+}
+
+
+.cloud-connect-btn:active {
+    transform:
+        translateY(0);
+}
+
+
+.cloud-connect-btn:disabled {
+    cursor:
+        not-allowed;
+
+    opacity:
+        0.7;
+
+    transform:
+        none;
+}
+
+
+/* ==========================================================
+                    VALIDATION STATUS
+                    BELOW FORM
+========================================================== */
+
+.validation-status {
+    margin-top: 18px;
+
+    padding: 16px;
+
+    border-radius: 12px;
+
+    border:
+        1px solid
+        var(--border-color);
+
+    background:
+        var(--bg-secondary);
+}
+
+
+.validation-status-header {
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    margin-bottom: 7px;
+
+    font-size: 0.85rem;
+
+    font-weight: 600;
+
+    color:
+        var(--text-primary);
+}
+
+
+.validation-status-header svg {
+    width: 18px;
+
+    height: 18px;
+
+    color:
+        var(--color-primary);
+}
+
+
+.validation-status p {
+    margin: 0;
+
+    font-size: 0.8rem;
+
+    line-height: 1.6;
+
+    color:
+        var(--text-secondary);
+}
+
+
+/* ==========================================================
+                    SECURITY CARD
+========================================================== */
+
+.security-card {
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+.security-features {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+    margin-top: 28px;
+}
+
+
+.security-feature {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 14px;
+
+    padding: 15px;
+
+    border:
+        1px solid
+        var(--border-color);
+
+    border-radius:
+        12px;
+
+    background:
+        var(--bg-secondary);
+
+    transition:
+        transform 0.2s ease,
+        border 0.2s ease;
+}
+
+
+.security-feature:hover {
+    transform:
+        translateY(-2px);
+
+    border-color:
+        rgba(212, 175, 55, 0.45);
+}
+
+
+.security-feature > svg {
+    width: 19px;
+
+    height: 19px;
+
+    min-width: 19px;
+
+    margin-top: 2px;
+
+    color:
+        var(--text-secondary);
+}
+
+
+.security-feature h3 {
+    margin: 0 0 5px;
+
+    font-size: 0.83rem;
+
+    font-weight: 600;
+
+    color:
+        var(--text-primary);
+}
+
+
+.security-feature p {
+    margin: 0;
+
+    font-size: 0.75rem;
+
+    line-height: 1.55;
+
+    color:
+        var(--text-secondary);
+}
+
+
+/* ==========================================================
+                    LOADING ANIMATION
+========================================================== */
+
+.azure-connect-btn.loading svg:first-child {
+    animation:
+        azure-spin
+        1s linear infinite;
+}
+
+
+@keyframes azure-spin {
+
+    from {
+
+        transform:
+            rotate(0deg);
+
+    }
+
+
+    to {
+
+        transform:
+            rotate(360deg);
+
+    }
+
+}
+
+
+/* ==========================================================
+                    RESPONSIVE
+========================================================== */
+
+@media (
+    max-width: 850px
+) {
+
+    .connection-layout {
+
+        grid-template-columns:
+            1fr;
+
+        max-width:
+            600px;
+
+    }
+
+
+    .cloud-connection-page {
+
+        padding:
+            50px 0 80px;
+
+    }
+
+}
+
+
+@media (
+    max-width: 600px
+) {
+
+    .connection-page-header h1 {
+
+        font-size:
+            2rem;
+
+    }
+
+
+    .connection-card,
+    .security-card {
+
+        padding:
+            24px 20px;
+
+        border-radius:
+            18px;
+
+    }
+
+
+    .connection-layout {
+
+        gap:
+            20px;
+
+    }
+
+}

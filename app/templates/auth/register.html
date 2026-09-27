@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account | AI Cloud Migration{% endblock %}
+
+{% block content %}
+
+<section class="register-page">
+
+    <div class="register-container">
+
+        <!-- ==========================================
+                    LEFT PANEL
+        =========================================== -->
+
+        <div class="register-left">
+
+            <div class="register-logo">
+
+                <div class="logo-box">
+
+                    <i class="fas fa-cloud"></i>
+
+                </div>
+
+                <div>
+
+                    <h2>AI CLOUD</h2>
+
+                    <span>Migration Platform</span>
+
+                </div>
+
+            </div>
+
+            <div class="register-content">
+
+                <span class="register-tag">
+
+                    AI Powered Platform
+
+                </span>
+
+                <h1>
+
+                    Create Your Account
+
+                </h1>
+
+                <p>
+
+                    Join the next generation of intelligent cloud migration.
+                    Upload infrastructure, compare cloud providers,
+                    generate AI reports and manage deployments from
+                    one platform.
+
+                </p>
+
+                <div class="register-features">
+
+                    <div>
+
+                        <i class="fas fa-upload"></i>
+
+                        Upload Infrastructure
+
+                    </div>
+
+                    <div>
+
+                        <i class="fas fa-brain"></i>
+
+                        AI Analysis
+
+                    </div>
+
+                    <div>
+
+                        <i class="fas fa-cloud"></i>
+
+                        Multi Cloud Support
+
+                    </div>
+
+                    <div>
+
+                        <i class="fas fa-file-alt"></i>
+
+                        Smart Reports
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ==========================================
+                    RIGHT PANEL
+        =========================================== -->
+
+        <div class="register-right">
+
+            <div class="register-card pixel-card">
+
+                <h2>
+
+                    Create Account
+
+                </h2>
+
+                <p>
+
+                    Start your AI cloud migration journey
+
+                </p>
+
+                <form method="POST">
+
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% for category, message in messages %}
+                            <p class="form-message {{ category }}" role="alert">{{ message }}</p>
+                        {% endfor %}
+                    {% endwith %}
+
+                    <div class="input-group">
+
+                        <label>Full Name</label>
+
+                        <input
+                            type="text"
+                            name="fullname"
+                            placeholder="John Doe"
+                            required>
+
+                    </div>
+
+                    <div class="input-group">
+
+                        <label>Email Address</label>
+
+                        <input
+                            type="email"
+                            name="email"
+                            placeholder="john@example.com"
+                            required>
+
+                    </div>
+
+                    <div class="input-group">
+
+                        <label>Password</label>
+
+                        <input
+                            type="password"
+                            name="password"
+                            placeholder="Create Password"
+                            required>
+
+                    </div>
+
+                    <div class="input-group">
+
+                        <label>Confirm Password</label>
+
+                        <input
+                            type="password"
+                            name="confirm_password"
+                            placeholder="Confirm Password"
+                            required>
+
+                    </div>
+
+                    <label class="checkbox">
+
+                        <input type="checkbox" required>
+
+                        I agree to the Terms &
+                        Privacy Policy
+
+                    </label>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary w-100">
+
+                        CREATE ACCOUNT
+
+                    </button>
+
+                </form>
+
+                <div class="divider">
+
+                    OR
+
+                </div>
+
+                <button class="btn btn-outline w-100">
+
+                    <i class="fab fa-google"></i>
+
+                    Continue with Google
+
+                </button>
+
+                <p class="login-link">
+
+                    Already have an account?
+
+                    <a href="/login">
+
+                        Login
+
+                    </a>
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

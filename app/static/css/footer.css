@@ -1,0 +1,698 @@
+/* ===================================================================
+   AI CLOUD MIGRATION
+   FOOTER
+=================================================================== */
+
+
+/* ===============================================================
+                        FOOTER BASE
+=============================================================== */
+
+.footer {
+
+    position: relative;
+
+    width: 100%;
+
+    padding: 5rem 0 2rem;
+
+    background: var(--bg-secondary);
+
+    border-top: 1px solid var(--border-light);
+
+    color: var(--text-primary);
+
+    overflow: hidden;
+
+}
+
+
+/* Subtle technical grid */
+
+.footer::before {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    background-image:
+        linear-gradient(
+            rgba(212, 175, 55, 0.04) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(212, 175, 55, 0.04) 1px,
+            transparent 1px
+        );
+
+    background-size: 60px 60px;
+
+    pointer-events: none;
+
+    opacity: 0.5;
+
+}
+
+
+/* Keep content above background */
+
+.footer .container {
+
+    position: relative;
+
+    z-index: 1;
+
+}
+
+
+/* ===============================================================
+                        FOOTER GRID
+=============================================================== */
+
+.footer-grid {
+
+    display: grid;
+
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+
+    gap: clamp(2rem, 5vw, 5rem);
+
+    align-items: start;
+
+}
+
+
+/* ===============================================================
+                        FOOTER COLUMNS
+=============================================================== */
+
+.footer-column {
+
+    min-width: 0;
+
+}
+
+
+.footer-column h4 {
+
+    margin-bottom: 1.25rem;
+
+    font-family: var(--font-primary);
+
+    font-size: 1rem;
+
+    font-weight: var(--fw-bold);
+
+    color: var(--text-primary);
+
+}
+
+
+.footer-column > p {
+
+    max-width: 430px;
+
+    margin-top: 1.25rem;
+
+    font-size: var(--fs-sm);
+
+    line-height: 1.8;
+
+    color: var(--text-secondary);
+
+}
+
+
+/* ===============================================================
+                        FOOTER LOGO
+=============================================================== */
+
+.footer-logo {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 1rem;
+
+}
+
+
+.footer-logo .logo-box {
+
+    width: 52px;
+
+    height: 52px;
+
+    display: grid;
+
+    place-items: center;
+
+    flex-shrink: 0;
+
+    border: 1px solid var(--border-gold);
+
+    border-radius: var(--radius-md);
+
+    background: var(--gradient-primary);
+
+    color: var(--color-black);
+
+    box-shadow: var(--glow-sm);
+
+}
+
+
+.footer-logo .logo-box i {
+
+    font-size: 1.35rem;
+
+}
+
+
+.footer-logo h3 {
+
+    margin: 0;
+
+    font-family: var(--font-logo);
+
+    font-size: 1.35rem;
+
+    line-height: 1;
+
+    color: var(--text-primary);
+
+}
+
+
+.footer-logo span {
+
+    display: block;
+
+    margin-top: 0.35rem;
+
+    font-size: 0.75rem;
+
+    color: var(--text-muted);
+
+}
+
+
+/* ===============================================================
+                        FOOTER LINKS
+=============================================================== */
+
+.footer-column ul {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 0.8rem;
+
+    margin: 0;
+
+    padding: 0;
+
+    list-style: none;
+
+}
+
+
+.footer-column li {
+
+    margin: 0;
+
+}
+
+
+.footer-column a {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 0.5rem;
+
+    color: var(--text-secondary);
+
+    font-size: var(--fs-sm);
+
+    text-decoration: none;
+
+    transition:
+        color var(--transition-fast),
+        transform var(--transition-fast);
+
+}
+
+
+.footer-column a:hover {
+
+    color: var(--color-primary);
+
+    transform: translateX(4px);
+
+}
+
+/* ===============================================================
+                    FOOTER SYSTEM TERMINAL
+=============================================================== */
+
+.footer-terminal {
+
+    width: 100%;
+
+    margin-top: var(--space-16);
+
+    overflow: hidden;
+
+    background: var(--terminal-bg);
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    border-radius: var(--radius-lg);
+
+    box-shadow:
+        0 18px 50px rgba(0, 0, 0, 0.14),
+        var(--glow-sm);
+
+}
+
+
+/* ===============================================================
+                    TERMINAL HEADER
+=============================================================== */
+
+.footer-terminal .terminal-header {
+
+    display: flex;
+
+    align-items: center;
+
+    padding: 0.9rem 1.2rem;
+
+    background: var(--terminal-header);
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+}
+
+
+/* Terminal dots */
+
+.footer-terminal .dot {
+
+    width: 11px;
+
+    height: 11px;
+
+    margin-right: 0.45rem;
+
+    border-radius: 50%;
+
+    flex-shrink: 0;
+
+}
+
+
+.footer-terminal .dot.red {
+
+    background: #ff5f57;
+
+}
+
+
+.footer-terminal .dot.yellow {
+
+    background: #ffbd2e;
+
+}
+
+
+.footer-terminal .dot.green {
+
+    background: #28c840;
+
+}
+
+
+/* Terminal filename */
+
+.footer-terminal .terminal-title {
+
+    margin-left: auto;
+
+    font-family: var(--font-mono);
+
+    font-size: 0.8rem;
+
+    color: #c8c8c8;
+
+}
+
+
+/* ===============================================================
+                    TERMINAL BODY
+=============================================================== */
+
+.footer-terminal .terminal-body {
+
+    min-height: auto;
+
+    padding: 1.5rem;
+
+    background: var(--terminal-bg);
+
+    font-family: var(--font-mono);
+
+    font-size: 0.85rem;
+
+    line-height: 1.9;
+
+}
+
+
+/*
+   Explicit color is intentional here.
+
+   Hero and footer both contain terminal-body classes,
+   so footer terminal text is scoped separately.
+*/
+
+.footer .footer-terminal .terminal-body p {
+
+    margin: 0;
+
+    color: var(--terminal-text) !important;
+
+}
+
+
+/* Give READY / CONNECTED terminal a subtle glow */
+
+.footer-terminal .terminal-body {
+
+    text-shadow: 0 0 12px rgba(248, 248, 242, 0.08);
+
+}
+
+/* ===============================================================
+                        FOOTER BOTTOM
+=============================================================== */
+
+.footer-bottom {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: var(--space-6);
+
+    margin-top: var(--space-10);
+
+    padding-top: var(--space-6);
+
+    border-top: 1px solid var(--border-light);
+
+}
+
+
+.footer-bottom p {
+
+    margin: 0;
+
+    color: var(--text-muted);
+
+    font-size: var(--fs-sm);
+
+}
+
+
+.footer-links {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: var(--space-6);
+
+}
+
+
+.footer-links a {
+
+    color: var(--text-secondary);
+
+    font-size: var(--fs-sm);
+
+    text-decoration: none;
+
+    transition: color var(--transition-fast);
+
+}
+
+
+.footer-links a:hover {
+
+    color: var(--color-primary);
+
+}
+
+
+/* ===============================================================
+                        TABLET
+=============================================================== */
+
+@media (max-width: 992px) {
+
+    .footer {
+
+        padding: 4rem 0 2rem;
+
+    }
+
+
+    .footer-grid {
+
+        grid-template-columns: 1.5fr 1fr 1fr;
+
+        gap: var(--space-10);
+
+    }
+
+
+    /* About section takes full first row */
+
+    .footer-column:first-child {
+
+        grid-column: 1 / -1;
+
+    }
+
+
+    .footer-column > p {
+
+        max-width: 600px;
+
+    }
+
+
+    .footer-terminal {
+
+        margin-top: var(--space-12);
+
+    }
+
+}
+
+
+/* ===============================================================
+                        MOBILE
+=============================================================== */
+
+@media (max-width: 768px) {
+
+    .footer {
+
+        padding: 3.5rem 0 1.5rem;
+
+    }
+
+
+    .footer-grid {
+
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        gap: 2.5rem 1.5rem;
+
+    }
+
+
+    /* Logo/About takes complete row */
+
+    .footer-column:first-child {
+
+        grid-column: 1 / -1;
+
+    }
+
+
+    .footer-column > p {
+
+        max-width: 100%;
+
+        line-height: 1.7;
+
+    }
+
+
+    .footer-column h4 {
+
+        margin-bottom: 1rem;
+
+    }
+
+
+    .footer-terminal {
+
+        margin-top: 3rem;
+
+    }
+
+
+    .footer-terminal .terminal-body {
+
+        padding: 1.25rem;
+
+        font-size: 0.75rem;
+
+        overflow-x: auto;
+
+    }
+
+
+    .footer-bottom {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 1rem;
+
+        margin-top: 2.5rem;
+
+    }
+
+
+    .footer-links {
+
+        flex-wrap: wrap;
+
+        gap: 1rem 1.5rem;
+
+    }
+
+}
+
+
+/* ===============================================================
+                        SMALL MOBILE
+=============================================================== */
+
+@media (max-width: 480px) {
+
+    .footer {
+
+        padding-top: 3rem;
+
+    }
+
+
+    .footer-grid {
+
+        grid-template-columns: 1fr 1fr;
+
+        gap: 2.5rem 1rem;
+
+    }
+
+
+    .footer-logo .logo-box {
+
+        width: 46px;
+
+        height: 46px;
+
+    }
+
+
+    .footer-logo h3 {
+
+        font-size: 1.15rem;
+
+    }
+
+
+    .footer-column a {
+
+        font-size: 0.8rem;
+
+    }
+
+
+    .footer-terminal {
+
+        border-radius: var(--radius-md);
+
+    }
+
+
+    .footer-terminal .terminal-header {
+
+        padding: 0.8rem 1rem;
+
+    }
+
+
+    .footer-terminal .terminal-title {
+
+        font-size: 0.7rem;
+
+    }
+
+
+    .footer-terminal .dot {
+
+        width: 9px;
+
+        height: 9px;
+
+    }
+
+
+    .footer-terminal .terminal-body {
+
+        padding: 1rem;
+
+        font-size: 0.68rem;
+
+        line-height: 1.8;
+
+    }
+
+
+    .footer-bottom p {
+
+        font-size: 0.75rem;
+
+        line-height: 1.7;
+
+    }
+
+}

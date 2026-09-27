@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}404 | Page Not Found{% endblock %}
+
+{% block content %}
+
+<section class="error-page">
+
+    <div class="container">
+
+        <div class="error-card pixel-card">
+
+            <!-- ==========================================
+                        ERROR CODE
+            =========================================== -->
+
+            <div class="error-code">
+
+                404
+
+            </div>
+
+            <!-- ==========================================
+                        ROBOT ICON
+            =========================================== -->
+
+            <div class="error-icon">
+
+                <i class="fas fa-robot"></i>
+
+            </div>
+
+            <!-- ==========================================
+                        MESSAGE
+            =========================================== -->
+
+            <h1>
+
+                Page Not Found
+
+            </h1>
+
+            <p>
+
+                Oops! The page you're looking for doesn't exist,
+                has been moved, or is no longer available.
+
+            </p>
+
+            <!-- ==========================================
+                        TERMINAL
+            =========================================== -->
+
+            <div class="error-terminal">
+
+                <div class="terminal-header">
+
+                    <span class="terminal-dot red"></span>
+
+                    <span class="terminal-dot yellow"></span>
+
+                    <span class="terminal-dot green"></span>
+
+                    <span>
+
+                        ai-error.log
+
+                    </span>
+
+                </div>
+
+                <div class="terminal-body">
+
+<pre id="errorTerminal">
+
+$ Searching requested page...
+
+✖ Route not found
+
+$ Scanning application...
+
+✔ Dashboard Available
+
+✔ Reports Available
+
+✔ Upload Center Available
+
+$ Redirect recommended...
+
+█
+
+</pre>
+
+                </div>
+
+            </div>
+
+            <!-- ==========================================
+                        BUTTONS
+            =========================================== -->
+
+            <div class="error-actions">
+
+                <a href="/" class="btn btn-primary">
+
+                    <i class="fas fa-house"></i>
+
+                    Home
+
+                </a>
+
+                <a href="/dashboard" class="btn btn-outline">
+
+                    <i class="fas fa-chart-pie"></i>
+
+                    Dashboard
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

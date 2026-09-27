@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Login | AI Cloud Migration{% endblock %}
+
+{% block content %}
+
+<section class="login-page">
+
+    <div class="login-container">
+
+        <!-- ==========================================
+                    LEFT PANEL
+        =========================================== -->
+
+        <div class="login-left">
+
+            <div class="login-logo">
+
+                <div class="logo-box">
+
+                    <i class="fas fa-cloud"></i>
+
+                </div>
+
+                <div>
+
+                    <h2>AI CLOUD</h2>
+
+                    <span>Migration Platform</span>
+
+                </div>
+
+            </div>
+
+            <div class="login-content">
+
+                <span class="login-tag">
+
+                    AI Powered Migration
+
+                </span>
+
+                <h1>
+
+                    Welcome Back
+
+                </h1>
+
+                <p>
+
+                    Sign in to access your AI dashboard, upload cloud
+                    infrastructure, analyse migration reports and manage
+                    deployments securely.
+
+                </p>
+
+                <div class="login-features">
+
+                    <div>
+
+                        <i class="fas fa-brain"></i>
+
+                        AI Infrastructure Analysis
+
+                    </div>
+
+                    <div>
+
+                        <i class="fas fa-cloud"></i>
+
+                        Multi Cloud Support
+
+                    </div>
+
+                    <div>
+
+                        <i class="fas fa-chart-line"></i>
+
+                        Cost Optimization
+
+                    </div>
+
+                    <div>
+
+                        <i class="fas fa-file-alt"></i>
+
+                        Smart Reports
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ==========================================
+                    RIGHT PANEL
+        =========================================== -->
+
+        <div class="login-right">
+
+            <div class="login-card pixel-card">
+
+                <h2>
+
+                    Login
+
+                </h2>
+
+                <p>
+
+                    Continue to your dashboard
+
+                </p>
+
+                <form method="POST">
+
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% for category, message in messages %}
+                            <p class="form-message {{ category }}" role="alert">{{ message }}</p>
+                        {% endfor %}
+                    {% endwith %}
+
+                    <div class="input-group">
+
+                        <label>Email Address</label>
+
+                        <input
+                            type="email"
+                            name="email"
+                            placeholder="example@email.com"
+                            required>
+
+                    </div>
+
+                    <div class="input-group">
+
+                        <label>Password</label>
+
+                        <input
+                            type="password"
+                            name="password"
+                            placeholder="••••••••"
+                            required>
+
+                    </div>
+
+                    <div class="remember">
+
+                        <label>
+
+                            <input type="checkbox" name="remember">
+
+                            Remember Me
+
+                        </label>
+
+                        <a href="#">
+
+                            Forgot Password?
+
+                        </a>
+
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary w-100">
+
+                        LOGIN
+
+                    </button>
+
+                </form>
+
+                <div class="divider">
+
+                    OR
+
+                </div>
+
+                <button class="btn btn-outline w-100">
+
+                    <i class="fab fa-google"></i>
+
+                    Continue with Google
+
+                </button>
+
+                <p class="register-link">
+
+                    Don't have an account?
+
+                    <a href="/register">
+
+                        Create Account
+
+                    </a>
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

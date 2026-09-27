@@ -1,0 +1,363 @@
+/* ===================================================================
+   AI CLOUD MIGRATION
+   RESET STYLESHEET
+=================================================================== */
+
+
+/* ===============================================================
+                        UNIVERSAL RESET
+=============================================================== */
+
+*,
+*::before,
+*::after{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+
+/* ===============================================================
+                        HTML
+=============================================================== */
+
+html{
+
+    scroll-behavior:smooth;
+
+    text-size-adjust:100%;
+
+    -webkit-text-size-adjust:100%;
+
+    font-size:16px;
+
+}
+
+
+/* ===============================================================
+                        BODY
+=============================================================== */
+
+body{
+
+    min-height:100vh;
+
+    font-family:var(--font-primary);
+
+    font-size:var(--fs-base);
+
+    line-height: 1.6;
+
+    color:var(--text-primary);
+
+    background:var(--bg-primary);
+
+    overflow-x:hidden;
+
+    text-rendering:optimizeLegibility;
+
+    -webkit-font-smoothing:antialiased;
+
+    -moz-osx-font-smoothing:grayscale;
+
+    transition:
+        background var(--transition-normal),
+        color var(--transition-normal);
+
+}
+
+
+/* ===============================================================
+                    TYPOGRAPHY RESET
+=============================================================== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6{
+
+    font-weight:inherit;
+
+    line-height:inherit;
+
+}
+
+
+p{
+
+    color:inherit;
+
+}
+
+
+/* ===============================================================
+                    TEXT SELECTION
+=============================================================== */
+
+::selection{
+
+    background:var(--color-primary);
+
+    color:var(--color-white);
+
+}
+
+/* ===============================================================
+                        MEDIA ELEMENTS
+=============================================================== */
+
+img,
+picture,
+svg,
+video,
+canvas{
+
+    display:block;
+
+    max-width:100%;
+
+    height:auto;
+
+}
+
+
+/* ===============================================================
+                        FORM ELEMENTS
+=============================================================== */
+
+input,
+button,
+textarea,
+select{
+
+    font:inherit;
+
+    color:inherit;
+
+    border:none;
+
+    outline:none;
+
+    background:none;
+
+}
+
+
+button{
+
+    cursor:pointer;
+
+    user-select:none;
+
+    transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background var(--transition-fast),
+        color var(--transition-fast);
+
+}
+
+
+button:disabled{
+
+    cursor:not-allowed;
+
+    opacity:var(--opacity-disabled);
+
+}
+
+
+/* ===============================================================
+                        LINKS
+=============================================================== */
+
+a{
+
+    color:inherit;
+
+    text-decoration:none;
+
+    transition:
+        color var(--transition-fast);
+
+}
+
+
+/* ===============================================================
+                        LISTS
+=============================================================== */
+
+ul,
+ol{
+
+    list-style:none;
+
+}
+
+
+/* ===============================================================
+                        TABLES
+=============================================================== */
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+
+/* ===============================================================
+                        TEXTAREA
+=============================================================== */
+
+textarea{
+
+    resize:vertical;
+
+}
+
+
+/* ===============================================================
+                        INPUT PLACEHOLDER
+=============================================================== */
+
+::placeholder{
+
+    color:var(--text-muted);
+
+}
+
+/* ===============================================================
+                        ACCESSIBILITY
+=============================================================== */
+
+/* Visible keyboard focus */
+
+:focus-visible{
+
+    outline:3px solid var(--color-primary);
+
+    outline-offset:3px;
+
+}
+
+
+/* Remove default focus when mouse is used */
+
+:focus:not(:focus-visible){
+
+    outline:none;
+
+}
+
+
+/* ===============================================================
+                    REDUCED MOTION SUPPORT
+=============================================================== */
+
+@media (prefers-reduced-motion: reduce){
+
+    *,
+    *::before,
+    *::after{
+
+        animation-duration:0.01ms !important;
+
+        animation-iteration-count:1 !important;
+
+        transition-duration:0.01ms !important;
+
+        scroll-behavior:auto !important;
+
+    }
+
+}
+
+
+/* ===============================================================
+                        CUSTOM SCROLLBAR
+=============================================================== */
+
+::-webkit-scrollbar{
+
+    width:12px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:var(--bg-secondary);
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:var(--color-primary);
+
+    border-radius:999px;
+
+    border:3px solid var(--bg-secondary);
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+    background:var(--color-primary-dark);
+
+}
+
+
+/* ===============================================================
+                    COMMON UTILITY CLASSES
+=============================================================== */
+
+.hidden{
+
+    display:none !important;
+
+}
+
+.invisible{
+
+    visibility:hidden !important;
+
+}
+
+.text-center{
+
+    text-align:center;
+
+}
+
+.pointer{
+
+    cursor:pointer;
+
+}
+
+.no-select{
+
+    user-select:none;
+
+}
+
+.w-100{
+
+    width:100%;
+
+}
+
+.h-100{
+
+    height:100%;
+
+}
+
+
+/* ===============================================================
+                        END OF RESET
+=============================================================== */

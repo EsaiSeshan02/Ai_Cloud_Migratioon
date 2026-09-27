@@ -1,0 +1,567 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+
+Configure Migration | AI Cloud Migration
+
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for(
+        'static',
+        filename='css/configure-migration.css'
+    ) }}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<!-- Migration session information -->
+<input
+    type="hidden"
+    id="source-cloud"
+    value="{{ source }}"
+>
+
+<input
+    type="hidden"
+    id="target-cloud"
+    value="{{ target }}"
+>
+
+<input
+    type="hidden"
+    id="source-session-id"
+    value="{{ source_session_id }}"
+>
+
+<input
+    type="hidden"
+    id="target-session-id"
+    value="{{ target_session_id }}"
+>
+
+
+<section class="migration-dashboard-page">
+
+    <div class="container">
+
+
+        <!-- ============================================
+                    PAGE HEADER
+        ============================================= -->
+
+        <div class="dashboard-header">
+
+            <span class="dashboard-badge">
+
+                Configure Resource
+
+            </span>
+
+
+            <h1>
+
+                Configure
+
+                <span>Migration</span>
+
+            </h1>
+
+
+            <p>
+
+                Review the selected resource and configure
+                its target cloud settings before migration.
+
+            </p>
+
+        </div>
+
+
+
+        <!-- ============================================
+                    RESOURCE INFORMATION
+        ============================================= -->
+
+        <div class="resource-configuration-card">
+
+
+            <h2
+                id="selected-resource-name"
+            >
+
+                Loading Resource...
+
+            </h2>
+
+
+
+            <div class="resource-details">
+
+
+                <!-- SOURCE -->
+
+                <div class="resource-detail">
+
+                    <span>
+
+                        Source Service
+
+                    </span>
+
+
+                    <strong
+                        id="selected-source-service"
+                    >
+
+                        -
+
+                    </strong>
+
+                </div>
+
+
+
+                <!-- TARGET -->
+
+                <div class="resource-detail">
+
+                    <span>
+
+                        Target Service
+
+                    </span>
+
+
+                    <strong
+                        id="selected-target-service"
+                    >
+
+                        -
+
+                    </strong>
+
+                </div>
+
+
+
+                <!-- COMPATIBILITY -->
+
+                <div class="resource-detail">
+
+                    <span>
+
+                        Compatibility
+
+                    </span>
+
+
+                    <strong
+                        id="selected-compatibility"
+                    >
+
+                        -
+
+                    </strong>
+
+                </div>
+
+
+
+                <!-- RECOMMENDED CONFIG -->
+
+                <div class="resource-detail">
+
+                    <span>
+
+                        Recommended Configuration
+
+                    </span>
+
+
+                    <strong
+                        id="selected-configuration"
+                    >
+
+                        -
+
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- ============================================
+                    CONFIGURATION FORM
+        ============================================= -->
+
+        <div class="migration-config-form-card">
+
+
+            <div class="configuration-form-header">
+
+                <span class="card-label">
+
+                    TARGET CONFIGURATION
+
+                </span>
+
+
+                <h2>
+
+                    Configure Target Resource
+
+                </h2>
+
+
+                <p>
+
+                    Adjust the recommended settings before
+                    starting the migration.
+
+                </p>
+
+            </div>
+
+
+
+            <form
+                id="migration-config-form"
+            >
+
+
+                <!-- TARGET NAME -->
+
+                <div class="form-group" data-s3-target>
+
+                    <label
+                        for="target-resource-name"
+                    >
+
+                        Target Resource Name
+
+                    </label>
+
+
+                    <input
+                        type="text"
+                        id="target-resource-name"
+                        name="target_resource_name"
+                        placeholder="Enter target resource name"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group" data-lambda-target>
+                    <label for="azure-resource-group">Azure Resource Group (Lambda only)</label>
+                    <input type="text" id="azure-resource-group" name="azure_resource_group" maxlength="90" autocomplete="off" placeholder="Existing Azure resource group">
+                </div>
+
+                <div class="form-group" data-lambda-target>
+                    <label for="azure-function-app-name">Existing Azure Function App (Lambda only)</label>
+                    <input type="text" id="azure-function-app-name" name="azure_function_app_name" maxlength="60" autocomplete="off" placeholder="Existing Python Function App">
+                    <small>The Lambda flow never creates a Function App. Deployment begins only after the selected existing target validates.</small>
+                </div>
+
+                <div class="form-group" data-lambda-target>
+                    <label for="azure-deployment-slot">Deployment Slot (optional, Lambda only)</label>
+                    <input type="text" id="azure-deployment-slot" name="azure_deployment_slot" maxlength="60" autocomplete="off" placeholder="Production slot when blank">
+                </div>
+
+                <div class="form-group" data-s3-target>
+                    <label for="provision-destination">
+                        <input type="checkbox" id="provision-destination" name="provision_destination" checked>
+                        Allow creation of a new Azure Storage Account if no existing destination is selected
+                    </label>
+                    <small>This may create billable Azure resources. Existing selected destinations are never overwritten.</small>
+                </div>
+
+
+
+                <!-- TARGET REGION -->
+
+                <div class="form-group" data-s3-target>
+
+                    <label
+                        for="target-region"
+                    >
+
+                        Target Region
+
+                    </label>
+
+
+                    <select
+                        id="target-region"
+                        name="target_region"
+                        required
+                    >
+
+                        <option value="">
+
+                            Select target region
+
+                        </option>
+
+
+                        <option value="eastus">
+
+                            East US
+
+                        </option>
+
+
+                        <option value="eastus2">
+
+                            East US 2
+
+                        </option>
+
+
+                        <option value="westus">
+
+                            West US
+
+                        </option>
+
+
+                        <option value="centralus">
+
+                            Central US
+
+                        </option>
+
+
+                        <option value="us-central1">
+
+                            US Central 1
+
+                        </option>
+
+
+                        <option value="us-east1">
+
+                            US East 1
+
+                        </option>
+
+
+                        <option value="asia-south1">
+
+                            Asia South 1
+
+                        </option>
+
+
+                    </select>
+
+                </div>
+
+
+
+                <!-- RESOURCE SIZE -->
+
+                <div class="form-group" data-s3-target>
+
+                    <label
+                        for="target-size"
+                    >
+
+                        Target Configuration
+
+                    </label>
+
+
+                    <select
+                        id="target-size"
+                        name="target_size"
+                        required
+                    >
+
+                        <option value="">
+
+                            Select configuration
+
+                        </option>
+
+
+                        <option
+                            value="Standard_B1s"
+                        >
+
+                            Standard_B1s
+
+                        </option>
+
+
+                        <option
+                            value="Standard_B2s"
+                        >
+
+                            Standard_B2s
+
+                        </option>
+
+
+                        <option
+                            value="Standard_B2ms"
+                        >
+
+                            Standard_B2ms
+
+                        </option>
+
+
+                        <option
+                            value="e2-micro"
+                        >
+
+                            e2-micro
+
+                        </option>
+
+
+                        <option
+                            value="e2-small"
+                        >
+
+                            e2-small
+
+                        </option>
+
+
+                        <option
+                            value="e2-medium"
+                        >
+
+                            e2-medium
+
+                        </option>
+
+
+                    </select>
+
+                </div>
+
+
+
+                <!-- MIGRATION STATUS -->
+
+                <div class="configuration-status">
+
+                    <div>
+
+                        <span>
+
+                            Migration Status
+
+                        </span>
+
+
+                        <strong
+                            id="configuration-status"
+                        >
+
+                            Not Configured
+
+                        </strong>
+
+                    </div>
+
+
+                    <i
+                        data-lucide="settings"
+                    ></i>
+
+                </div>
+
+                <div class="configuration-status" id="planning-only-notice" hidden>
+                    <div>
+                        <span>Execution Boundary</span>
+                        <strong>Planning / Manual Review Required</strong>
+                        <small>This resource can be assessed and planned, but this application does not provide an execution path for it.</small>
+                    </div>
+                    <i data-lucide="shield-alert"></i>
+                </div>
+
+
+
+                <!-- ACTIONS -->
+
+                <div class="configuration-actions">
+
+
+                    <button
+                        type="submit"
+                        class="save-configuration-btn"
+                    >
+
+                        <i
+                            data-lucide="save"
+                        ></i>
+
+                        Save Configuration
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="start-migration-btn"
+                        id="start-migration-btn"
+                        disabled
+                    >
+
+                        <i
+                            data-lucide="rocket"
+                        ></i>
+
+                        Start Migration
+
+                    </button>
+
+
+                </div>
+
+
+            </form>
+
+
+        </div>
+
+
+    </div>
+
+
+</section>
+
+
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+<script
+    src="{{ url_for(
+        'static',
+        filename='js/configure-migration.js'
+    ) }}"
+></script>
+
+{% endblock %}

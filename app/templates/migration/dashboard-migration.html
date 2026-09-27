@@ -1,0 +1,617 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Migration Dashboard | AI Cloud Migration
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for(
+        'static',
+        filename='css/migration-dashboard.css'
+    ) }}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<section class="migration-dashboard-page">
+
+    <div class="container">
+
+
+        <!-- ==================================================
+                         MIGRATION PATH
+        ================================================== -->
+
+        <div class="dashboard-migration-path">
+
+            <!-- SOURCE CLOUD -->
+
+            <div class="dashboard-cloud">
+
+                {% if source == "aws" %}
+
+                    <img
+                        src="{{ url_for(
+                            'static',
+                            filename='images/clouds/aws.svg'
+                        ) }}"
+                        alt="AWS"
+                    >
+
+                    <span>AWS</span>
+
+                {% elif source == "azure" %}
+
+                    <img
+                        src="{{ url_for(
+                            'static',
+                            filename='images/clouds/azure.svg'
+                        ) }}"
+                        alt="Azure"
+                    >
+
+                    <span>Azure</span>
+
+                {% elif source == "gcp" %}
+
+                    <img
+                        src="{{ url_for(
+                            'static',
+                            filename='images/clouds/gcp.svg'
+                        ) }}"
+                        alt="Google Cloud"
+                    >
+
+                    <span>Google Cloud</span>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="dashboard-path-arrow">
+
+                <i data-lucide="arrow-right"></i>
+
+            </div>
+
+
+            <!-- TARGET CLOUD -->
+
+            <div class="dashboard-cloud">
+
+                {% if target == "aws" %}
+
+                    <img
+                        src="{{ url_for(
+                            'static',
+                            filename='images/clouds/aws.svg'
+                        ) }}"
+                        alt="AWS"
+                    >
+
+                    <span>AWS</span>
+
+                {% elif target == "azure" %}
+
+                    <img
+                        src="{{ url_for(
+                            'static',
+                            filename='images/clouds/azure.svg'
+                        ) }}"
+                        alt="Azure"
+                    >
+
+                    <span>Azure</span>
+
+                {% elif target == "gcp" %}
+
+                    <img
+                        src="{{ url_for(
+                            'static',
+                            filename='images/clouds/gcp.svg'
+                        ) }}"
+                        alt="Google Cloud"
+                    >
+
+                    <span>Google Cloud</span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ==================================================
+                         HEADER
+        ================================================== -->
+
+        <div class="dashboard-header">
+
+            <span class="dashboard-badge">
+
+                <i data-lucide="layout-dashboard"></i>
+
+                Migration Workspace
+
+            </span>
+
+
+            <h1>
+
+                Migration
+
+                <span>Dashboard</span>
+
+            </h1>
+
+
+            <p>
+
+                Review your connected cloud environment,
+                discover supported resources and prepare
+                your infrastructure for migration.
+
+            </p>
+
+        </div>
+
+
+
+        <!-- ==================================================
+                         STATUS CARDS
+        ================================================== -->
+
+        <div class="dashboard-status-grid">
+
+
+            <!-- SOURCE STATUS -->
+
+            <div class="dashboard-status-card">
+
+                <div class="status-icon source-status">
+
+                    <i data-lucide="cloud"></i>
+
+                </div>
+
+
+                <div class="status-content">
+
+                    <span>Source Cloud</span>
+
+
+                    <strong>
+
+                        {{ source|upper }}
+
+                    </strong>
+
+
+                    <small class="connected">
+
+                        <i data-lucide="circle-check"></i>
+
+                        Connected
+
+                    </small>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- TARGET STATUS -->
+
+            <div class="dashboard-status-card">
+
+                <div class="status-icon target-status">
+
+                    <i data-lucide="target"></i>
+
+                </div>
+
+
+                <div class="status-content">
+
+                    <span>Target Cloud</span>
+
+
+                    <strong>
+
+                        {{ target|upper }}
+
+                    </strong>
+
+
+                    <small class="connected">
+
+                        <i data-lucide="circle-check"></i>
+
+                        Connected
+
+                    </small>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- SESSION STATUS -->
+
+            <div class="dashboard-status-card">
+
+                <div class="status-icon session-status">
+
+                    <i data-lucide="activity"></i>
+
+                </div>
+
+
+                <div class="status-content">
+
+                    <span>Migration Session</span>
+
+
+                    <strong id="session-status">
+
+                        Active
+
+                    </strong>
+
+
+                    <small>
+
+                        Source and target verified
+
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ==================================================
+                         MAIN GRID
+        ================================================== -->
+
+        <div class="dashboard-main-grid">
+
+
+            <!-- ==================================================
+                         RESOURCE SCAN
+            ================================================== -->
+
+            <div class="resource-scan-card">
+
+
+                <div class="dashboard-card-header">
+
+                    <div>
+
+                        <span class="card-label">
+
+                            RESOURCE DISCOVERY
+
+                        </span>
+
+
+                        <h2>
+
+                            Scan Source Infrastructure
+
+                        </h2>
+
+
+                        <p>
+
+                            Discover supported resources
+                            from your connected
+                            {{ source|upper }} environment.
+
+                        </p>
+
+                    </div>
+
+
+                    <div class="scan-icon">
+
+                        <i data-lucide="scan-search"></i>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- SCAN PROGRESS -->
+
+                <div
+                    class="scan-progress-container"
+                    id="scan-progress-container"
+                >
+
+                    <div class="scan-progress-info">
+
+                        <span id="scan-status">
+
+                            Ready to scan
+
+                        </span>
+
+
+                        <span id="scan-percentage">
+
+                            0%
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="scan-progress-bar">
+
+                        <div
+                            class="scan-progress-fill"
+                            id="scan-progress-fill"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- START SCAN BUTTON -->
+
+                <button
+                    type="button"
+                    class="start-scan-btn"
+                    id="start-scan-btn"
+
+                    data-source="{{ source }}"
+
+                    data-target="{{ target }}"
+
+                    data-source-session="{{ source_session_id }}"
+
+                    data-target-session="{{ target_session_id }}"
+                >
+
+                    <i data-lucide="scan"></i>
+
+                    Start Resource Scan
+
+                    <i data-lucide="arrow-right"></i>
+
+                </button>
+
+            </div>
+
+
+
+            <!-- ==================================================
+                         MIGRATION SUMMARY
+            ================================================== -->
+
+            <aside class="migration-summary-card">
+
+
+                <div class="summary-header">
+
+                    <i data-lucide="chart-no-axes-column"></i>
+
+
+                    <h3>
+
+                        Migration Summary
+
+                    </h3>
+
+                </div>
+
+
+                <div class="summary-item">
+
+                    <span>
+
+                        Resources Found
+
+                    </span>
+
+
+                    <strong id="resource-count">
+
+                        0
+
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-item">
+
+                    <span>
+
+                        Execution Supported
+
+                    </span>
+
+
+                    <strong id="ready-count">
+
+                        0
+
+                    </strong>
+
+                </div>
+
+
+                <div class="summary-item">
+
+                    <span>
+
+                        Planning / Review
+
+                    </span>
+
+
+                    <strong id="review-count">
+
+                        0
+
+                    </strong>
+
+                </div>
+
+                <div class="summary-item">
+
+                    <span>
+
+                        Persisted Plan
+
+                    </span>
+
+                    <strong id="persisted-plan-status">
+
+                        Not saved
+
+                    </strong>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="start-scan-btn"
+                    id="save-plan-btn"
+                    disabled
+                >
+
+                    Save Migration Plan
+
+                </button>
+
+                <small id="persisted-plan-id"></small>
+
+            </aside>
+
+        </div>
+
+
+
+        <!-- ==================================================
+                         DISCOVERED RESOURCES
+        ================================================== -->
+
+        <section class="discovered-resources-section">
+
+
+            <div class="resources-section-header">
+
+                <div>
+
+                    <span class="card-label">
+
+                        INFRASTRUCTURE
+
+                    </span>
+
+
+                    <h2>
+
+                        Discovered Resources
+
+                    </h2>
+
+                </div>
+
+
+                <span
+                    class="resource-scan-state"
+                    id="resource-scan-state"
+                >
+
+                    Waiting for scan
+
+                </span>
+
+            </div>
+
+
+
+            <!-- EMPTY STATE -->
+
+            <div
+                class="resources-empty-state"
+                id="resources-empty-state"
+            >
+
+                <div class="empty-icon">
+
+                    <i data-lucide="boxes"></i>
+
+                </div>
+
+
+                <h3>
+
+                    No Resources Scanned Yet
+
+                </h3>
+
+
+                <p>
+
+                    Start a resource scan to discover
+                    infrastructure available for migration.
+
+                </p>
+
+            </div>
+
+
+
+            <!-- RESOURCE RESULTS -->
+
+            <div
+                class="resources-grid hidden"
+                id="resources-grid"
+            >
+
+            </div>
+
+        </section>
+
+    </div>
+
+</section>
+
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+<script
+    src="{{ url_for(
+        'static',
+        filename='js/migration-dashboard.js'
+    ) }}"
+></script>
+
+{% endblock %}

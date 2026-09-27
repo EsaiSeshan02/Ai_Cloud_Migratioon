@@ -1,0 +1,403 @@
+/* ===================================================================
+   AI CLOUD MIGRATION
+   ANIMATION SYSTEM
+=================================================================== */
+
+
+/* ===============================================================
+                    GLOBAL ANIMATION VARIABLES
+=============================================================== */
+
+:root{
+
+    --animate-fast:.25s;
+    --animate-normal:.45s;
+    --animate-slow:.8s;
+
+    --ease-default:ease-in-out;
+
+    --ease-smooth:cubic-bezier(.4,0,.2,1);
+
+    --ease-bounce:cubic-bezier(.68,-0.6,.32,1.6);
+
+}
+
+
+/* ===============================================================
+                    COMMON ANIMATION CLASSES
+=============================================================== */
+
+.animate{
+
+    animation-duration:var(--animate-normal);
+
+    animation-fill-mode:both;
+
+}
+
+.animate-fast{
+
+    animation-duration:var(--animate-fast);
+
+}
+
+.animate-slow{
+
+    animation-duration:var(--animate-slow);
+
+}
+
+.infinite{
+
+    animation-iteration-count:infinite;
+
+}
+
+.delay-1{
+
+    animation-delay:.1s;
+
+}
+
+.delay-2{
+
+    animation-delay:.2s;
+
+}
+
+.delay-3{
+
+    animation-delay:.3s;
+
+}
+
+.delay-4{
+
+    animation-delay:.4s;
+
+}
+
+/* ===============================================================
+                        CORE KEYFRAMES
+=============================================================== */
+
+/* ---------- Fade Up ---------- */
+
+@keyframes fadeUp {
+
+    from{
+        opacity:0;
+        transform:translateY(40px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+
+}
+
+
+/* ---------- Fade Down ---------- */
+
+@keyframes fadeDown{
+
+    from{
+        opacity:0;
+        transform:translateY(-40px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+
+}
+
+
+/* ---------- Fade Left ---------- */
+
+@keyframes fadeLeft{
+
+    from{
+        opacity:0;
+        transform:translateX(-50px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+
+}
+
+
+/* ---------- Fade Right ---------- */
+
+@keyframes fadeRight{
+
+    from{
+        opacity:0;
+        transform:translateX(50px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+
+}
+
+
+/* ---------- Zoom ---------- */
+
+@keyframes zoomIn{
+
+    from{
+        opacity:0;
+        transform:scale(.85);
+    }
+
+    to{
+        opacity:1;
+        transform:scale(1);
+    }
+
+}
+
+
+/* ---------- Floating ---------- */
+
+@keyframes floating{
+
+    0%,100%{
+
+        transform:translateY(0);
+
+    }
+
+    50%{
+
+        transform:translateY(-12px);
+
+    }
+
+}
+
+
+/* ---------- Pulse ---------- */
+
+@keyframes pulse{
+
+    0%,100%{
+
+        transform:scale(1);
+
+    }
+
+    50%{
+
+        transform:scale(1.04);
+
+    }
+
+}
+
+/* ===============================================================
+                    INTERACTIVE KEYFRAMES
+=============================================================== */
+
+/* ---------- Button Pop ---------- */
+
+@keyframes buttonPop {
+
+    0%{
+        transform:scale(1);
+    }
+
+    50%{
+        transform:scale(1.08);
+    }
+
+    100%{
+        transform:scale(1);
+    }
+
+}
+
+
+/* ---------- Card Lift ---------- */
+
+@keyframes cardLift {
+
+    from{
+        transform:translateY(0);
+    }
+
+    to{
+        transform:translateY(-10px);
+    }
+
+}
+
+
+/* ---------- Gold Glow ---------- */
+
+@keyframes goldGlow {
+
+    0%,100%{
+
+        box-shadow:
+            0 0 0 rgba(212,175,55,.15);
+
+    }
+
+    50%{
+
+        box-shadow:
+            0 0 25px rgba(212,175,55,.45);
+
+    }
+
+}
+
+
+/* ---------- Cursor Blink ---------- */
+
+@keyframes blink {
+
+    0%,50%{
+
+        opacity:1;
+
+    }
+
+    51%,100%{
+
+        opacity:0;
+
+    }
+
+}
+
+
+/* ---------- Notification Slide ---------- */
+
+@keyframes slideInRight{
+
+    from{
+
+        opacity:0;
+
+        transform:translateX(100%);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateX(0);
+
+    }
+
+}
+
+
+/* ---------- Modal Pop ---------- */
+
+@keyframes modalPop{
+
+    from{
+
+        opacity:0;
+
+        transform:scale(.8);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:scale(1);
+
+    }
+
+}
+
+/* ===============================================================
+                    ANIMATION UTILITIES
+=============================================================== */
+
+.fade-up{
+
+    animation:fadeUp var(--animate-normal) var(--ease-smooth);
+
+}
+
+.fade-down{
+
+    animation:fadeDown var(--animate-normal) var(--ease-smooth);
+
+}
+
+.fade-left{
+
+    animation:fadeLeft var(--animate-normal) var(--ease-smooth);
+
+}
+
+.fade-right{
+
+    animation:fadeRight var(--animate-normal) var(--ease-smooth);
+
+}
+
+.zoom-in{
+
+    animation:zoomIn var(--animate-normal) var(--ease-smooth);
+
+}
+
+.float{
+
+    animation:floating 4s ease-in-out infinite;
+
+}
+
+.pulse{
+
+    animation:pulse 2s ease-in-out infinite;
+
+}
+
+.glow{
+
+    animation:goldGlow 2.5s ease-in-out infinite;
+
+}
+
+.button-pop{
+
+    animation:buttonPop .45s var(--ease-bounce);
+
+}
+
+.slide-right{
+
+    animation:slideInRight .5s ease;
+
+}
+
+.modal-pop{
+
+    animation:modalPop .35s var(--ease-bounce);
+
+}
+
+.cursor-blink{
+
+    animation:blink .9s infinite;
+
+}

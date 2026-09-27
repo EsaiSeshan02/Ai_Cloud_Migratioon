@@ -1,0 +1,19 @@
+{% block extra_js %}
+
+<script>
+
+    const SCAN_SOURCE = "{{ source }}";
+
+    const SCAN_TARGET = "{{ target }}";
+
+</script>
+
+
+<script
+    src="{{ url_for(
+        'static',
+        filename='js/scan.js'
+    ) }}"
+></script>
+
+{% endblock %}

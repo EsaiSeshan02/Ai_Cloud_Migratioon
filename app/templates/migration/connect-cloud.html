@@ -1,0 +1,1223 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+
+Connect Cloud Environments | AI Cloud Migration
+
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for(
+        'static',
+        filename='css/connect-cloud.css'
+    ) }}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<section class="cloud-connection-page">
+
+    <div class="container">
+
+
+        <!-- ==========================================
+                    PAGE HEADER
+        =========================================== -->
+
+        <div class="connection-page-header">
+
+
+            <span class="connection-badge">
+
+                <i data-lucide="shield-check"></i>
+
+                Cloud Connection Validation
+
+            </span>
+
+
+            <h1>
+
+                Connect Your
+
+                <span>
+
+                    Cloud Environments
+
+                </span>
+
+            </h1>
+
+
+            <p>
+
+                Your source cloud has been verified.
+
+                Connect and validate the target cloud before
+                resource discovery begins.
+
+            </p>
+
+
+        </div>
+
+
+
+        <!-- ==========================================
+                    CLOUD CONNECTION GRID
+        =========================================== -->
+
+        <div class="cloud-connection-grid">
+
+
+
+            <!-- ======================================
+                    SOURCE CLOUD
+            ======================================= -->
+
+            <div
+                class="cloud-connection-card source-card"
+            >
+
+
+                <!-- CARD HEADER -->
+
+                <div class="card-heading">
+
+
+                    <div
+                        class="card-heading-icon"
+                    >
+
+                        <i data-lucide="cloud"></i>
+
+                    </div>
+
+
+                    <div>
+
+
+                        <span
+                            class="connection-label"
+                        >
+
+                            SOURCE CLOUD
+
+                        </span>
+
+
+                        <h2>
+
+                            {% if source == "aws" %}
+
+                                AWS
+
+                            {% elif source == "azure" %}
+
+                                Azure
+
+                            {% elif source == "gcp" %}
+
+                                Google Cloud
+
+                            {% endif %}
+
+                        </h2>
+
+
+                        <p>
+
+                            {% if source == "aws" %}
+
+                                AWS credentials have already
+                                been verified.
+
+                            {% elif source == "azure" %}
+
+                                Azure credentials have already
+                                been verified.
+
+                            {% elif source == "gcp" %}
+
+                                Google Cloud credentials have
+                                already been verified.
+
+                            {% endif %}
+
+                        </p>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- VERIFIED SOURCE INFORMATION -->
+
+                <div
+                    class="verified-cloud-info"
+                >
+
+
+                    <div
+                        class="verified-item"
+                    >
+
+                        <i
+                            data-lucide="circle-check"
+                        ></i>
+
+
+                        <span>
+
+                            {% if source == "aws" %}
+
+                                AWS credentials verified
+
+                            {% elif source == "azure" %}
+
+                                Azure credentials verified
+
+                            {% elif source == "gcp" %}
+
+                                Google Cloud credentials verified
+
+                            {% endif %}
+
+                        </span>
+
+
+                    </div>
+
+
+
+                    <div
+                        class="verified-item"
+                    >
+
+                        <i
+                            data-lucide="circle-check"
+                        ></i>
+
+
+                        <span>
+
+                            Source connection active
+
+                        </span>
+
+
+                    </div>
+
+
+
+                    <div
+                        class="verified-item"
+                    >
+
+                        <i
+                            data-lucide="shield-check"
+                        ></i>
+
+
+                        <span>
+
+                            Secure migration session active
+
+                        </span>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- SOURCE CONNECTION STATUS -->
+
+                <div
+                    class="connection-status success"
+                >
+
+
+                    <span
+                        class="status-dot"
+                    ></span>
+
+
+                    {% if source == "aws" %}
+
+                        AWS connection verified
+
+                    {% elif source == "azure" %}
+
+                        Azure connection verified
+
+                    {% elif source == "gcp" %}
+
+                        Google Cloud connection verified
+
+                    {% endif %}
+
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- ======================================
+                    TARGET CLOUD
+            ======================================= -->
+
+            <div
+                class="cloud-connection-card target-card"
+            >
+
+
+                <!-- TARGET HEADER -->
+
+                <div
+                    class="card-heading"
+                >
+
+
+                    <div
+                        class="card-heading-icon"
+                    >
+
+                        <i data-lucide="cloud"></i>
+
+                    </div>
+
+
+                    <div>
+
+
+                        <span
+                            class="connection-label"
+                        >
+
+                            TARGET CLOUD
+
+                        </span>
+
+
+                        <h2>
+
+                            {% if target == "aws" %}
+
+                                AWS
+
+                            {% elif target == "azure" %}
+
+                                Azure
+
+                            {% elif target == "gcp" %}
+
+                                Google Cloud
+
+                            {% endif %}
+
+                        </h2>
+
+
+                        <p>
+
+                            Enter and validate your target
+                            cloud credentials.
+
+                        </p>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- ==================================
+                        AZURE TARGET FORM
+                =================================== -->
+
+                {% if target == "azure" %}
+
+
+                <form
+                    id="target-connection-form"
+                >
+
+
+                    <!-- SUBSCRIPTION ID -->
+
+                    <div class="form-group">
+
+
+                        <label
+                            for="azure-subscription-id"
+                        >
+
+                            Subscription ID
+
+                        </label>
+
+
+                        <div
+                            class="input-wrapper"
+                        >
+
+
+                            <i
+                                data-lucide="credit-card"
+                            ></i>
+
+
+                            <input
+                                type="text"
+                                id="azure-subscription-id"
+                                placeholder="Enter Azure Subscription ID"
+                                autocomplete="off"
+                                required
+                            >
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- TENANT ID -->
+
+                    <div class="form-group">
+
+
+                        <label
+                            for="azure-tenant-id"
+                        >
+
+                            Tenant ID
+
+                        </label>
+
+
+                        <div
+                            class="input-wrapper"
+                        >
+
+
+                            <i
+                                data-lucide="building"
+                            ></i>
+
+
+                            <input
+                                type="text"
+                                id="azure-tenant-id"
+                                placeholder="Enter Azure Tenant ID"
+                                autocomplete="off"
+                                required
+                            >
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- CLIENT ID -->
+
+                    <div class="form-group">
+
+
+                        <label
+                            for="azure-client-id"
+                        >
+
+                            Client ID
+
+                        </label>
+
+
+                        <div
+                            class="input-wrapper"
+                        >
+
+
+                            <i
+                                data-lucide="user-round"
+                            ></i>
+
+
+                            <input
+                                type="text"
+                                id="azure-client-id"
+                                placeholder="Enter Azure Client ID"
+                                autocomplete="off"
+                                required
+                            >
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- CLIENT SECRET -->
+
+                    <div class="form-group">
+
+
+                        <label
+                            for="azure-client-secret"
+                        >
+
+                            Client Secret
+
+                        </label>
+
+
+                        <div
+                            class="input-wrapper"
+                        >
+
+
+                            <i
+                                data-lucide="lock-keyhole"
+                            ></i>
+
+
+                            <input
+                                type="password"
+                                id="azure-client-secret"
+                                placeholder="Enter Azure Client Secret"
+                                autocomplete="new-password"
+                                required
+                            >
+
+
+                        </div>
+
+
+                    </div>
+
+
+                </form>
+
+
+                {% endif %}
+
+
+
+                <!-- ==================================
+                        AWS TARGET FORM
+                =================================== -->
+
+                {% if target == "aws" %}
+
+
+                <form
+                    id="target-connection-form"
+                >
+
+
+                    <!-- ACCESS KEY -->
+
+                    <div class="form-group">
+
+
+                        <label
+                            for="target-aws-access-key"
+                        >
+
+                            AWS Access Key ID
+
+                        </label>
+
+
+                        <div
+                            class="input-wrapper"
+                        >
+
+
+                            <i
+                                data-lucide="key"
+                            ></i>
+
+
+                            <input
+                                type="text"
+                                id="target-aws-access-key"
+                                placeholder="Enter AWS Access Key ID"
+                                autocomplete="off"
+                                required
+                            >
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- SECRET KEY -->
+
+                    <div class="form-group">
+
+
+                        <label
+                            for="target-aws-secret-key"
+                        >
+
+                            AWS Secret Access Key
+
+                        </label>
+
+
+                        <div
+                            class="input-wrapper"
+                        >
+
+
+                            <i
+                                data-lucide="lock-keyhole"
+                            ></i>
+
+
+                            <input
+                                type="password"
+                                id="target-aws-secret-key"
+                                placeholder="Enter AWS Secret Access Key"
+                                autocomplete="new-password"
+                                required
+                            >
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- REGION -->
+
+                    <div class="form-group">
+
+
+                        <label
+                            for="target-aws-region"
+                        >
+
+                            AWS Region
+
+                        </label>
+
+
+                        <div
+                            class="input-wrapper"
+                        >
+
+
+                            <i
+                                data-lucide="map-pin"
+                            ></i>
+
+
+                            <select
+                                id="target-aws-region"
+                                required
+                            >
+
+
+                                <option value="">
+
+                                    Select AWS Region
+
+                                </option>
+
+
+                                <option value="ap-south-1">
+
+                                    Asia Pacific (Mumbai)
+
+                                </option>
+
+
+                                <option value="us-east-1">
+
+                                    US East (N. Virginia)
+
+                                </option>
+
+
+                                <option value="us-west-2">
+
+                                    US West (Oregon)
+
+                                </option>
+
+
+                                <option value="eu-west-1">
+
+                                    Europe (Ireland)
+
+                                </option>
+
+
+                                <option value="ap-southeast-1">
+
+                                    Asia Pacific (Singapore)
+
+                                </option>
+
+
+                            </select>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                </form>
+
+
+                {% endif %}
+
+
+
+                <!-- ==================================
+                        GCP TARGET FORM
+                =================================== -->
+
+                {% if target == "gcp" %}
+
+
+                <form
+                    id="target-connection-form"
+                    enctype="multipart/form-data"
+                >
+
+
+                    <!-- PROJECT ID -->
+
+                    <div class="form-group">
+
+
+                        <label
+                            for="gcp-project-id"
+                        >
+
+                            Project ID
+
+                        </label>
+
+
+                        <div
+                            class="input-wrapper"
+                        >
+
+
+                            <i
+                                data-lucide="folder"
+                            ></i>
+
+
+                            <input
+                                type="text"
+                                id="gcp-project-id"
+                                placeholder="Enter Google Cloud Project ID"
+                                required
+                            >
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- SERVICE ACCOUNT -->
+
+                    <div class="form-group">
+
+
+                        <label
+                            for="gcp-service-account"
+                        >
+
+                            Service Account JSON
+
+                        </label>
+
+
+                        <input
+                            type="file"
+                            id="gcp-service-account"
+                            accept=".json"
+                            required
+                        >
+
+
+                    </div>
+
+
+                </form>
+
+
+                {% endif %}
+
+
+
+                <!-- TARGET STATUS -->
+
+                <div
+                    class="connection-status"
+                    id="target-connection-status"
+                >
+
+
+                    <span
+                        class="status-dot"
+                    ></span>
+
+
+                    Target credentials waiting for validation
+
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- ==========================================
+                    VALIDATE BUTTON
+        =========================================== -->
+
+        <div
+            class="validate-section"
+        >
+
+
+            <button
+                type="button"
+                class="validate-cloud-btn"
+                id="validate-clouds-btn"
+            >
+
+
+                <i
+                    data-lucide="shield-check"
+                ></i>
+
+
+                Validate Target & Continue
+
+
+                <i
+                    data-lucide="arrow-right"
+                ></i>
+
+
+            </button>
+
+
+        </div>
+
+
+
+        <!-- ==========================================
+                    INFORMATION GRID
+        =========================================== -->
+
+        <div
+            class="bottom-information-grid"
+        >
+
+
+
+            <!-- SECURITY INFORMATION -->
+
+            <div
+                class="bottom-info-card"
+            >
+
+
+                <div
+                    class="bottom-info-heading"
+                >
+
+
+                    <div
+                        class="info-heading-icon"
+                    >
+
+                        <i
+                            data-lucide="shield-check"
+                        ></i>
+
+                    </div>
+
+
+                    <div>
+
+
+                        <h3>
+
+                            Security Information
+
+                        </h3>
+
+
+                        <p>
+
+                            How cloud credentials are handled
+                            during validation.
+
+                        </p>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <div
+                    class="security-items"
+                >
+
+
+                    <div
+                        class="security-item"
+                    >
+
+
+                        <i
+                            data-lucide="lock"
+                        ></i>
+
+
+                        <div>
+
+
+                            <strong>
+
+                                Secure Validation
+
+                            </strong>
+
+
+                            <span>
+
+                                Credentials are used to validate
+                                cloud access.
+
+                            </span>
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <div
+                        class="security-item"
+                    >
+
+
+                        <i
+                            data-lucide="shield"
+                        ></i>
+
+
+                        <div>
+
+
+                            <strong>
+
+                                Least Privilege
+
+                            </strong>
+
+
+                            <span>
+
+                                Only required cloud permissions
+                                should be granted.
+
+                            </span>
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <div
+                        class="security-item"
+                    >
+
+
+                        <i
+                            data-lucide="eye-off"
+                        ></i>
+
+
+                        <div>
+
+
+                            <strong>
+
+                                Secret Protection
+
+                            </strong>
+
+
+                            <span>
+
+                                Credentials should never appear
+                                in logs or reports.
+
+                            </span>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- VALIDATION STATUS -->
+
+            <div
+                class="bottom-info-card"
+            >
+
+
+                <div
+                    class="bottom-info-heading"
+                >
+
+
+                    <div
+                        class="info-heading-icon"
+                    >
+
+                        <i
+                            data-lucide="circle-check"
+                        ></i>
+
+                    </div>
+
+
+                    <div>
+
+
+                        <h3>
+
+                            Validation Status
+
+                        </h3>
+
+
+                        <p>
+
+                            Live validation results will appear
+                            here.
+
+                        </p>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <div
+                    id="validation-results"
+                    class="validation-results"
+                >
+
+
+                    <!-- SOURCE -->
+
+                    <div
+                        class="validation-item success"
+                    >
+
+
+                        <i
+                            data-lucide="circle-check"
+                        ></i>
+
+
+                        <span>
+
+
+                            {% if source == "aws" %}
+
+                                AWS source credentials verified
+
+                            {% elif source == "azure" %}
+
+                                Azure source credentials verified
+
+                            {% elif source == "gcp" %}
+
+                                Google Cloud source credentials verified
+
+                            {% endif %}
+
+
+                        </span>
+
+
+                    </div>
+
+
+
+                    <!-- TARGET -->
+
+                    <div
+                        class="validation-item pending"
+                    >
+
+
+                        <i
+                            data-lucide="clock-3"
+                        ></i>
+
+
+                        <span>
+
+                            Target cloud waiting for validation
+
+                        </span>
+
+
+                    </div>
+
+
+
+                    <!-- CONTINUE -->
+
+                    <div
+                        class="validation-item pending"
+                    >
+
+
+                        <i
+                            data-lucide="clock-3"
+                        ></i>
+
+
+                        <span>
+
+                            Resource discovery will begin after
+                            target validation
+
+                        </span>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- ==========================================
+                    HIDDEN DATA
+        =========================================== -->
+
+        <input
+            type="hidden"
+            id="source-cloud"
+            value="{{ source }}"
+        >
+
+
+        <input
+            type="hidden"
+            id="target-cloud"
+            value="{{ target }}"
+        >
+
+
+        <input
+            type="hidden"
+            id="source-session-id"
+            value="{{ source_session_id }}"
+        >
+
+
+    </div>
+
+
+</section>
+
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+
+<script
+    src="{{ url_for(
+        'static',
+        filename='js/connect-cloud.js'
+    ) }}"
+></script>
+
+
+{% endblock %}

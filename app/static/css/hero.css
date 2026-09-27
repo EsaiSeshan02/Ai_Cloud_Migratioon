@@ -1,0 +1,986 @@
+/* ===================================================================
+   AI CLOUD MIGRATION
+   HERO SECTION
+=================================================================== */
+
+
+/* ===============================================================
+                        HERO SECTION
+=============================================================== */
+
+.hero{
+
+    position:relative;
+
+    min-height:100vh;
+
+    display:flex;
+
+    align-items:center;
+
+    padding-top:120px;
+
+    padding-bottom:80px;
+
+    background:var(--bg-primary);
+
+    overflow:hidden;
+
+}
+
+
+/* ===============================================================
+                    HERO BACKGROUND
+=============================================================== */
+
+.hero::before{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    background:var(--gradient-hero);
+
+    z-index:0;
+
+}
+
+.hero::after{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    background-image:
+
+        linear-gradient(rgba(212,175,55,.05) 1px, transparent 1px),
+
+        linear-gradient(90deg, rgba(212,175,55,.05) 1px, transparent 1px);
+
+    background-size:60px 60px;
+
+    pointer-events:none;
+
+    opacity:.22;
+
+}
+
+
+.hero-glow{
+
+    position:absolute;
+
+    top:-250px;
+
+    right:-200px;
+
+    width:700px;
+
+    height:700px;
+
+    border-radius:50%;
+
+    background:radial-gradient(
+        circle,
+        rgba(212,175,55,.18),
+        transparent 70%
+    );
+
+    filter:blur(80px);
+
+    z-index:0;
+
+}
+
+
+/* ===============================================================
+                    HERO WRAPPER
+=============================================================== */
+
+.hero-wrapper{
+
+    position:relative;
+
+    z-index:2;
+
+    display:grid;
+
+    grid-template-columns:1.25fr .75fr;
+
+    gap:clamp(4rem,8vw,8rem);
+
+    align-items:center;
+
+}
+
+
+/* ===============================================================
+                    HERO CONTENT
+=============================================================== */
+
+.hero-content{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:var(--space-5);
+
+}
+
+/* ===============================================================
+                    HERO BADGE
+=============================================================== */
+
+.hero-badge{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:var(--space-2);
+
+    width:fit-content;
+
+    padding:.75rem 1.25rem;
+
+    background:rgba(212,175,55,.12);
+
+    border:1px solid rgba(212,175,55,.35);
+
+    border-radius:999px;
+
+    color:var(--color-primary);
+
+    font-size:var(--fs-sm);
+
+    font-weight:var(--fw-semi-bold);
+
+    backdrop-filter:blur(12px);
+
+    box-shadow:var(--glow-sm);
+
+}
+
+.hero-badge i{
+
+    width:18px;
+
+    height:18px;
+
+}
+
+
+/* ===============================================================
+                    HERO TITLE
+=============================================================== */
+
+.hero-title{
+
+    font-family:var(--font-primary);
+
+    font-size:clamp(3rem,6vw,5.5rem);
+
+    letter-spacing:-2px;
+
+    line-height:1.05;
+
+    font-weight:var(--fw-black);
+
+    color:var(--text-primary);
+
+    max-width:700px;
+
+}
+
+.hero-title span{
+
+    background:linear-gradient(
+        135deg,
+        #FFD86A,
+        #D4AF37,
+        #B88C1D
+    );
+
+    -webkit-background-clip:text;
+
+    -webkit-text-fill-color:transparent;
+
+    background-clip:text;
+
+}
+
+.hero-title span::after{
+
+    content:"";
+
+    position:absolute;
+
+    left:0;
+
+    bottom:-8px;
+
+    width:100%;
+
+    height:6px;
+
+    background:rgba(212,175,55,.25);
+
+    border-radius:999px;
+
+}
+
+
+/* ===============================================================
+                    HERO DESCRIPTION
+=============================================================== */
+
+.hero-description{
+
+    max-width:650px;
+
+    font-size:var(--fs-lg);
+
+    line-height:1.8;
+
+    color:var(--text-secondary);
+
+}
+
+
+/* ===============================================================
+                    HERO BUTTONS
+=============================================================== */
+
+.hero-actions{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:var(--space-4);
+
+    margin-top:var(--space-4);
+
+}
+
+.hero-btn-primary{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:var(--space-2);
+
+}
+
+.hero-btn-primary i{
+
+    width:20px;
+
+    height:20px;
+
+}
+
+.hero-btn-secondary{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:var(--space-2);
+
+    padding:.9rem 1.8rem;
+
+    border:2px solid var(--border-light);
+
+    border-radius:999px;
+
+    background:var(--bg-card);
+
+    color:var(--text-primary);
+
+    font-weight:var(--fw-semi-bold);
+
+    transition:all var(--transition-normal);
+
+}
+
+.hero-btn-secondary:hover{
+
+    border-color:var(--color-primary);
+
+    color:var(--color-primary);
+
+    transform:translateY(-3px);
+
+    box-shadow:var(--shadow-sm);
+
+}
+
+.hero-btn-secondary i{
+
+    width:20px;
+
+    height:20px;
+
+}
+
+/* ===============================================================
+                    HERO STATISTICS
+=============================================================== */
+
+.hero-stats{
+
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:var(--space-4);
+
+    margin-top:var(--space-10);
+
+}
+
+.hero-stat{
+
+    padding:1.8rem;
+
+    background:var(--bg-card);
+
+    border:1px solid var(--border-light);
+
+    border-radius:var(--radius-lg);
+
+    text-align:center;
+
+    cursor:pointer;
+
+    transition:all var(--transition-normal);
+
+    box-shadow:var(--shadow-xs);
+
+}
+
+.hero-stat:hover{
+
+    transform:translateY(-8px);
+
+    border-color:var(--color-primary);
+
+    box-shadow:var(--shadow-md), var(--glow-sm);
+
+}
+
+.hero-stat h3{
+
+    font-size:var(--fs-xl);
+
+    color:var(--color-primary);
+
+    font-weight:var(--fw-bold);
+
+    margin-bottom:.4rem;
+
+}
+
+.hero-stat p{
+
+    font-size:var(--fs-sm);
+
+    color:var(--text-secondary);
+
+}
+
+/* ===============================================================
+                    HERO TERMINAL
+=============================================================== */
+
+.hero-terminal-container{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:flex-start;
+
+    position:relative;
+
+    margin-top:-120px;
+
+}
+
+.hero-terminal{
+
+    width:100%;
+
+    max-width:620px;
+
+    position: relative;
+
+    top: -60px;
+
+    animation: floatTerminal 5s ease-in-out infinite;
+
+    border-radius:var(--radius-xl);
+
+    overflow:hidden;
+
+    background:var(--terminal-bg);
+
+    border:1px solid rgba(255,255,255,.08);
+
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.18),
+        var(--glow-sm);
+
+}
+
+
+/* ===============================================================
+                    TERMINAL HEADER
+=============================================================== */
+
+.terminal-header{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:1rem 1.25rem;
+
+    background:var(--terminal-header);
+
+    border-bottom:1px solid rgba(255,255,255,.08);
+
+}
+
+.terminal-buttons{
+
+    display:flex;
+
+    gap:.5rem;
+
+}
+
+.terminal-buttons span{
+
+    width:12px;
+
+    height:12px;
+
+    border-radius:50%;
+
+}
+
+.terminal-red{
+
+    background:#ff5f57;
+
+}
+
+.terminal-yellow{
+
+    background:#ffbd2e;
+
+}
+
+.terminal-green{
+
+    background:#28c840;
+
+}
+
+.terminal-title{
+
+    font-family:var(--font-mono);
+
+    font-size:.85rem;
+
+    color:#c8c8c8;
+
+}
+
+/* ===============================================================
+                    TERMINAL BODY
+=============================================================== */
+
+.terminal-body{
+
+    padding:1.8rem;
+
+    min-height:360px;
+
+    font-family:var(--font-mono);
+
+    color:var(--terminal-text);
+
+    line-height:2;
+
+    font-size:.95rem;
+
+}
+
+.terminal-body p{
+
+    margin-bottom:.45rem;
+
+    color:var(--terminal-text);
+
+}
+
+.typing-line{
+
+    display:flex;
+
+    align-items:center;
+
+    color:var(--terminal-green);
+
+}
+
+#typing-text{
+
+    color:var(--terminal-green);
+
+}
+
+.cursor-blink{
+
+    color:var(--terminal-green);
+
+    margin-left:4px;
+
+}
+
+/* ===============================================================
+                    FLOATING CLOUD LOGOS
+=============================================================== */
+
+.floating-logos{
+
+    position:absolute;
+
+    inset:0;
+
+    pointer-events:none;
+
+    z-index:1;
+
+}
+
+.logo-float{
+
+    position:absolute;
+
+    width:58px;
+
+    height:58px;
+
+    object-fit:contain;
+
+    filter:
+        drop-shadow(0 8px 18px rgba(0,0,0,.12));
+
+    animation:floating 5s ease-in-out infinite;
+
+    opacity:.95;
+
+}
+
+.logo-float:nth-child(1){
+
+    top:6%;
+    right:7%;
+
+}
+
+.logo-float:nth-child(2){
+
+    top:22%;
+    left:52%;
+
+}
+
+.logo-float:nth-child(3){
+
+    top:8%;
+    left:68%;
+
+}
+
+.logo-float:nth-child(4){
+
+    top:35%;
+    right:12%;
+
+}
+
+.logo-float:nth-child(5){
+
+    bottom:30%;
+    right:2%;
+
+}
+
+.logo-float:nth-child(6){
+
+    bottom:12%;
+    left:58%;
+
+}
+
+.logo-float:nth-child(7){
+
+    bottom:8%;
+    right:18%;
+
+}
+
+.logo-float:nth-child(8){
+
+    top:55%;
+    right:-1%;
+
+}
+
+.logo-float:nth-child(9){
+
+    top:70%;
+    left:65%;
+
+}
+
+.logo-float:nth-child(10){
+
+    top:15%;
+    left:40%;
+
+}
+
+.logo-float:nth-child(11){
+
+    bottom:22%;
+    left:45%;
+
+}
+
+.logo-float:nth-child(12){
+
+    top:48%;
+    left:82%;
+
+}
+
+.logo-float:nth-child(13){
+
+    bottom:5%;
+    left:75%;
+
+}
+
+/* ===============================================================
+                TERMINAL FLOATING
+=============================================================== */
+
+@keyframes floatTerminal{
+
+    0%{
+
+        transform:translateY(0px);
+
+    }
+
+    50%{
+
+        transform:translateY(-12px);
+
+    }
+
+    100%{
+
+        transform:translateY(0px);
+
+    }
+
+}
+
+/* ===============================================================
+                    DARK MODE
+=============================================================== */
+
+[data-theme="dark"] .hero{
+
+    background:var(--bg-primary);
+
+}
+
+[data-theme="dark"] .hero-terminal{
+
+    border-color:#2f3744;
+
+}
+
+[data-theme="dark"] .hero-stat{
+
+    background:var(--bg-card);
+
+    border-color:#2c313a;
+
+}
+
+[data-theme="dark"] .hero-btn-secondary{
+
+    background:var(--bg-card);
+
+    border-color:#343943;
+
+}
+
+[data-theme="dark"] .hero-glow{
+
+    opacity:.8;
+
+}
+
+/* ===============================================================
+                    RESPONSIVE
+=============================================================== */
+
+@media(max-width:1200px){
+
+    .hero-wrapper{
+
+        gap:var(--space-12);
+
+    }
+
+}
+
+@media(max-width:992px){
+
+    .hero{
+
+        padding-top:120px;
+
+    }
+
+    .hero-wrapper{
+
+        grid-template-columns:1fr;
+
+        text-align:center;
+
+    }
+
+    .hero-content{
+
+        align-items:center;
+
+    }
+
+    .hero-description{
+
+        margin-inline:auto;
+
+    }
+
+    .hero-actions{
+
+        justify-content:center;
+
+    }
+
+    .hero-terminal{
+
+        max-width:700px;
+
+        margin-top:0;
+
+        top:-20px;
+
+    }
+
+    .floating-logos{
+
+    opacity:.4;
+
+}
+
+.logo-float{
+
+    width:42px;
+
+    height:42px;
+
+}
+
+}
+
+@media(max-width:768px){
+
+    .hero-title{
+
+        font-size:clamp(2.5rem,8vw,4rem);
+
+    }
+
+    .hero-actions{
+
+        flex-direction:column;
+
+        width:100%;
+
+    }
+
+    .hero-btn-primary,
+
+    .hero-btn-secondary{
+
+        width:100%;
+
+        justify-content:center;
+
+    }
+
+    .hero-stats{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+    .hero-terminal{
+
+        max-width:700px;
+
+        margin-top:0;
+
+        top:-20px;
+
+    }
+
+}
+
+@media(max-width:480px){
+
+    .hero{
+
+        min-height:auto;
+
+        padding-bottom:4rem;
+
+    }
+
+    .hero-stats{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .terminal-body{
+
+        min-height:280px;
+
+        font-size:.82rem;
+
+    }
+
+}
+
+/* ===============================================================
+                TERMINAL TEXT COLOR FIX
+=============================================================== */
+
+.hero .hero-terminal .terminal-body,
+.hero .hero-terminal .terminal-body p,
+.hero .hero-terminal #terminal-output,
+.hero .hero-terminal #terminal-output p {
+
+    color: #F8F8F2 !important;
+
+}
+
+/* ===============================================================
+            MOBILE HERO HEIGHT / SPACING FIX
+=============================================================== */
+
+@media (max-width: 768px) {
+
+    .hero {
+        min-height: auto !important;
+        height: auto !important;
+
+        padding-top: calc(var(--navbar-height) + 2rem);
+        padding-bottom: 4rem;
+
+        overflow: hidden;
+    }
+
+    .hero-wrapper {
+        min-height: auto !important;
+        height: auto !important;
+
+        grid-template-columns: 1fr;
+
+        gap: 3rem;
+    }
+
+    .hero-content {
+        min-height: auto !important;
+        height: auto !important;
+    }
+
+    .hero-terminal-container {
+        min-height: auto !important;
+        height: auto !important;
+
+        margin-top: 1rem;
+        margin-bottom: 0;
+    }
+
+    .hero-terminal {
+        min-height: 0;
+        height: auto;
+
+        transform: none !important;
+    }
+
+    .terminal-body {
+        min-height: 220px;
+        height: auto;
+    }
+
+}
+
+
+/* ===============================================================
+                    SMALL MOBILE
+=============================================================== */
+
+@media (max-width: 480px) {
+
+    .hero {
+        padding-top: calc(var(--navbar-height) + 1.5rem);
+        padding-bottom: 3rem;
+    }
+
+    .hero-wrapper {
+        gap: 2.5rem;
+    }
+
+    .hero-terminal-container {
+        margin-top: 0;
+    }
+
+    .terminal-body {
+        min-height: 190px;
+        padding: 1rem;
+    }
+
+}

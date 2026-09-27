@@ -1,0 +1,548 @@
+{% extends "base.html" %}
+
+{% block title %}
+Connect AWS | AI Cloud Migration
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for(
+        'static',
+        filename='css/aws-source.css'
+    ) }}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<section class="aws-source-page">
+
+    <div class="container">
+
+
+        <!-- ==========================================
+                    MIGRATION PATH
+        =========================================== -->
+
+        <div class="migration-path">
+
+            <div class="path-cloud">
+
+                <img
+                    class="cloud-logo"
+                    src="{{ url_for(
+                        'static',
+                        filename='images/clouds/aws.svg'
+                    ) }}"
+                    alt="AWS"
+                >
+
+                <span>AWS</span>
+
+            </div>
+
+
+            <div class="path-arrow">
+
+                <i data-lucide="arrow-right"></i>
+
+            </div>
+
+
+            <div class="path-cloud">
+
+                {% if target == "azure" %}
+
+                    <img
+                        class="cloud-logo"
+                        src="{{ url_for(
+                            'static',
+                            filename='images/clouds/azure.svg'
+                        ) }}"
+                        alt="Microsoft Azure"
+                    >
+
+                    <span>Azure</span>
+
+
+                {% elif target == "gcp" %}
+
+                    <img
+                        class="cloud-logo"
+                        src="{{ url_for(
+                            'static',
+                            filename='images/clouds/gcp.svg'
+                        ) }}"
+                        alt="Google Cloud"
+                    >
+
+                    <span>Google Cloud</span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- ==========================================
+                    PAGE HEADER
+        =========================================== -->
+
+        <div class="aws-source-header">
+
+            <span class="source-badge">
+
+                <i data-lucide="shield-check"></i>
+
+                Secure Source Connection
+
+            </span>
+
+
+            <h1>
+
+                Connect Your
+                <span>AWS Infrastructure</span>
+
+            </h1>
+
+
+            <p>
+
+                Enter your AWS credentials to verify the source
+                cloud connection. Your AWS resources will not be
+                scanned until the target cloud is also verified.
+
+            </p>
+
+        </div>
+
+
+        <!-- ==========================================
+                    AWS CONNECTION CARD
+        =========================================== -->
+
+        <div class="aws-source-grid">
+
+
+            <div class="aws-connection-card">
+
+
+                <div class="card-heading">
+
+                    <div class="card-heading-icon">
+
+                        <i data-lucide="cloud"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <h2>
+                            AWS Source Connection
+                        </h2>
+
+
+                        <p>
+
+                            Verify your AWS credentials before
+                            connecting the target cloud.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <form
+                    id="aws-connection-form"
+                >
+
+
+                    <!-- ACCESS KEY -->
+
+                    <div class="form-group">
+
+                        <label
+                            for="aws-access-key"
+                        >
+
+                            Access Key ID
+
+                        </label>
+
+
+                        <div class="input-wrapper">
+
+                            <i data-lucide="key"></i>
+
+
+                            <input
+                                type="text"
+                                id="aws-access-key"
+                                name="access_key"
+                                placeholder="Enter AWS Access Key ID"
+                                autocomplete="off"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- SECRET KEY -->
+
+                    <div class="form-group">
+
+                        <label
+                            for="aws-secret-key"
+                        >
+
+                            Secret Access Key
+
+                        </label>
+
+
+                        <div class="input-wrapper">
+
+                            <i
+                                data-lucide="lock-keyhole"
+                            ></i>
+
+
+                            <input
+                                type="password"
+                                id="aws-secret-key"
+                                name="secret_key"
+                                placeholder="Enter AWS Secret Access Key"
+                                autocomplete="new-password"
+                                required
+                            >
+
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                id="secret-toggle"
+                                aria-label="Show or hide secret key"
+                            >
+
+                                <i
+                                    data-lucide="eye"
+                                ></i>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- REGION -->
+
+                    <div class="form-group">
+
+                        <label
+                            for="aws-region"
+                        >
+
+                            AWS Region
+
+                        </label>
+
+
+                        <div class="input-wrapper">
+
+                            <i
+                                data-lucide="map-pin"
+                            ></i>
+
+
+                            <select
+                                id="aws-region"
+                                name="region"
+                                required
+                            >
+
+                                <option value="">
+                                    Select AWS Region
+                                </option>
+
+
+                                <option
+                                    value="ap-south-1"
+                                >
+                                    Asia Pacific (Mumbai)
+                                </option>
+
+
+                                <option
+                                    value="us-east-1"
+                                >
+                                    US East (N. Virginia)
+                                </option>
+
+
+                                <option
+                                    value="us-west-2"
+                                >
+                                    US West (Oregon)
+                                </option>
+
+
+                                <option
+                                    value="eu-west-1"
+                                >
+                                    Europe (Ireland)
+                                </option>
+
+
+                                <option
+                                    value="ap-southeast-1"
+                                >
+                                    Asia Pacific (Singapore)
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- TARGET -->
+
+                    <input
+                        type="hidden"
+                        id="migration-target"
+                        value="{{ target }}"
+                    >
+
+
+                    <!-- STATUS -->
+
+                    <div
+                        class="connection-status"
+                        id="aws-connection-status"
+                    >
+
+                        <span
+                            class="status-dot"
+                        ></span>
+
+                        AWS credentials waiting for validation
+
+                    </div>
+
+
+                    <!-- SUBMIT -->
+
+                    <button
+                        type="submit"
+                        class="aws-connect-btn"
+                    >
+
+                        <i
+                            data-lucide="shield-check"
+                        ></i>
+
+                        Verify AWS Credentials
+
+                        <i
+                            data-lucide="arrow-right"
+                        ></i>
+
+                    </button>
+
+
+                </form>
+
+
+            </div>
+
+
+            <!-- ======================================
+                    INFORMATION CARD
+            ======================================= -->
+
+            <aside
+                class="aws-security-card"
+            >
+
+                <div
+                    class="security-icon"
+                >
+
+                    <i
+                        data-lucide="shield-check"
+                    ></i>
+
+                </div>
+
+
+                <h3>
+                    Before You Continue
+                </h3>
+
+
+                <p>
+
+                    Your AWS connection must be successfully
+                    verified before the target cloud connection
+                    can be configured.
+
+                </p>
+
+
+                <div
+                    class="security-items"
+                >
+
+
+                    <div
+                        class="security-item"
+                    >
+
+                        <i
+                            data-lucide="key-round"
+                        ></i>
+
+
+                        <div>
+
+                            <strong>
+                                Credential Verification
+                            </strong>
+
+
+                            <span>
+
+                                Your Access Key and Secret Key
+                                are checked against AWS.
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="security-item"
+                    >
+
+                        <i
+                            data-lucide="server"
+                        ></i>
+
+
+                        <div>
+
+                            <strong>
+                                Region Verification
+                            </strong>
+
+
+                            <span>
+
+                                The selected AWS region is used
+                                to verify your source environment.
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="security-item"
+                    >
+
+                        <i
+                            data-lucide="cloud"
+                        ></i>
+
+
+                        <div>
+
+                            <strong>
+                                Target Connection Next
+                            </strong>
+
+
+                            <span>
+
+                                After AWS verification, you will
+                                enter Azure or GCP credentials.
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="security-item"
+                    >
+
+                        <i
+                            data-lucide="scan-search"
+                        ></i>
+
+
+                        <div>
+
+                            <strong>
+                                Resource Scan Later
+                            </strong>
+
+
+                            <span>
+
+                                Resources are scanned only after
+                                both cloud connections are verified.
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </aside>
+
+
+        </div>
+
+
+    </div>
+
+</section>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script
+    src="{{ url_for(
+        'static',
+        filename='js/aws-source.js'
+    ) }}"
+>
+</script>
+
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Migration History | AI Cloud Migration{% endblock %}
+{% block content %}
+<section class="dashboard-section">
+  <div class="pixel-card">
+    <p class="eyebrow">PERSISTED EXECUTION HISTORY</p>
+    <h1>Migration History</h1>
+    <p>Only migrations belonging to your account are shown. Planning-only resources never appear as completed executions.</p>
+  </div>
+  <div class="report-list">
+    {% for migration in migrations %}
+    <article class="report-item pixel-card">
+      <h3>{{ migration.resource_name }}</h3>
+      <p>{{ migration.source_cloud|upper }} → {{ migration.target_cloud|upper }} · {{ migration.resource_type|upper }}</p>
+      <p>Status: <strong>{{ migration.status }}</strong></p>
+      <p>{{ migration.uploaded_files }} completed/skipped · {{ migration.failed_files }} failed · {{ migration.transferred_bytes }} bytes transferred</p>
+      <a class="btn-primary" href="{{ url_for('migration.migration_details_page', migration_id=migration.migration_id) }}">View details and report</a>
+    </article>
+    {% else %}
+    <div class="pixel-card"><p>No persisted migration executions are available yet.</p></div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

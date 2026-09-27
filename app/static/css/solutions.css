@@ -1,0 +1,531 @@
+/* ==========================================================
+                    AI CLOUD MIGRATION
+                    SOLUTIONS SECTION
+========================================================== */
+
+.solutions {
+    position: relative;
+    padding: 7rem 0;
+    background: var(--bg-primary);
+    overflow: hidden;
+}
+
+
+/* ==========================================================
+                    SECTION HEADER
+========================================================== */
+
+.solutions-header {
+    max-width: 750px;
+    margin: 0 auto 4rem;
+    text-align: center;
+}
+
+.solutions-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+
+    padding: .7rem 1.2rem;
+
+    border: 1px solid rgba(212, 175, 55, .35);
+    border-radius: 999px;
+
+    background: rgba(212, 175, 55, .10);
+
+    color: var(--color-primary);
+
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semi-bold);
+
+    margin-bottom: 1.5rem;
+}
+
+.solutions-badge i {
+    width: 18px;
+    height: 18px;
+}
+
+
+.solutions-title {
+    font-size: clamp(2.3rem, 4vw, 3.7rem);
+    line-height: 1.1;
+
+    color: var(--text-primary);
+
+    font-weight: var(--fw-black);
+
+    margin-bottom: 1.3rem;
+}
+
+.solutions-title span {
+    color: var(--color-primary);
+}
+
+
+.solutions-description {
+    max-width: 650px;
+
+    margin: 0 auto;
+
+    color: var(--text-secondary);
+
+    font-size: var(--fs-lg);
+    line-height: 1.8;
+}
+
+
+/* ==========================================================
+                    MIGRATION OPTIONS
+========================================================== */
+
+.migration-options {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 2rem;
+
+    max-width: 1100px;
+
+    margin: 0 auto;
+}
+
+
+/* ==========================================================
+                    MIGRATION CARD
+========================================================== */
+
+.migration-card {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 2.5rem;
+
+    background: var(--bg-card);
+
+    border: 1px solid var(--border-light);
+
+    border-radius: var(--radius-xl);
+
+    box-shadow: var(--shadow-sm);
+
+    overflow: hidden;
+
+    transition:
+        transform .35s ease,
+        border-color .35s ease,
+        box-shadow .35s ease;
+}
+
+
+/* Card hover */
+
+.migration-card:hover {
+    transform: translateY(-10px);
+
+    border-color: var(--color-primary);
+
+    box-shadow:
+        var(--shadow-lg),
+        0 15px 40px rgba(212, 175, 55, .12);
+}
+
+
+/* ==========================================================
+                    CARD NUMBER
+========================================================== */
+
+.migration-number {
+    position: absolute;
+
+    top: 1.5rem;
+    right: 1.7rem;
+
+    font-family: var(--font-mono);
+
+    font-size: 2.2rem;
+
+    font-weight: var(--fw-bold);
+
+    color: rgba(212, 175, 55, .18);
+}
+
+
+/* ==========================================================
+                    CLOUD PROVIDERS
+========================================================== */
+
+.migration-clouds {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 1.5rem;
+
+    margin: 2rem 0 2.5rem;
+}
+
+
+.cloud-provider {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: .8rem;
+
+    min-width: 110px;
+
+    color: var(--text-primary);
+
+    font-weight: var(--fw-semi-bold);
+}
+
+
+/* ==========================================================
+                    CLOUD LOGO BOX
+========================================================== */
+
+.cloud-logo {
+    width: 90px;
+    height: 90px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 1rem;
+
+    background: var(--bg-primary);
+
+    border: 1px solid var(--border-light);
+
+    border-radius: 22px;
+
+    box-shadow: var(--shadow-xs);
+
+    transition: all .3s ease;
+}
+
+
+/* THIS FIXES YOUR HUGE IMAGE */
+
+.cloud-logo img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    max-width: 65px;
+    max-height: 65px;
+
+    object-fit: contain;
+}
+
+
+/* Logo animation on card hover */
+
+.migration-card:hover .cloud-logo {
+    transform: translateY(-5px);
+
+    border-color: rgba(212, 175, 55, .5);
+
+    box-shadow: var(--shadow-sm);
+}
+
+
+/* ==========================================================
+                    MIGRATION ARROW
+========================================================== */
+
+.migration-arrow {
+    width: 46px;
+    height: 46px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: rgba(212, 175, 55, .12);
+
+    color: var(--color-primary);
+}
+
+.migration-arrow i {
+    width: 22px;
+    height: 22px;
+
+    transition: transform .3s ease;
+}
+
+.migration-card:hover .migration-arrow i {
+    transform: translateX(5px);
+}
+
+
+/* ==========================================================
+                    CARD CONTENT
+========================================================== */
+
+.migration-content {
+    margin-bottom: 2rem;
+}
+
+.migration-content h3 {
+    color: var(--text-primary);
+
+    font-size: 1.6rem;
+
+    font-weight: var(--fw-bold);
+
+    margin-bottom: .8rem;
+}
+
+.migration-content p {
+    color: var(--text-secondary);
+
+    line-height: 1.75;
+
+    font-size: var(--fs-base);
+}
+
+
+/* ==========================================================
+                    SELECT BUTTON
+========================================================== */
+
+.migration-select-btn {
+    width: 100%;
+
+    margin-top: auto;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: .6rem;
+
+    padding: 1rem 1.4rem;
+
+    border: none;
+
+    border-radius: 999px;
+
+    background: var(--color-primary);
+
+    color: #111;
+
+    font-family: inherit;
+
+    font-size: 1rem;
+
+    font-weight: var(--fw-semi-bold);
+
+    cursor: pointer;
+
+    transition: all .3s ease;
+}
+
+
+.migration-select-btn i {
+    width: 19px;
+    height: 19px;
+
+    transition: transform .3s ease;
+}
+
+
+.migration-select-btn:hover {
+    transform: translateY(-3px);
+
+    box-shadow: 0 10px 25px rgba(212, 175, 55, .30);
+}
+
+
+.migration-select-btn:hover i {
+    transform: translate(3px, -3px);
+}
+
+
+/* ==========================================================
+                        DARK MODE
+========================================================== */
+
+[data-theme="dark"] .solutions {
+    background: var(--bg-primary);
+}
+
+
+[data-theme="dark"] .migration-card {
+    background: var(--bg-card);
+
+    border-color: #2c313a;
+}
+
+
+[data-theme="dark"] .migration-card:hover {
+    border-color: var(--color-primary);
+}
+
+
+[data-theme="dark"] .cloud-logo {
+    background: rgba(255, 255, 255, .04);
+
+    border-color: #343943;
+}
+
+
+/* ==========================================================
+                        TABLET
+========================================================== */
+
+@media (max-width: 900px) {
+
+    .migration-options {
+        grid-template-columns: 1fr;
+
+        max-width: 600px;
+    }
+
+}
+
+
+/* ==========================================================
+                        MOBILE
+========================================================== */
+
+@media (max-width: 600px) {
+
+    .solutions {
+        padding: 5rem 0;
+    }
+
+
+    .solutions-header {
+        margin-bottom: 2.5rem;
+    }
+
+
+    .solutions-title {
+        font-size: 2.2rem;
+    }
+
+
+    .solutions-description {
+        font-size: .95rem;
+        line-height: 1.7;
+    }
+
+
+    .migration-card {
+        padding: 1.5rem;
+    }
+
+
+    .migration-clouds {
+        gap: .8rem;
+
+        margin-top: 2.5rem;
+    }
+
+
+    .cloud-provider {
+        min-width: 75px;
+
+        font-size: .85rem;
+    }
+
+
+    .cloud-logo {
+        width: 65px;
+        height: 65px;
+
+        padding: .7rem;
+
+        border-radius: 17px;
+    }
+
+
+    .cloud-logo img {
+        max-width: 48px;
+        max-height: 48px;
+    }
+
+
+    .migration-arrow {
+        width: 36px;
+        height: 36px;
+    }
+
+
+    .migration-arrow i {
+        width: 18px;
+        height: 18px;
+    }
+
+
+    .migration-number {
+        font-size: 1.7rem;
+
+        top: 1.1rem;
+        right: 1.2rem;
+    }
+
+
+    .migration-content h3 {
+        font-size: 1.35rem;
+    }
+
+
+    .migration-content p {
+        font-size: .9rem;
+    }
+
+}
+
+/* ==========================================================
+                    SELECTED MIGRATION
+========================================================== */
+
+.migration-card.selected {
+
+    transform: translateY(-8px);
+
+    border: 2px solid var(--color-primary);
+
+    box-shadow:
+        var(--shadow-lg),
+        var(--glow-md);
+
+}
+
+
+.migration-card.selected .migration-arrow {
+
+    background: var(--color-primary);
+
+    color: #111;
+
+}
+
+
+.migration-select-btn.selected {
+
+    background: var(--text-primary);
+
+    color: var(--bg-card);
+
+}

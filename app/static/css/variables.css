@@ -1,0 +1,508 @@
+/* ===============================================================
+                    LOCAL FONT IMPORTS
+=============================================================== */
+
+/* =========================
+        MANROPE
+========================= */
+
+@font-face{
+
+    font-family:"Manrope";
+
+    src:url("../fonts/manrope/Manrope-Regular.ttf") format("truetype");
+
+    font-weight:400;
+
+}
+
+@font-face{
+
+    font-family:"Manrope";
+
+    src:url("../fonts/manrope/Manrope-Medium.ttf") format("truetype");
+
+    font-weight:500;
+
+}
+
+@font-face{
+
+    font-family:"Manrope";
+
+    src:url("../fonts/manrope/Manrope-SemiBold.ttf") format("truetype");
+
+    font-weight:600;
+
+}
+
+@font-face{
+
+    font-family:"Manrope";
+
+    src:url("../fonts/manrope/Manrope-Bold.ttf") format("truetype");
+
+    font-weight:700;
+
+}
+
+@font-face{
+
+    font-family:"Manrope";
+
+    src:url("../fonts/manrope/Manrope-ExtraBold.ttf") format("truetype");
+
+    font-weight:800;
+
+}
+
+
+/* =========================
+      PIXELIFY SANS
+========================= */
+
+@font-face{
+
+    font-family:"Pixelify Sans";
+
+    src:url("../fonts/pixelifysans/PixelifySans-Regular.ttf") format("truetype");
+
+    font-weight:400;
+
+}
+
+@font-face{
+
+    font-family:"Pixelify Sans";
+
+    src:url("../fonts/pixelifysans/PixelifySans-Bold.ttf") format("truetype");
+
+    font-weight:700;
+
+}
+
+
+/* =========================
+      JETBRAINS MONO
+========================= */
+
+@font-face{
+
+    font-family:"JetBrains Mono";
+
+    src:url("../fonts/jetbrainsmono/JetBrainsMono-Regular.ttf") format("truetype");
+
+    font-weight:400;
+
+}
+
+@font-face{
+
+    font-family:"JetBrains Mono";
+
+    src:url("../fonts/jetbrainsmono/JetBrainsMono-Bold.ttf") format("truetype");
+
+    font-weight:700;
+
+}
+/* ===================================================================
+   AI CLOUD MIGRATION
+   DESIGN SYSTEM
+   -------------------------------------------------------------------
+   Project : AI Cloud Migration
+   Version : 1.0
+   Author  : Sesu & ChatGPT
+   -------------------------------------------------------------------
+   This file contains the global design tokens used throughout the
+   entire application.
+
+   Do NOT hardcode colors, spacing or fonts in other CSS files.
+   Always use these variables.
+=================================================================== */
+
+:root {
+
+    /* ===============================================================
+                            BRAND COLORS
+    =============================================================== */
+
+    --color-primary: #D4AF37;
+    --color-primary-light: #E8C75A;
+    --color-primary-dark: #B88C1D;
+
+    --color-black: #181818;
+    --color-white: #FFFFFF;
+
+    /* ===============================================================
+                           BACKGROUND COLORS
+    =============================================================== */
+
+    --bg-primary: #F8F5EC;
+    --bg-secondary: #FFFCF5;
+    --bg-card: #FFFFFF;
+    --bg-hover: #F3EFE4;
+
+    --bg-navbar: rgba(248, 245, 236, 0.82);
+
+    --bg-terminal: #111318;
+
+    --bg-sidebar: #FFFFFF;
+
+    /* ===============================================================
+                              TEXT COLORS
+    =============================================================== */
+
+    --text-primary: #1C1C1C;
+    --text-secondary: #636363;
+    --text-muted: #8A8A8A;
+    --text-white: #FFFFFF;
+    --text-gold: var(--color-primary);
+
+    /* ===============================================================
+                              BORDER COLORS
+    =============================================================== */
+
+    --border-light: #ECE7DB;
+    --border-medium: #D7D0C0;
+    --border-dark: #1C1C1C;
+    --border-gold: var(--color-primary);
+
+    /* ===============================================================
+                              BUTTON COLORS
+    =============================================================== */
+
+    --btn-primary-bg: var(--color-primary);
+    --btn-primary-hover: var(--color-primary-dark);
+
+    --btn-secondary-bg: #FFFFFF;
+    --btn-secondary-hover: #F5F5F5;
+
+    /* ===============================================================
+                               LINK COLORS
+    =============================================================== */
+
+    --link-color: var(--text-primary);
+    --link-hover: var(--color-primary);
+
+    /* ===============================================================
+                              STATUS COLORS
+    =============================================================== */
+
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+    --info: #3B82F6;
+
+}
+
+
+/* ===============================================================
+                        DARK MODE VARIABLES
+=============================================================== */
+
+[data-theme="dark"] {
+
+    --bg-primary: #0F1115;
+    --bg-secondary: #181B20;
+    --bg-card: #1D2128;
+    --bg-hover: #242933;
+
+    --bg-navbar: rgba(15, 17, 21, 0.82);
+
+    --bg-terminal: #090B0E;
+
+    --bg-sidebar: #181B20;
+
+    --text-primary: #F6F6F6;
+    --text-secondary: #C8C8C8;
+    --text-muted: #9A9A9A;
+    --text-white: #FFFFFF;
+
+    --border-light: #2B313A;
+    --border-medium: #39404C;
+    --border-dark: #FFFFFF;
+
+}
+
+/* ===============================================================
+                        TYPOGRAPHY
+=============================================================== */
+
+:root{
+
+    /* Font Families */
+
+    --font-primary: "Manrope", sans-serif;
+
+    --font-logo: "Pixelify Sans", cursive;
+
+    --font-mono: "JetBrains Mono", monospace;
+
+    /* Font Weights */
+
+    --fw-light:300;
+    --fw-regular:400;
+    --fw-medium:500;
+    --fw-semi-bold:600;
+    --fw-bold:700;
+    --fw-extra-bold:800;
+    --fw-black:900;
+
+    /* Font Sizes */
+
+    --fs-xs:.75rem;
+    --fs-sm:.875rem;
+    --fs-md:1rem;
+    --fs-lg:1.125rem;
+    --fs-xl:1.5rem;
+    --fs-2xl:2rem;
+    --fs-3xl:3rem;
+
+}
+
+/* ===============================================================
+                        SPACING SYSTEM
+=============================================================== */
+
+:root {
+
+    /* Base Spacing Scale (8px System) */
+
+    --space-0: 0;
+    --space-1: 0.25rem;     /* 4px */
+    --space-2: 0.5rem;      /* 8px */
+    --space-3: 0.75rem;     /* 12px */
+    --space-4: 1rem;        /* 16px */
+    --space-5: 1.25rem;     /* 20px */
+    --space-6: 1.5rem;      /* 24px */
+    --space-8: 2rem;        /* 32px */
+    --space-10: 2.5rem;     /* 40px */
+    --space-12: 3rem;       /* 48px */
+    --space-16: 4rem;       /* 64px */
+    --space-20: 5rem;       /* 80px */
+    --space-24: 6rem;       /* 96px */
+    --space-32: 8rem;       /* 128px */;
+
+
+
+    /* ===========================================================
+                            BORDER RADIUS
+    =========================================================== */
+
+    --radius-xs: 4px;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+    --radius-xl: 24px;
+    --radius-2xl: 32px;
+    --radius-full: 999px;
+
+
+
+    /* ===========================================================
+                          PIXEL SHADOWS
+    =========================================================== */
+
+    --shadow-xs:
+        2px 2px 0 rgba(0,0,0,.08);
+
+    --shadow-sm:
+        4px 4px 0 rgba(0,0,0,.10);
+
+    --shadow-md:
+        6px 6px 0 rgba(0,0,0,.12);
+
+    --shadow-lg:
+        8px 8px 0 rgba(0,0,0,.16);
+
+    --shadow-xl:
+        12px 12px 0 rgba(0,0,0,.20);
+
+
+
+    /* ===========================================================
+                           GOLD GLOW
+    =========================================================== */
+
+    --glow-sm:
+        0 0 8px rgba(212,175,55,.25);
+
+    --glow-md:
+        0 0 18px rgba(212,175,55,.35);
+
+    --glow-lg:
+        0 0 30px rgba(212,175,55,.45);
+
+
+
+    /* ===========================================================
+                            BLUR EFFECTS
+    =========================================================== */
+
+    --blur-sm: blur(4px);
+    --blur-md: blur(10px);
+    --blur-lg: blur(18px);
+
+
+
+    /* ===========================================================
+                         GLASS BACKGROUND
+    =========================================================== */
+
+    --glass-bg:
+        rgba(255,255,255,.55);
+
+    --glass-border:
+        rgba(255,255,255,.35);
+
+}
+
+/* ===============================================================
+                        TRANSITIONS
+=============================================================== */
+
+:root {
+
+    /* Animation Speed */
+
+    --transition-fast: 0.2s ease-in-out;
+    --transition-normal: 0.35s ease-in-out;
+    --transition-slow: 0.5s ease-in-out;
+    --transition-bounce: 0.45s cubic-bezier(.68,-0.6,.32,1.6);
+
+    /* Animation Duration */
+
+    --duration-fast: .25s;
+    --duration-normal: .45s;
+    --duration-slow: .8s;
+
+    /* ===========================================================
+                        CONTAINER WIDTH
+    =========================================================== */
+
+    --container-sm: 640px;
+    --container-md: 768px;
+    --container-lg: 1024px;
+    --container-xl: 1280px;
+    --container-2xl: 1440px;
+    --container-max: 1600px;
+
+    /* Section Padding */
+
+    --section-padding-y: clamp(5rem, 8vw, 8rem);
+    --section-padding-x: clamp(1rem, 5vw, 5rem);
+
+    /* Navbar */
+
+    --navbar-height: 80px;
+
+    /* ===========================================================
+                            Z-INDEX
+    =========================================================== */
+
+    --z-background: -1;
+    --z-base: 1;
+    --z-dropdown: 100;
+    --z-sticky: 500;
+    --z-navbar: 900;
+    --z-overlay: 950;
+    --z-modal: 1000;
+    --z-loader: 9999;
+
+    /* ===========================================================
+                        RESPONSIVE BREAKPOINTS
+    =========================================================== */
+
+    --breakpoint-mobile: 480px;
+    --breakpoint-tablet: 768px;
+    --breakpoint-laptop: 1024px;
+    --breakpoint-desktop: 1280px;
+    --breakpoint-wide: 1440px;
+
+    /* ===========================================================
+                        TERMINAL COLORS
+    =========================================================== */
+
+    --terminal-bg: #111318;
+    --terminal-header: #1B1F27;
+
+    --terminal-text: #F8F8F2;
+    --terminal-green: #22C55E;
+    --terminal-yellow: #FACC15;
+    --terminal-red: #EF4444;
+    --terminal-blue: #3B82F6;
+
+    /* ===========================================================
+                        CLOUD COLORS
+    =========================================================== */
+
+    --aws: #FF9900;
+    --azure: #0078D4;
+    --gcp: #4285F4;
+    --oracle: #F80000;
+    --ibm: #1261FE;
+    --digital-ocean: #0080FF;
+
+}
+
+/* ===============================================================
+                        GRADIENTS
+=============================================================== */
+
+:root {
+
+    --gradient-primary:
+        linear-gradient(
+            135deg,
+            #D4AF37,
+            #E8C75A
+        );
+
+    --gradient-dark:
+        linear-gradient(
+            135deg,
+            #181818,
+            #2B2B2B
+        );
+
+    --gradient-terminal:
+        linear-gradient(
+            180deg,
+            #1A1F27,
+            #111318
+        );
+
+    --gradient-hero:
+        radial-gradient(
+            circle at top,
+            rgba(212,175,55,.15),
+            transparent 70%
+        );
+
+    /* ===========================================================
+                        OPACITY
+    =========================================================== */
+
+    --opacity-disabled: .45;
+    --opacity-muted: .70;
+    --opacity-hover: .92;
+
+    /* ===========================================================
+                        BORDER WIDTH
+    =========================================================== */
+
+    --border-thin: 1px;
+    --border-normal: 2px;
+    --border-thick: 3px;
+
+    /* ===========================================================
+                        ICON SIZE
+    =========================================================== */
+
+    --icon-xs: 16px;
+    --icon-sm: 20px;
+    --icon-md: 24px;
+    --icon-lg: 32px;
+    --icon-xl: 48px;
+
+}

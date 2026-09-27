@@ -1,0 +1,220 @@
+/* ==========================================================
+                CONFIGURE MIGRATION PAGE
+========================================================== */
+
+.migration-dashboard-page {
+
+    min-height: 100vh;
+
+    padding-top: 140px;
+    padding-bottom: 100px;
+
+}
+
+
+/* ==========================================================
+                PAGE HEADER
+========================================================== */
+
+.migration-dashboard-page .dashboard-header {
+
+    max-width: 850px;
+
+    margin: 0 auto 50px;
+
+    text-align: center;
+
+}
+
+
+.migration-dashboard-page .dashboard-badge {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 10px 16px;
+
+    margin-bottom: 20px;
+
+    border-radius: 50px;
+
+}
+
+
+.migration-dashboard-page .dashboard-header h1 {
+
+    margin-bottom: 18px;
+
+}
+
+
+.migration-dashboard-page .dashboard-header p {
+
+    max-width: 650px;
+
+    margin: 0 auto;
+
+}
+
+
+/* ==========================================================
+                RESOURCE CONFIGURATION CARD
+========================================================== */
+
+.resource-configuration-card {
+
+    max-width: 900px;
+
+    margin: 0 auto;
+
+    padding: 40px;
+
+    background: var(
+        --bg-card,
+        #ffffff
+    );
+
+    border: 1px solid
+        var(
+            --border-color,
+            #e5e5e5
+        );
+
+    border-radius: 24px;
+
+    box-shadow:
+        0 10px 40px
+        rgba(
+            0,
+            0,
+            0,
+            0.06
+        );
+
+}
+
+
+.resource-configuration-card h2 {
+
+    margin-bottom: 30px;
+
+    font-size: 28px;
+
+}
+
+
+/* ==========================================================
+                RESOURCE DETAILS
+========================================================== */
+
+.resource-configuration-card
+.resource-details {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap: 20px;
+
+}
+
+
+.resource-configuration-card
+.resource-detail {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    padding: 20px;
+
+    background:
+        var(
+            --bg-secondary,
+            #f8f8f8
+        );
+
+    border: 1px solid
+        var(
+            --border-color,
+            #eeeeee
+        );
+
+    border-radius: 16px;
+
+}
+
+
+.resource-configuration-card
+.resource-detail span {
+
+    font-size: 13px;
+
+    color:
+        var(
+            --text-secondary,
+            #777777
+        );
+
+}
+
+
+.resource-configuration-card
+.resource-detail strong {
+
+    font-size: 16px;
+
+    color:
+        var(
+            --text-primary,
+            #222222
+        );
+
+    word-break: break-word;
+
+}
+
+
+/* ==========================================================
+                RESPONSIVE
+========================================================== */
+
+@media (
+    max-width: 768px
+) {
+
+    .migration-dashboard-page {
+
+        padding-top: 110px;
+
+    }
+
+
+    .resource-configuration-card {
+
+        padding: 25px;
+
+    }
+
+
+    .resource-configuration-card
+    .resource-details {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+}

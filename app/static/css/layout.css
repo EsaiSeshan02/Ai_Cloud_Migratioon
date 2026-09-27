@@ -1,0 +1,453 @@
+/* ===================================================================
+   AI CLOUD MIGRATION
+   LAYOUT SYSTEM
+=================================================================== */
+
+
+/* ===============================================================
+                        MAIN CONTAINER
+=============================================================== */
+
+.container{
+
+    width:min(92%, var(--container-max));
+
+    margin-inline:auto;
+
+}
+
+
+/* ===============================================================
+                    SECTION DEFAULT
+=============================================================== */
+
+.section{
+
+    padding-block:var(--section-padding-y);
+
+}
+
+
+/* ===============================================================
+                    FLEX UTILITIES
+=============================================================== */
+
+.flex{
+
+    display:flex;
+
+}
+
+.flex-column{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.flex-center{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+}
+
+.flex-between{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+}
+
+.flex-wrap{
+
+    flex-wrap:wrap;
+
+}
+
+
+/* ===============================================================
+                    GRID UTILITIES
+=============================================================== */
+
+.grid{
+
+    display:grid;
+
+}
+
+.grid-2{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:var(--space-8);
+
+}
+
+.grid-3{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:var(--space-8);
+
+}
+
+.grid-4{
+
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:var(--space-8);
+
+}
+
+/* ===============================================================
+                    RESPONSIVE GRID SYSTEM
+=============================================================== */
+
+.grid-auto{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit, minmax(280px,1fr));
+
+    gap:var(--space-8);
+
+}
+
+.grid-auto-sm{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
+
+    gap:var(--space-6);
+
+}
+
+.grid-auto-lg{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit, minmax(350px,1fr));
+
+    gap:var(--space-10);
+
+}
+
+
+/* ===============================================================
+                    GAP UTILITIES
+=============================================================== */
+
+.gap-1{gap:var(--space-1);}
+.gap-2{gap:var(--space-2);}
+.gap-3{gap:var(--space-3);}
+.gap-4{gap:var(--space-4);}
+.gap-5{gap:var(--space-5);}
+.gap-6{gap:var(--space-6);}
+.gap-8{gap:var(--space-8);}
+.gap-10{gap:var(--space-10);}
+.gap-12{gap:var(--space-12);}
+
+
+/* ===============================================================
+                    ALIGNMENT HELPERS
+=============================================================== */
+
+.items-start{
+
+    align-items:flex-start;
+
+}
+
+.items-center{
+
+    align-items:center;
+
+}
+
+.items-end{
+
+    align-items:flex-end;
+
+}
+
+.justify-start{
+
+    justify-content:flex-start;
+
+}
+
+.justify-center{
+
+    justify-content:center;
+
+}
+
+.justify-end{
+
+    justify-content:flex-end;
+
+}
+
+.justify-between{
+
+    justify-content:space-between;
+
+}
+
+.justify-around{
+
+    justify-content:space-around;
+
+}
+
+.justify-evenly{
+
+    justify-content:space-evenly;
+
+}
+
+
+/* ===============================================================
+                    WIDTH UTILITIES
+=============================================================== */
+
+.w-auto{
+
+    width:auto;
+
+}
+
+.w-fit{
+
+    width:fit-content;
+
+}
+
+.w-full{
+
+    width:100%;
+
+}
+
+.max-w-sm{
+
+    max-width:600px;
+
+}
+
+.max-w-md{
+
+    max-width:800px;
+
+}
+
+.max-w-lg{
+
+    max-width:1000px;
+
+}
+
+.max-w-xl{
+
+    max-width:1200px;
+
+}
+
+.mx-auto{
+
+    margin-inline:auto;
+
+}
+
+/* ===============================================================
+                    MARGIN UTILITIES
+=============================================================== */
+
+.mt-auto { margin-top: auto; }
+
+.mb-auto { margin-bottom: auto; }
+
+.mx-auto { margin-inline: auto; }
+
+.my-auto { margin-block: auto; }
+
+.mt-2 { margin-top: var(--space-2); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-6 { margin-top: var(--space-6); }
+.mt-8 { margin-top: var(--space-8); }
+.mt-10 { margin-top: var(--space-10); }
+
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-6 { margin-bottom: var(--space-6); }
+.mb-8 { margin-bottom: var(--space-8); }
+.mb-10 { margin-bottom: var(--space-10); }
+
+
+/* ===============================================================
+                    PADDING UTILITIES
+=============================================================== */
+
+.p-2 { padding: var(--space-2); }
+
+.p-4 { padding: var(--space-4); }
+
+.p-6 { padding: var(--space-6); }
+
+.p-8 { padding: var(--space-8); }
+
+.p-10 { padding: var(--space-10); }
+
+.py-6 {
+    padding-block: var(--space-6);
+}
+
+.py-8 {
+    padding-block: var(--space-8);
+}
+
+.py-10 {
+    padding-block: var(--space-10);
+}
+
+.px-6 {
+    padding-inline: var(--space-6);
+}
+
+.px-8 {
+    padding-inline: var(--space-8);
+}
+
+.px-10 {
+    padding-inline: var(--space-10);
+}
+
+
+/* ===============================================================
+                    PAGE WRAPPERS
+=============================================================== */
+
+.page-wrapper{
+
+    min-height:100vh;
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.main-content{
+
+    flex:1;
+
+}
+
+
+/* ===============================================================
+                    SECTION HEADERS
+=============================================================== */
+
+.section-header{
+
+    max-width:800px;
+
+    margin-inline:auto;
+
+    text-align:center;
+
+    margin-bottom:var(--space-16);
+
+}
+
+
+/* ===============================================================
+                    RESPONSIVE HELPERS
+=============================================================== */
+
+.hide-desktop{
+
+    display:none;
+
+}
+
+.show-desktop{
+
+    display:block;
+
+}
+
+.hide-mobile{
+
+    display:block;
+
+}
+
+.show-mobile{
+
+    display:none;
+
+}
+
+
+/* ===============================================================
+                    IMAGE HELPERS
+=============================================================== */
+
+.img-cover{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+
+}
+
+.img-contain{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:contain;
+
+}
+
+
+/* ===============================================================
+                    OVERFLOW HELPERS
+=============================================================== */
+
+.overflow-hidden{
+
+    overflow:hidden;
+
+}
+
+.position-relative{
+
+    position:relative;
+
+}
+
+.position-absolute{
+
+    position:absolute;
+
+}

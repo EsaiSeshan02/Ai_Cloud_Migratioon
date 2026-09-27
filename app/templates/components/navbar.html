@@ -1,0 +1,145 @@
+<!-- ==========================================================
+                        NAVBAR
+=========================================================== -->
+
+<nav class="navbar animate fade-down">
+
+    <div class="container navbar-container">
+
+        <!-- ================= LOGO ================= -->
+
+        <a href="/" class="navbar-logo">
+
+            <img src="{{ url_for('static', filename='images/logos/logo-light.svg') }}"
+                 alt="AI Cloud Migration"
+                 class="logo-icon">
+
+            <span class="logo-text">
+                AI Cloud Migration
+            </span>
+
+        </a>
+
+        <!-- ================= DESKTOP MENU ================= -->
+
+        <div class="navbar-nav">
+
+            <ul class="navbar-menu">
+
+                <li>
+                    <a href="#hero" class="nav-link active">
+                        Home
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#features" class="nav-link">
+                        Features
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#solutions" class="nav-link">
+                        Solutions
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#workflow" class="nav-link">
+                        Workflow
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#docs" class="nav-link">
+                        Docs
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+
+        <!-- ================= ACTIONS ================= -->
+
+        <div class="navbar-actions">
+
+            <!-- Theme Toggle -->
+
+            <button
+                class="theme-toggle"
+                id="theme-toggle"
+                aria-label="Toggle theme">
+
+                🌙
+
+            </button>
+
+            {% if current_user.is_authenticated %}
+
+                <a href="{{ url_for('migration.migration_history_page') }}" class="login-btn">History</a>
+
+                <form method="POST" action="{{ url_for('auth.logout') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="login-btn">Logout</button>
+                </form>
+
+            {% else %}
+
+                <a href="/login" class="login-btn">Login</a>
+                <a href="/register" class="cta-btn">Get Started</a>
+
+            {% endif %}
+
+            <!-- Mobile Menu -->
+
+            <button
+                class="menu-toggle"
+                id="menu-toggle"
+                aria-label="Open Menu">
+
+                ☰
+
+            </button>
+
+        </div>
+
+    </div>
+
+</nav>
+
+<!-- ==========================================================
+                    MOBILE MENU
+=========================================================== -->
+
+<div class="mobile-menu" id="mobile-menu">
+
+    <a href="#hero">Home</a>
+
+    <a href="#features">Features</a>
+
+    <a href="#solutions">Solutions</a>
+
+    <a href="#workflow">Workflow</a>
+
+    <a href="#docs">Docs</a>
+
+    <hr>
+
+    {% if current_user.is_authenticated %}
+
+        <a href="{{ url_for('migration.migration_history_page') }}">History</a>
+
+        <form method="POST" action="{{ url_for('auth.logout') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="cta-btn">Logout</button>
+        </form>
+
+    {% else %}
+
+        <a href="/login">Login</a>
+        <a href="/register" class="cta-btn">Get Started</a>
+
+    {% endif %}
+
+</div>

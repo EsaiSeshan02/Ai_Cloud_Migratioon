@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Migration Details | AI Cloud Migration{% endblock %}
+{% block content %}
+<section class="dashboard-section">
+  <div class="pixel-card">
+    <p class="eyebrow">REAL PERSISTED MIGRATION STATE</p>
+    <h1>{{ migration.resource_name }}</h1>
+    <p>{{ migration.source_cloud|upper }} → {{ migration.target_cloud|upper }} · Status: <strong>{{ report.status }}</strong></p>
+    <p>Plan: {{ report.plan_id or 'No persisted plan reference (legacy execution)' }}</p>
+    {% if migration.resource_type == 'lambda' %}
+    <p>Validation: Azure Function App management-plane validation after deployment. It is not a business-level function invocation test.</p>
+    {% if report.lambda_deployment.failure_reason %}<p>Safe outcome: {{ report.lambda_deployment.failure_reason }}</p>{% endif %}
+    {% else %}
+    <p>Verification: destination size/metadata only; this is not a cryptographic cross-cloud checksum assertion.</p>
+    {% endif %}
+  </div>
+  <div class="report-grid">
+    <article class="pixel-card"><h3>{% if migration.resource_type == 'lambda' %}Deployment{% else %}Objects{% endif %}</h3><p>{% if migration.resource_type == 'lambda' %}{{ report.status }} · existing Function App target only.{% else %}{{ report.verified_objects }} verified, {{ report.skipped_objects }} skipped, {{ report.failed_objects }} failed, {{ report.manual_review_objects }} manual review.{% endif %}</p></article>
+    <article class="pixel-card"><h3>{% if migration.resource_type == 'lambda' %}Execution boundary{% else %}Transfer{% endif %}</h3><p>{% if migration.resource_type == 'lambda' %}Interrupted deployments require manual target inspection and a fresh approved attempt; they are not resumed automatically.{% else %}{{ report.bytes_transferred }} bytes transferred across {{ report.retry_attempts }} attempts.{% endif %}</p></article>
+    <article class="pixel-card"><h3>Destination</h3><p>{{ report.destination.storage_account or 'Not prepared' }} / {{ report.destination.container or 'Not prepared' }}</p><p>Mode: {{ report.destination.provisioning_mode or 'not recorded' }}</p></article>
+  </div>
+  {% if report.manual_review_objects or report.failed_objects %}
+  <div class="pixel-card"><h3>Review required</h3><p>Inspect the safe migration report API for aggregate counts, reconnect clouds, then use the supported resume flow where the persisted state permits it.</p></div>
+  {% endif %}
+  {% if migration.resource_type != 'lambda' %}<div class="pixel-card">
+    <h3>Object Results</h3>
+    <p>Showing the first {{ records|length }} persisted objects for this migration.</p>
+    <div class="table-responsive"><table class="report-table"><thead><tr><th>Object</th><th>Batch</th><th>Status</th><th>Verification</th><th>Attempts</th></tr></thead><tbody>
+    {% for item in records %}<tr><td>{{ item.object_key }}</td><td>{{ item.batch_number }}</td><td>{{ item.status }}</td><td>{{ item.verification_status or 'Not verified' }}</td><td>{{ item.attempt_count }}</td></tr>{% endfor %}
+    </tbody></table></div>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

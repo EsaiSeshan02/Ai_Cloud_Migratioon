@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+
+    <!-- ===================================================== -->
+    <!-- META -->
+    <!-- ===================================================== -->
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="description"
+        content="AI Cloud Migration Platform">
+
+    <meta
+        name="keywords"
+        content="Cloud Migration, AI, AWS, Azure, Google Cloud">
+
+    <meta
+        name="author"
+        content="AI Cloud Migration">
+
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+
+    <!-- ===================================================== -->
+    <!-- TITLE -->
+    <!-- ===================================================== -->
+
+    <title>
+
+        {% block title %}
+
+        AI Cloud Migration
+
+        {% endblock %}
+
+    </title>
+
+
+    <!-- ===================================================== -->
+    <!-- FAVICON -->
+    <!-- ===================================================== -->
+
+    <link
+        rel="icon"
+        href="{{ url_for('static', filename='images/logos/favicon.png') }}">
+
+
+    <!-- ===================================================== -->
+    <!-- CSS -->
+    <!-- ===================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/variables.css') }}">
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/reset.css') }}">
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/layout.css') }}">
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/animations.css') }}">
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/navbar.css') }}">
+
+    <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/footer.css') }}">
+
+    {% block extra_css %}
+
+    {% endblock %}
+
+</head>
+<body class="page-wrapper">
+
+    <!-- ===================================================== -->
+    <!-- LOADER (Future) -->
+    <!-- ===================================================== -->
+
+    <div id="page-loader" class="hidden">
+
+        <div class="loader"></div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- NAVBAR -->
+    <!-- ===================================================== -->
+
+    {% include 'components/navbar.html' %}
+
+
+    <!-- ===================================================== -->
+    <!-- MAIN CONTENT -->
+    <!-- ===================================================== -->
+
+    <main class="main-content">
+
+        {% block content %}
+
+        {% endblock %}
+
+    </main>
+
+
+    <!-- ===================================================== -->
+    <!-- FOOTER -->
+    <!-- ===================================================== -->
+
+    {% include 'components/footer.html' %}
+
+        <!-- ===================================================== -->
+    <!-- JAVASCRIPT -->
+    <!-- ===================================================== -->
+
+    <script>
+
+        /* Add the CSRF token to same-origin state-changing fetch requests. */
+        (() => {
+            const originalFetch = window.fetch.bind(window);
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+            window.fetch = (input, init = {}) => {
+                const method = (init.method || "GET").toUpperCase();
+                if (csrfToken && !["GET", "HEAD", "OPTIONS", "TRACE"].includes(method)) {
+                    const headers = new Headers(init.headers || {});
+                    headers.set("X-CSRFToken", csrfToken);
+                    init = { ...init, headers, credentials: init.credentials || "same-origin" };
+                }
+                return originalFetch(input, init);
+            };
+        })();
+
+        /*
+        ======================================================
+                INITIAL THEME LOADER
+        ======================================================
+        */
+
+        (() => {
+
+            const savedTheme = localStorage.getItem("theme");
+
+            if(savedTheme){
+
+                document.documentElement.setAttribute(
+
+                    "data-theme",
+
+                    savedTheme
+
+                );
+
+            }
+
+        })();
+
+    </script>
+
+
+    <script src="{{ url_for('static', filename='js/navbar.js') }}"></script>
+
+    <!-- =====================================================
+                    LUCIDE ICONS
+====================================================== -->
+
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.js"></script>
+
+<script>
+    lucide.createIcons();
+</script>
+
+
+    {% block extra_js %}
+
+    {% endblock %}
+
+</body>
+
+</html>

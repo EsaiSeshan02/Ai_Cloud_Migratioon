@@ -1,0 +1,1209 @@
+/* ==========================================================
+                    CONNECT CLOUD PAGE
+========================================================== */
+
+.connect-cloud-page {
+    padding: 55px 0 100px;
+    min-height: 100vh;
+}
+
+
+/* ==========================================================
+                    CONTAINER SAFETY
+========================================================== */
+
+.connect-cloud-page .container {
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto;
+}
+
+
+/* ==========================================================
+                    MIGRATION PATH
+========================================================== */
+
+.cloud-migration-path {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 18px;
+
+    margin-bottom: 32px;
+}
+
+
+.migration-cloud {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 10px 18px;
+
+    border:
+        1px solid
+        var(--border-color);
+
+    border-radius: 999px;
+
+    background:
+        var(--bg-card);
+
+    box-shadow:
+        0 8px 24px
+        rgba(0, 0, 0, 0.04);
+}
+
+
+.migration-cloud img {
+    width: 28px;
+
+    height: 28px;
+
+    object-fit: contain;
+}
+
+
+.migration-cloud span {
+    font-size: 0.86rem;
+
+    font-weight: 600;
+
+    color:
+        var(--text-primary);
+}
+
+
+.migration-arrow {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color:
+        var(--color-primary);
+}
+
+
+.migration-arrow svg {
+    width: 24px;
+
+    height: 24px;
+}
+
+
+/* ==========================================================
+                    PAGE HEADER
+========================================================== */
+
+.connect-cloud-header {
+    text-align: center;
+
+    max-width: 760px;
+
+    margin: 0 auto 46px;
+}
+
+
+.connection-badge {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 8px 14px;
+
+    border-radius: 999px;
+
+    background:
+        rgba(212, 175, 55, 0.10);
+
+    color:
+        var(--color-primary-dark);
+
+    font-size: 0.74rem;
+
+    font-weight: 600;
+
+    letter-spacing: 0.04em;
+
+    margin-bottom: 18px;
+}
+
+
+.connection-badge svg {
+    width: 16px;
+
+    height: 16px;
+}
+
+
+.connect-cloud-header h1 {
+    margin: 0 0 14px;
+
+    font-size: clamp(
+        2rem,
+        4vw,
+        3rem
+    );
+
+    font-weight: 500;
+
+    color:
+        var(--text-primary);
+
+    letter-spacing:
+        -0.03em;
+}
+
+
+.connect-cloud-header h1 span {
+    color:
+        var(--color-primary);
+}
+
+
+.connect-cloud-header p {
+    margin: 0;
+
+    color:
+        var(--text-secondary);
+
+    font-size: 0.98rem;
+
+    line-height: 1.75;
+}
+
+
+/* ==========================================================
+                    TWO CLOUD GRID
+========================================================== */
+
+.cloud-connection-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 28px;
+
+    align-items: stretch;
+}
+
+
+/* ==========================================================
+                    CONNECTION CARD
+========================================================== */
+
+.cloud-connection-card {
+    padding: 32px;
+
+    border-radius: 22px;
+
+    border:
+        1px solid
+        var(--border-color);
+
+    background:
+        var(--bg-card);
+
+    box-shadow:
+        0 14px 45px
+        rgba(0, 0, 0, 0.05);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+
+.cloud-connection-card:hover {
+    transform:
+        translateY(-3px);
+
+    box-shadow:
+        0 20px 55px
+        rgba(0, 0, 0, 0.07);
+}
+
+
+/* ==========================================================
+                    CARD HEADER
+========================================================== */
+
+.connection-card-header {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 15px;
+}
+
+
+.connection-icon {
+    width: 50px;
+
+    height: 50px;
+
+    min-width: 50px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 15px;
+
+    background:
+        rgba(212, 175, 55, 0.12);
+
+    color:
+        var(--color-primary);
+}
+
+
+.connection-icon svg {
+    width: 22px;
+
+    height: 22px;
+}
+
+
+.aws-icon {
+    background:
+        rgba(255, 153, 0, 0.10);
+
+    color:
+        #d97706;
+}
+
+
+.azure-icon {
+    background:
+        rgba(0, 120, 212, 0.10);
+
+    color:
+        #0078d4;
+}
+
+
+.gcp-icon {
+    background:
+        rgba(66, 133, 244, 0.10);
+
+    color:
+        #4285f4;
+}
+
+
+.cloud-card-label {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color:
+        var(--text-muted);
+
+    font-size: 0.68rem;
+
+    font-weight: 700;
+
+    letter-spacing: 0.10em;
+}
+
+
+.connection-card-header h2 {
+    margin: 0 0 7px;
+
+    font-size: 1.25rem;
+
+    font-weight: 500;
+
+    color:
+        var(--text-primary);
+}
+
+
+.connection-card-header p {
+    margin: 0;
+
+    color:
+        var(--text-secondary);
+
+    font-size: 0.84rem;
+
+    line-height: 1.6;
+}
+
+
+/* ==========================================================
+                    DIVIDER
+========================================================== */
+
+.connection-divider {
+    height: 1px;
+
+    margin: 24px 0;
+
+    background:
+        var(--border-color);
+}
+
+
+/* ==========================================================
+                    FORM
+========================================================== */
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+
+.form-group label {
+    display: block;
+
+    margin-bottom: 9px;
+
+    font-size: 0.82rem;
+
+    font-weight: 500;
+
+    color:
+        var(--text-primary);
+}
+
+
+/* ==========================================================
+                    INPUT WRAPPER
+========================================================== */
+
+.input-wrapper {
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+}
+
+
+.input-wrapper > svg {
+    position: absolute;
+
+    left: 16px;
+
+    width: 18px;
+
+    height: 18px;
+
+    color:
+        var(--text-secondary);
+
+    pointer-events: none;
+
+    z-index: 2;
+}
+
+
+.input-wrapper input,
+.input-wrapper select {
+    width: 100%;
+
+    height: 52px;
+
+    border:
+        1px solid
+        var(--border-color);
+
+    border-radius: 12px;
+
+    background:
+        var(--bg-secondary);
+
+    color:
+        var(--text-primary);
+
+    font-size: 0.88rem;
+
+    outline: none;
+
+    transition:
+        border 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+
+/* TEXT INPUT */
+
+.input-wrapper input {
+    padding:
+        0 48px;
+}
+
+
+/* SELECT */
+
+.input-wrapper select {
+    padding:
+        0 44px
+        0 48px;
+
+    appearance: auto;
+
+    cursor: pointer;
+}
+
+
+/* PLACEHOLDER */
+
+.input-wrapper input::placeholder {
+    color:
+        var(--text-muted);
+}
+
+
+/* FOCUS */
+
+.input-wrapper input:focus,
+.input-wrapper select:focus {
+    border-color:
+        var(--color-primary);
+
+    background:
+        var(--bg-card);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(212, 175, 55, 0.10);
+}
+
+
+/* ==========================================================
+                    SECRET TOGGLE
+========================================================== */
+
+.secret-toggle {
+    position: absolute;
+
+    right: 10px;
+
+    width: 34px;
+
+    height: 34px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: transparent;
+
+    color:
+        var(--text-secondary);
+
+    cursor: pointer;
+
+    z-index: 3;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+
+.secret-toggle:hover {
+    background:
+        rgba(0, 0, 0, 0.05);
+
+    color:
+        var(--text-primary);
+}
+
+
+.secret-toggle svg {
+    width: 18px;
+
+    height: 18px;
+}
+
+
+/* ==========================================================
+                    GCP FILE INPUT
+========================================================== */
+
+.file-input-wrapper {
+    position: relative;
+
+    min-height: 52px;
+
+    display: flex;
+
+    align-items: center;
+
+    padding: 0 16px;
+
+    border:
+        1px dashed
+        var(--border-color);
+
+    border-radius: 12px;
+
+    background:
+        var(--bg-secondary);
+
+    transition:
+        border 0.2s ease,
+        background 0.2s ease;
+}
+
+
+.file-input-wrapper:hover {
+    border-color:
+        var(--color-primary);
+
+    background:
+        var(--bg-card);
+}
+
+
+.file-input-wrapper > svg {
+    width: 18px;
+
+    height: 18px;
+
+    margin-right: 12px;
+
+    color:
+        var(--text-secondary);
+}
+
+
+.file-input-wrapper input {
+    width: 100%;
+
+    color:
+        var(--text-secondary);
+
+    font-size: 0.82rem;
+
+    cursor: pointer;
+}
+
+
+/* ==========================================================
+                    VALIDATE BUTTON
+========================================================== */
+
+.validate-section {
+    display: flex;
+
+    justify-content: center;
+
+    margin: 32px 0;
+}
+
+
+.validate-connections-btn {
+    min-height: 54px;
+
+    padding:
+        0 32px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 11px;
+
+    border: none;
+
+    border-radius: 999px;
+
+    background:
+        var(--color-primary);
+
+    color:
+        var(--text-primary);
+
+    font-size: 0.9rem;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease;
+}
+
+
+.validate-connections-btn:hover {
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 12px 28px
+        rgba(212, 175, 55, 0.28);
+}
+
+
+.validate-connections-btn:active {
+    transform:
+        translateY(0);
+}
+
+
+.validate-connections-btn:disabled {
+    opacity: 0.7;
+
+    cursor:
+        not-allowed;
+
+    transform:
+        none;
+}
+
+
+.validate-connections-btn svg {
+    width: 19px;
+
+    height: 19px;
+}
+
+
+/* ==========================================================
+                    BOTTOM INFORMATION SECTION
+========================================================== */
+
+.connection-information {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 28px;
+
+    margin-top: 10px;
+}
+
+
+.connection-info-card {
+    padding: 30px;
+
+    border-radius: 22px;
+
+    border:
+        1px solid
+        var(--border-color);
+
+    background:
+        var(--bg-card);
+
+    box-shadow:
+        0 12px 40px
+        rgba(0, 0, 0, 0.04);
+}
+
+
+/* ==========================================================
+                    INFORMATION CARD HEADER
+========================================================== */
+
+.info-card-header {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 15px;
+}
+
+
+.security-icon,
+.validation-icon {
+    width: 48px;
+
+    height: 48px;
+
+    min-width: 48px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 14px;
+}
+
+
+.security-icon {
+    background:
+        rgba(34, 197, 94, 0.10);
+
+    color:
+        #16a34a;
+}
+
+
+.validation-icon {
+    background:
+        rgba(212, 175, 55, 0.12);
+
+    color:
+        var(--color-primary);
+}
+
+
+.security-icon svg,
+.validation-icon svg {
+    width: 21px;
+
+    height: 21px;
+}
+
+
+.info-card-header h2 {
+    margin: 0 0 7px;
+
+    font-size: 1.15rem;
+
+    font-weight: 500;
+
+    color:
+        var(--text-primary);
+}
+
+
+.info-card-header p {
+    margin: 0;
+
+    font-size: 0.82rem;
+
+    line-height: 1.6;
+
+    color:
+        var(--text-secondary);
+}
+
+
+/* ==========================================================
+                    SECURITY FEATURES
+========================================================== */
+
+.security-features {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+    margin-top: 25px;
+}
+
+
+.security-feature {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 13px;
+
+    padding: 14px;
+
+    border:
+        1px solid
+        var(--border-color);
+
+    border-radius: 12px;
+
+    background:
+        var(--bg-secondary);
+}
+
+
+.security-feature > svg {
+    width: 18px;
+
+    height: 18px;
+
+    min-width: 18px;
+
+    margin-top: 2px;
+
+    color:
+        var(--text-secondary);
+}
+
+
+.security-feature h3 {
+    margin: 0 0 4px;
+
+    font-size: 0.82rem;
+
+    font-weight: 600;
+
+    color:
+        var(--text-primary);
+}
+
+
+.security-feature p {
+    margin: 0;
+
+    font-size: 0.75rem;
+
+    line-height: 1.55;
+
+    color:
+        var(--text-secondary);
+}
+
+
+/* ==========================================================
+                    VALIDATION STATUS
+========================================================== */
+
+.cloud-validation-item {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 16px;
+
+    margin-top: 16px;
+
+    border:
+        1px solid
+        var(--border-color);
+
+    border-radius: 12px;
+
+    background:
+        var(--bg-secondary);
+}
+
+
+.validation-cloud {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    font-size: 0.85rem;
+
+    font-weight: 600;
+
+    color:
+        var(--text-primary);
+}
+
+
+.validation-cloud svg {
+    width: 19px;
+
+    height: 19px;
+
+    color:
+        var(--text-secondary);
+}
+
+
+.validation-pending {
+    padding:
+        6px 10px;
+
+    border-radius: 999px;
+
+    background:
+        rgba(212, 175, 55, 0.10);
+
+    color:
+        var(--color-primary-dark);
+
+    font-size: 0.72rem;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+
+/* SUCCESS */
+
+.validation-success {
+    background:
+        rgba(34, 197, 94, 0.12);
+
+    color:
+        #15803d;
+}
+
+
+/* ERROR */
+
+.validation-failed {
+    background:
+        rgba(239, 68, 68, 0.10);
+
+    color:
+        #dc2626;
+}
+
+
+/* LOADING */
+
+.validation-loading {
+    background:
+        rgba(59, 130, 246, 0.10);
+
+    color:
+        #2563eb;
+}
+
+
+/* ==========================================================
+                    VALIDATION ERROR DETAILS
+========================================================== */
+
+.validation-error-details {
+    display: none;
+
+    margin-top: 16px;
+
+    padding: 14px;
+
+    border-radius: 12px;
+
+    border:
+        1px solid
+        rgba(239, 68, 68, 0.22);
+
+    background:
+        rgba(239, 68, 68, 0.06);
+
+    color:
+        #b91c1c;
+
+    font-size: 0.78rem;
+
+    line-height: 1.6;
+}
+
+
+.validation-error-details.show {
+    display: block;
+}
+
+
+/* ==========================================================
+                    LOADING ANIMATION
+========================================================== */
+
+.validate-connections-btn.loading svg:first-child {
+    animation:
+        connection-spin
+        1s linear infinite;
+}
+
+
+@keyframes connection-spin {
+
+    from {
+        transform:
+            rotate(0deg);
+    }
+
+
+    to {
+        transform:
+            rotate(360deg);
+    }
+
+}
+
+
+/* ==========================================================
+                    RESPONSIVE
+========================================================== */
+
+@media (
+    max-width: 900px
+) {
+
+    .cloud-connection-grid,
+    .connection-information {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+
+    .connect-cloud-page {
+
+        padding:
+            45px 0 80px;
+
+    }
+
+}
+
+
+@media (
+    max-width: 600px
+) {
+
+    .connect-cloud-page .container {
+
+        width:
+            min(100% - 28px, 1180px);
+
+    }
+
+
+    .connect-cloud-page {
+
+        padding:
+            35px 0 65px;
+
+    }
+
+
+    .cloud-migration-path {
+
+        gap:
+            10px;
+
+        margin-bottom:
+            25px;
+
+    }
+
+
+    .migration-cloud {
+
+        padding:
+            9px 12px;
+
+    }
+
+
+    .migration-cloud span {
+
+        font-size:
+            0.75rem;
+
+    }
+
+
+    .migration-cloud img {
+
+        width:
+            22px;
+
+        height:
+            22px;
+
+    }
+
+
+    .connect-cloud-header {
+
+        margin-bottom:
+            32px;
+
+    }
+
+
+    .connect-cloud-header h1 {
+
+        font-size:
+            2rem;
+
+    }
+
+
+    .cloud-connection-card,
+    .connection-info-card {
+
+        padding:
+            22px 18px;
+
+        border-radius:
+            18px;
+
+    }
+
+
+    .connection-card-header,
+    .info-card-header {
+
+        gap:
+            12px;
+
+    }
+
+
+    .connection-icon,
+    .security-icon,
+    .validation-icon {
+
+        width:
+            44px;
+
+        height:
+            44px;
+
+        min-width:
+            44px;
+
+    }
+
+
+    .validate-connections-btn {
+
+        width:
+            100%;
+
+        padding:
+            0 18px;
+
+    }
+
+
+    .cloud-validation-item {
+
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+
+    }
+
+}
