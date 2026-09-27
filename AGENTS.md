@@ -21,8 +21,8 @@ IMPORTANT:
 The current repository already contains:
 - Flask application factory and routes
 - Authentication routes/models
-- AWS, Azure and GCP service modules
-- AWS/Azure/GCP scanners
+- AWS and Azure service modules
+- AWS scanners and Azure target-discovery modules
 - AI analysis modules
 - Cloud mapping modules
 - S3 → Azure migration service

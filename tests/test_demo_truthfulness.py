@@ -85,31 +85,28 @@ class DemoTruthfulnessTests(unittest.TestCase):
 
     def test_only_supported_execution_routes_are_registered(self):
         rules = {rule.rule for rule in self.app.url_map.iter_rules()}
+        source_routes = {rule for rule in rules if rule.startswith("/migration/") and rule.endswith("-source")}
+        self.assertEqual(source_routes, {"/migration/aws-source"})
         self.assertIn("/api/migration/s3/start", rules)
         self.assertIn("/api/migration/lambda/start", rules)
         self.assertFalse(any("ec2" in rule.lower() or "rds" in rule.lower() or "dynamodb" in rule.lower()
                              for rule in rules if rule.startswith("/api/migration/")))
         self.assertFalse(any(rule in {"/dashboard", "/upload", "/report", "/migration/report"} for rule in rules))
 
-    def test_gcp_cannot_open_a_connected_target_or_dashboard_workflow(self):
+    def test_only_aws_to_azure_workflow_routes_are_available(self):
         self._login()
         connect = self.client.get(
-            "/migration/connect-cloud?source=aws&target=gcp&source_session_id=demo-aws"
+            "/migration/connect-cloud?source=aws&target=unsupported&source_session_id=demo-aws"
         )
         dashboard = self.client.get(
-            "/migration/dashboard?source=aws&target=gcp"
+            "/migration/dashboard?source=aws&target=unsupported"
             "&source_session_id=demo-aws&target_session_id=not-a-session"
         )
         self.assertEqual(connect.status_code, 400)
         self.assertEqual(dashboard.status_code, 400)
-        self.assertIn("GCP connection, assessment, and execution are not implemented", connect.get_data(as_text=True))
-
-        boundary = self.client.get("/migration/gcp-source?target=aws")
-        body = boundary.get_data(as_text=True)
-        self.assertEqual(boundary.status_code, 200)
-        self.assertIn("Google Cloud Is Not Available", body)
-        self.assertIn('id="gcp-service-account"', body)
-        self.assertRegex(body, r'id="gcp-service-account"[\s\S]*?disabled')
+        self.assertIn("AWS source to Azure target only", connect.get_data(as_text=True))
+        rules = {rule.rule for rule in self.app.url_map.iter_rules()}
+        self.assertEqual({rule for rule in rules if rule.startswith("/migration/") and rule.endswith("-source")}, {"/migration/aws-source"})
 
     def test_configuration_assets_hide_execution_controls_for_planning_resources(self):
         script = (ROOT / "app" / "static" / "js" / "configure-migration.js").read_text(encoding="utf-8")
@@ -124,6 +121,9 @@ class DemoTruthfulnessTests(unittest.TestCase):
         self.assertIn("planning-only-notice", template)
         self.assertIn("js/migration-dashboard.js", active_dashboard)
         self.assertFalse((ROOT / "app" / "static" / "js" / "dashboard-migration.js").exists())
+        solutions = (ROOT / "app" / "templates" / "components" / "solutions.html").read_text(encoding="utf-8")
+        self.assertIn('data-route="aws-azure"', solutions)
+        self.assertNotIn("migration-select-btn\" data-source", solutions)
 
 
 if __name__ == "__main__":

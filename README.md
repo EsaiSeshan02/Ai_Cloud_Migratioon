@@ -3,8 +3,8 @@
 An AWS-to-Azure migration assessment prototype with real execution for **AWS S3
 to Azure Blob Storage** and a deliberately narrow **Python ZIP AWS Lambda to an
 existing Azure Function App** path. It preserves a deterministic safety boundary:
-EC2, RDS, DynamoDB, Azure-to-AWS, and GCP are assessment/planning or
-manual-review paths, not automatic migrations.
+EC2, RDS, and DynamoDB are assessment/planning or manual-review paths, not
+automatic migrations.
 
 ## Architecture
 
@@ -24,7 +24,6 @@ manual-review paths, not automatic migrations.
 | RDS PostgreSQL/MySQL/SQL Server | Engine-aware Azure database target | Planning only |
 | Unknown RDS engine | Manual review | Manual review |
 | Lambda | Azure Functions | Real execution for the documented narrow Python ZIP subset; all other cases require manual review |
-| Azure resources to AWS | AWS equivalents | Planning/manual review only |
 
 ## S3 execution behavior
 
@@ -136,9 +135,8 @@ the real S3 transfer → monitor persisted progress → reconnect/resume if need
 → open migration history/details → generate the persisted aggregate report.
 
 The active configuration UI exposes execution controls only for S3 and the
-separately gated Lambda workflow. EC2, RDS, Azure-to-AWS, DynamoDB, and GCP
-resources remain assessment/manual-review items and do not show an executable
-migration control.
+separately gated Lambda workflow. EC2, RDS, and DynamoDB resources remain
+assessment/manual-review items and do not show an executable migration control.
 
 ## Limitations
 
@@ -146,7 +144,7 @@ This is a production-oriented prototype, not a production deployment claim.
 The in-process worker/execution-session design must be replaced with a shared
 credential/session and durable job system for multi-process production use.
 Formal Alembic revision history is not yet initialized; the app uses safe,
-additive schema upgrades for existing SQLite data. EC2/RDS/DynamoDB/GCP execution
+additive schema upgrades for existing SQLite data. EC2/RDS/DynamoDB execution
 must not be claimed until separate real execution, verification, cutover, and
 rollback implementations exist. Lambda execution is limited strictly to the
 documented Python ZIP subset and does not translate AWS triggers, IAM, VPC

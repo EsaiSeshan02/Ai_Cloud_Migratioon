@@ -457,15 +457,9 @@ async function startResourceScan(
 
 
 function getSourceScanRequest(sourceCloud, sourceSessionId, targetCloud) {
-    if (String(sourceCloud || "").toLowerCase() === "azure") {
-        return {
-            endpoint: "/api/azure/scan",
-            body: {session_id: sourceSessionId}
-        };
-    }
     return {
         endpoint: "/api/aws/scan",
-        body: {session_id: sourceSessionId, target: targetCloud}
+        body: {session_id: sourceSessionId, target: "azure"}
     };
 }
 

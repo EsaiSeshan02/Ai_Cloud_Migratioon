@@ -294,15 +294,6 @@
 }
 
 
-.gcp-icon {
-    background:
-        rgba(66, 133, 244, 0.10);
-
-    color:
-        #4285f4;
-}
-
-
 .cloud-card-label {
     display: block;
 
@@ -545,7 +536,7 @@
 
 
 /* ==========================================================
-                    GCP FILE INPUT
+                    LEGACY FILE INPUT
 ========================================================== */
 
 .file-input-wrapper {

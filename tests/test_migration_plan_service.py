@@ -43,23 +43,6 @@ def normalized_resources():
     }
 
 
-def azure_normalized_resources():
-    return {
-        "vm": {"success": True, "resources": [{
-            "service": "Azure Virtual Machine", "resource_type": "virtual_machine", "resource_id": "vm-1", "name": "vm-1",
-            "vm_size": "Standard_D2s_v5", "os_type": "Linux", "data_disk_count": 1, "location": "eastus",
-        }]},
-        "storage": {"success": True, "resources": [{
-            "service": "Azure Storage Account", "resource_type": "storage_account", "resource_id": "store-1", "name": "store-1",
-            "kind": "StorageV2", "sku": "Standard_LRS", "location": "eastus",
-        }]},
-        "sql": {"success": True, "resources": [{
-            "service": "Azure SQL Database", "resource_type": "sql_database", "resource_id": "sql-1", "name": "orders",
-            "server_name": "server-1", "sku_tier": "GeneralPurpose", "connection_string": "must-not-persist",
-        }]},
-    }
-
-
 class MigrationPlanServiceTests(unittest.TestCase):
     def setUp(self):
         self.app = create_app({
@@ -199,21 +182,14 @@ class MigrationPlanServiceTests(unittest.TestCase):
             self.assertIn("bucket_policy_lifecycle_review", findings)
             self.assertIn("object_inventory_deferred", findings)
 
-    def test_azure_plan_assessments_never_become_executable(self):
+    def test_non_aws_to_azure_plans_are_not_created(self):
         with self.app.app_context():
-            plan = generate_migration_plan(
-                user_id=self.owner_id, source_cloud="azure", target_cloud="aws",
-                source_session_reference="azure-source", target_session_reference="aws-target",
-                normalized_resources=azure_normalized_resources(),
-            )
-            resources = {item.service: item for item in plan.resources}
-            self.assertEqual(resources["Azure Virtual Machine"].capability_classification, "planning_only")
-            self.assertEqual(resources["Azure Virtual Machine"].risk_level, "high")
-            self.assertEqual(resources["Azure Storage Account"].capability_classification, "planning_only")
-            self.assertEqual(resources["Azure Storage Account"].risk_level, "medium")
-            self.assertEqual(resources["Azure SQL Database"].capability_classification, "manual_review")
-            self.assertEqual(resources["Azure SQL Database"].risk_level, "manual_review")
-            self.assertNotIn("must-not-persist", resources["Azure SQL Database"].source_metadata)
+            with self.assertRaisesRegex(ValueError, "AWS to Azure"):
+                generate_migration_plan(
+                    user_id=self.owner_id, source_cloud="unsupported", target_cloud="azure",
+                    source_session_reference="source", target_session_reference="target",
+                    normalized_resources=normalized_resources(),
+                )
 
     def test_plan_serialization_exposes_assessment_not_sensitive_metadata(self):
         with self.app.app_context():

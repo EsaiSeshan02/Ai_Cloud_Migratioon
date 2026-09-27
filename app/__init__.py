@@ -102,7 +102,7 @@ def create_app(test_config=None):
             return None
         if request.path in {"/login", "/register"}:
             limiter.enforce(60, 300)
-        elif request.path.startswith(("/api/aws/connect", "/api/azure/connect", "/api/migration/")):
+        elif request.path.startswith(("/api/aws/connect", "/api/migration/")):
             limiter.enforce(120, 300)
         return None
 

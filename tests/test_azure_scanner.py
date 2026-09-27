@@ -3,8 +3,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from app import create_app
-from app.ai.ai_engine import ai_engine
-from app.mappers.cloud_mapper import PLANNING_ONLY, SUPPORTED_EXECUTION
+from app.mappers.cloud_mapper import get_cloud_mapping
 from app.scanners.azure_scanner import (
     scan_all_resources,
     scan_sql_databases,
@@ -114,24 +113,22 @@ class AzureScannerTests(unittest.TestCase):
         self.assertTrue(result["azure_sql_databases"]["success"])
         self.assertNotIn("credential-value", result["azure_storage_accounts"]["message"])
 
-    def test_azure_discovery_remains_planning_or_manual_review(self):
+    def test_azure_discovery_is_target_metadata_not_a_reverse_migration_path(self):
         with self.app.app_context():
             results = scan_all_resources(FakeComputeClient(), FakeStorageClient(), FakeSqlClient())
         for service_result in results.values():
             for resource in service_result["resources"]:
                 self.assertTrue({"service", "resource_type", "resource_id", "name"}.issubset(resource))
-        recommendations = ai_engine.analyze_resources(results, "Azure", "AWS")
-        classifications = {item["source_service"]: item["execution_classification"] for item in recommendations}
-        self.assertEqual(classifications["Azure Virtual Machine"], PLANNING_ONLY)
-        self.assertEqual(classifications["Azure Storage Account"], PLANNING_ONLY)
-        self.assertNotEqual(classifications["Azure SQL Database"], SUPPORTED_EXECUTION)
+        self.assertIsNone(get_cloud_mapping("azure", "aws", "Azure Virtual Machine"))
+        self.assertIsNone(get_cloud_mapping("azure", "aws", "Azure Storage Account"))
+        self.assertIsNone(get_cloud_mapping("azure", "aws", "Azure SQL Database"))
 
-    def test_dashboard_has_source_aware_scan_request(self):
+    def test_dashboard_uses_the_aws_source_scan_request(self):
         script = Path("app/static/js/migration-dashboard.js").read_text(encoding="utf-8")
         self.assertIn("function getSourceScanRequest", script)
         self.assertIn("function getDashboardCloudContext", script)
-        self.assertIn('endpoint: "/api/azure/scan"', script)
         self.assertIn('endpoint: "/api/aws/scan"', script)
+        self.assertEqual(script.count("endpoint:"), 1)
 
 
 if __name__ == "__main__":

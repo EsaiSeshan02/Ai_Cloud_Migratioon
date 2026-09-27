@@ -624,31 +624,6 @@ function getTargetCloud(
     }
 
 
-    if (
-        targetService.includes(
-            "google"
-        ) ||
-        targetService.includes(
-            "gcp"
-        )
-    ) {
-
-        return "gcp";
-
-    }
-
-
-    if (
-        targetService.includes(
-            "aws"
-        )
-    ) {
-
-        return "aws";
-
-    }
-
-
     /* ======================================================
             DEFAULT
     ====================================================== */
@@ -719,51 +694,6 @@ function loadTargetRegions(
             {
                 value: "southindia",
                 label: "South India"
-            }
-
-        ],
-
-
-        gcp: [
-
-            {
-                value: "us-central1",
-                label: "US Central 1"
-            },
-
-            {
-                value: "us-east1",
-                label: "US East 1"
-            },
-
-            {
-                value: "asia-south1",
-                label: "Mumbai"
-            },
-
-            {
-                value: "asia-south2",
-                label: "Delhi"
-            }
-
-        ],
-
-
-        aws: [
-
-            {
-                value: "us-east-1",
-                label: "US East (N. Virginia)"
-            },
-
-            {
-                value: "us-west-1",
-                label: "US West (N. California)"
-            },
-
-            {
-                value: "ap-south-1",
-                label: "Asia Pacific (Mumbai)"
             }
 
         ]

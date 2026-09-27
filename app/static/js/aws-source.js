@@ -191,8 +191,7 @@ document.addEventListener(
 
 
                 if (
-                    targetValue !== "azure" &&
-                    targetValue !== "gcp"
+                    targetValue !== "azure"
                 ) {
 
                     showStatus(

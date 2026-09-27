@@ -36,43 +36,8 @@ Migration Dashboard | AI Cloud Migration
 
             <div class="dashboard-cloud">
 
-                {% if source == "aws" %}
-
-                    <img
-                        src="{{ url_for(
-                            'static',
-                            filename='images/clouds/aws.svg'
-                        ) }}"
-                        alt="AWS"
-                    >
-
-                    <span>AWS</span>
-
-                {% elif source == "azure" %}
-
-                    <img
-                        src="{{ url_for(
-                            'static',
-                            filename='images/clouds/azure.svg'
-                        ) }}"
-                        alt="Azure"
-                    >
-
-                    <span>Azure</span>
-
-                {% elif source == "gcp" %}
-
-                    <img
-                        src="{{ url_for(
-                            'static',
-                            filename='images/clouds/gcp.svg'
-                        ) }}"
-                        alt="Google Cloud"
-                    >
-
-                    <span>Google Cloud</span>
-
-                {% endif %}
+                <img src="{{ url_for('static', filename='images/clouds/aws.svg') }}" alt="AWS">
+                <span>AWS Source</span>
 
             </div>
 
@@ -88,43 +53,8 @@ Migration Dashboard | AI Cloud Migration
 
             <div class="dashboard-cloud">
 
-                {% if target == "aws" %}
-
-                    <img
-                        src="{{ url_for(
-                            'static',
-                            filename='images/clouds/aws.svg'
-                        ) }}"
-                        alt="AWS"
-                    >
-
-                    <span>AWS</span>
-
-                {% elif target == "azure" %}
-
-                    <img
-                        src="{{ url_for(
-                            'static',
-                            filename='images/clouds/azure.svg'
-                        ) }}"
-                        alt="Azure"
-                    >
-
-                    <span>Azure</span>
-
-                {% elif target == "gcp" %}
-
-                    <img
-                        src="{{ url_for(
-                            'static',
-                            filename='images/clouds/gcp.svg'
-                        ) }}"
-                        alt="Google Cloud"
-                    >
-
-                    <span>Google Cloud</span>
-
-                {% endif %}
+                <img src="{{ url_for('static', filename='images/clouds/azure.svg') }}" alt="Azure">
+                <span>Azure Target</span>
 
             </div>
 

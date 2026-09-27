@@ -34,16 +34,6 @@ _SAFE_METADATA = {
         "package_type", "vpc_enabled", "layers_count", "tracing_mode", "event_source_types",
         "event_source_discovery_available", "environment_variables_included",
     },
-    "Azure Virtual Machine": {
-        "resource_group", "location", "vm_size", "provisioning_state", "os_type", "data_disk_count", "availability_zones",
-    },
-    "Azure Storage Account": {
-        "resource_group", "location", "kind", "sku", "access_tier", "https_only", "public_network_access",
-        "allow_blob_public_access", "encryption_enabled",
-    },
-    "Azure SQL Database": {
-        "resource_group", "server_name", "location", "status", "sku", "sku_tier", "max_size_bytes", "collation",
-    },
 }
 
 
@@ -206,55 +196,8 @@ def _lambda_assessment(resource):
     return "manual_review" if reasons else "high", dependencies, findings, reasons
 
 
-def _azure_assessment(resource, classification):
-    service = resource.get("service")
-    if service == "Azure Virtual Machine":
-        findings = [
-            _finding("warning", "vm_execution_not_implemented", "Azure VM to EC2 execution is not implemented by this application."),
-            _finding("info", "vm_image_network_review", "Image, disk, network, security-group, OS, and architecture conversion require review."),
-        ]
-        dependencies = ["VM image export", "Disk conversion", "VPC/subnet design", "Security-group review"]
-        if resource.get("vm_size"):
-            findings.append(_finding("info", "vm_size_discovered", "Azure VM size was discovered; EC2 instance sizing requires assessment."))
-        else:
-            findings.append(_finding("warning", "vm_size_missing", "Azure VM size is unavailable for EC2 sizing assessment."))
-        if resource.get("os_type"):
-            findings.append(_finding("info", "vm_os_discovered", "Operating-system metadata was discovered; boot compatibility still requires validation."))
-        else:
-            findings.append(_finding("warning", "vm_os_unknown", "Operating-system metadata is unavailable for boot compatibility assessment."))
-        if resource.get("data_disk_count"):
-            findings.append(_finding("info", "vm_data_disks_discovered", "Attached data-disk count was discovered; disk conversion requires review."))
-        findings.append(_finding("warning", "azure_vm_network_not_inventoried", "NIC, VNet, subnet, and security-rule details are not included in this inventory and require review."))
-        return "high", dependencies, findings, []
-    if service == "Azure Storage Account":
-        findings = [
-            _finding("warning", "storage_execution_not_implemented", "Azure Storage to S3 execution is not implemented by this application."),
-            _finding("info", "storage_inventory_review", "Container, blob inventory, access policy, and encryption compatibility require review."),
-        ]
-        if resource.get("kind"):
-            findings.append(_finding("info", "storage_kind_discovered", "Storage account kind was discovered for target design assessment."))
-        if resource.get("sku"):
-            findings.append(_finding("info", "storage_sku_discovered", "Storage SKU was discovered for capacity and durability planning."))
-        if not resource.get("location"):
-            findings.append(_finding("warning", "storage_region_unknown", "Storage account region is unavailable for target-region planning."))
-        return "medium", ["Blob inventory", "S3 bucket design", "Access-policy review"], findings, []
-    if service == "Azure SQL Database":
-        findings = [
-            _finding("warning", "database_execution_not_implemented", "Azure SQL to AWS database execution is not implemented by this application."),
-            _finding("warning", "database_connectivity_review", "Approved database credentials and connectivity must be supplied later; no credentials are stored in this plan."),
-        ]
-        if resource.get("server_name"):
-            findings.append(_finding("info", "sql_server_discovered", "Azure SQL server metadata was discovered without requesting connection details."))
-        if resource.get("sku_tier"):
-            findings.append(_finding("info", "sql_sku_discovered", "Azure SQL SKU metadata was discovered for compatibility planning."))
-        return "manual_review", ["Database compatibility assessment", "Approved connectivity workflow", "Data transfer plan", "Validation plan", "Rollback plan"], findings, ["Database target and compatibility require manual review."]
-    return "manual_review", [], [_finding("warning", "unsupported_service", "No deterministic migration assessment is available.")], ["Service is unsupported."]
-
-
 def _assessment(resource, classification, source_session_reference, target_session_reference):
     service = resource.get("service")
-    if str(resource.get("source_cloud", "")).lower() == "azure" or service.startswith("Azure "):
-        return _azure_assessment(resource, classification)
     if service == "S3":
         return _s3_assessment(resource, source_session_reference, target_session_reference)
     if service == "EC2":
@@ -326,8 +269,8 @@ def generate_migration_plan(*, user_id, source_cloud, target_cloud, source_sessi
     """Create an owner-scoped plan from safe normalized scanner output."""
     source = str(source_cloud or "").lower()
     target = str(target_cloud or "").lower()
-    if (source, target) not in {("aws", "azure"), ("azure", "aws")}:
-        raise ValueError("Persisted planning supports AWS to Azure and Azure to AWS assessment only.")
+    if (source, target) != ("aws", "azure"):
+        raise ValueError("Persisted planning supports AWS to Azure assessment only.")
 
     resources = list(_iter_normalized_resources(normalized_resources))
     plan = MigrationPlan(

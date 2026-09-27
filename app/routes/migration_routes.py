@@ -30,7 +30,6 @@ from app.services.aws_service import (
 
 from app.services.azure_service import (
     connect_azure,
-    scan_azure_resources,
     get_azure_session
 )
 
@@ -116,11 +115,8 @@ def owned_migration_plan(plan_id):
 # SUPPORTED CLOUDS
 # ==========================================================
 
-SUPPORTED_CLOUDS = [
-    "aws",
-    "azure",
-    "gcp"
-]
+AWS_SOURCE = "aws"
+AZURE_TARGET = "azure"
 
 
 # ==========================================================
@@ -136,107 +132,13 @@ def aws_source():
     ).strip().lower()
 
 
-    if target not in SUPPORTED_CLOUDS:
-
-        return (
-            "Unsupported target cloud.",
-            400
-        )
-
-
-    if target == "aws":
-
-        return (
-            "Source and target cloud cannot be the same.",
-            400
-        )
-
-    if target == "gcp":
-        return "GCP target connection, assessment, and execution are not implemented.", 400
+    if target != AZURE_TARGET:
+        return "This assistant supports AWS source to Azure target only.", 400
 
 
     return render_template(
 
         "migration/aws-source.html",
-
-        target=target
-
-    )
-
-
-# ==========================================================
-# AZURE SOURCE PAGE
-# ==========================================================
-
-@migration_bp.route("/migration/azure-source")
-def azure_source():
-
-    target = request.args.get(
-        "target",
-        "aws"
-    ).strip().lower()
-
-
-    if target not in SUPPORTED_CLOUDS:
-
-        return (
-            "Unsupported target cloud.",
-            400
-        )
-
-
-    if target == "azure":
-
-        return (
-            "Source and target cloud cannot be the same.",
-            400
-        )
-
-    if target == "gcp":
-        return "GCP target connection, assessment, and execution are not implemented.", 400
-
-
-    return render_template(
-
-        "migration/azure-source.html",
-
-        target=target
-
-    )
-
-
-# ==========================================================
-# GCP SOURCE PAGE
-# ==========================================================
-
-@migration_bp.route("/migration/gcp-source")
-def gcp_source():
-
-    target = request.args.get(
-        "target",
-        "aws"
-    ).strip().lower()
-
-
-    if target not in SUPPORTED_CLOUDS:
-
-        return (
-            "Unsupported target cloud.",
-            400
-        )
-
-
-    if target == "gcp":
-
-        return (
-            "Source and target cloud cannot be the same.",
-            400
-        )
-
-
-    return render_template(
-
-        "migration/gcp-source.html",
 
         target=target
 
@@ -275,43 +177,8 @@ def connect_cloud():
         ).strip()
 
 
-    # ------------------------------------------------------
-    # VALIDATE SOURCE
-    # ------------------------------------------------------
-
-    if source not in SUPPORTED_CLOUDS:
-
-        return (
-            "Unsupported source cloud.",
-            400
-        )
-
-
-    # ------------------------------------------------------
-    # VALIDATE TARGET
-    # ------------------------------------------------------
-
-    if target not in SUPPORTED_CLOUDS:
-
-        return (
-            "Unsupported target cloud.",
-            400
-        )
-
-
-    # ------------------------------------------------------
-    # SOURCE AND TARGET CANNOT MATCH
-    # ------------------------------------------------------
-
-    if source == target:
-
-        return (
-            "Source and target cloud cannot be the same.",
-            400
-        )
-
-    if source == "gcp" or target == "gcp":
-        return "GCP connection, assessment, and execution are not implemented.", 400
+    if (source, target) != (AWS_SOURCE, AZURE_TARGET):
+        return "This assistant supports AWS source to Azure target only.", 400
 
 
     # ------------------------------------------------------
@@ -326,54 +193,7 @@ def connect_cloud():
         )
 
 
-    # ------------------------------------------------------
-    # AWS SOURCE SESSION
-    # ------------------------------------------------------
-
-    if source == "aws":
-
-        source_session = owned_aws_session(
-            source_session_id
-        )
-
-        if not source_session:
-
-            return (
-                "AWS source session expired. "
-                "Please connect AWS again.",
-                401
-            )
-
-
-    # ------------------------------------------------------
-    # AZURE SOURCE SESSION
-    # ------------------------------------------------------
-
-    elif source == "azure":
-
-        source_session = owned_azure_session(
-            source_session_id
-        )
-
-        if not source_session:
-
-            return (
-                "Azure source session expired. "
-                "Please connect Azure again.",
-                401
-            )
-
-
-    # ------------------------------------------------------
-    # GCP SOURCE
-    # ------------------------------------------------------
-
-    elif source == "gcp":
-
-        # GCP session validation will be implemented
-        # when GCP connector is completed.
-
-        pass
+    owned_aws_session(source_session_id)
 
 
     # ------------------------------------------------------
@@ -421,43 +241,8 @@ def migration_dashboard():
     ).strip()
 
 
-    # ------------------------------------------------------
-    # VALIDATE SOURCE CLOUD
-    # ------------------------------------------------------
-
-    if source not in SUPPORTED_CLOUDS:
-
-        return (
-            "Unsupported source cloud.",
-            400
-        )
-
-
-    # ------------------------------------------------------
-    # VALIDATE TARGET CLOUD
-    # ------------------------------------------------------
-
-    if target not in SUPPORTED_CLOUDS:
-
-        return (
-            "Unsupported target cloud.",
-            400
-        )
-
-
-    # ------------------------------------------------------
-    # SOURCE AND TARGET CANNOT MATCH
-    # ------------------------------------------------------
-
-    if source == target:
-
-        return (
-            "Source and target cloud cannot be the same.",
-            400
-        )
-
-    if source == "gcp" or target == "gcp":
-        return "GCP connection, assessment, and execution are not implemented.", 400
+    if (source, target) != (AWS_SOURCE, AZURE_TARGET):
+        return "This assistant supports AWS source to Azure target only.", 400
 
 
     # ------------------------------------------------------
@@ -484,100 +269,8 @@ def migration_dashboard():
         )
 
 
-    # ------------------------------------------------------
-    # VALIDATE AWS SOURCE SESSION
-    # ------------------------------------------------------
-
-    if source == "aws":
-
-        source_migration = owned_aws_session(
-            source_session_id
-        )
-
-        if not source_migration:
-
-            return (
-                "AWS source session expired. "
-                "Please connect AWS again.",
-                401
-            )
-
-
-    # ------------------------------------------------------
-    # VALIDATE AZURE SOURCE SESSION
-    # ------------------------------------------------------
-
-    elif source == "azure":
-
-        source_migration = owned_azure_session(
-            source_session_id
-        )
-
-        if not source_migration:
-
-            return (
-                "Azure source session expired. "
-                "Please connect Azure again.",
-                401
-            )
-
-
-    # ------------------------------------------------------
-    # GCP SOURCE
-    # ------------------------------------------------------
-
-    elif source == "gcp":
-
-        # Future GCP session validation
-        pass
-
-
-    # ------------------------------------------------------
-    # VALIDATE AWS TARGET SESSION
-    # ------------------------------------------------------
-
-    if target == "aws":
-
-        target_migration = owned_aws_session(
-            target_session_id
-        )
-
-        if not target_migration:
-
-            return (
-                "AWS target session expired. "
-                "Please connect AWS again.",
-                401
-            )
-
-
-    # ------------------------------------------------------
-    # VALIDATE AZURE TARGET SESSION
-    # ------------------------------------------------------
-
-    elif target == "azure":
-
-        target_migration = owned_azure_session(
-            target_session_id
-        )
-
-        if not target_migration:
-
-            return (
-                "Azure target session expired. "
-                "Please connect Azure again.",
-                401
-            )
-
-
-    # ------------------------------------------------------
-    # GCP TARGET
-    # ------------------------------------------------------
-
-    elif target == "gcp":
-
-        # Future GCP session validation
-        pass
+    owned_aws_session(source_session_id)
+    owned_azure_session(target_session_id)
 
 
     # ------------------------------------------------------
@@ -631,25 +324,11 @@ def configure_migration():
     if not target_session_id:
         return "Target cloud session is missing.", 400
 
-    if source not in SUPPORTED_CLOUDS or target not in SUPPORTED_CLOUDS:
+    if (source, target) != (AWS_SOURCE, AZURE_TARGET):
         abort(400)
 
-    if source == target:
-        abort(400)
-
-    if source == "aws":
-        owned_aws_session(source_session_id)
-    elif source == "azure":
-        owned_azure_session(source_session_id)
-    else:
-        abort(400)
-
-    if target == "aws":
-        owned_aws_session(target_session_id)
-    elif target == "azure":
-        owned_azure_session(target_session_id)
-    else:
-        abort(400)
+    owned_aws_session(source_session_id)
+    owned_azure_session(target_session_id)
 
     return render_template(
         "migration/configure-migration.html",
@@ -724,28 +403,8 @@ def aws_connect():
     # VALIDATE TARGET
     # ------------------------------------------------------
 
-    if target not in SUPPORTED_CLOUDS:
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Unsupported target cloud."
-
-        }), 400
-
-
-    if target == "aws":
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "AWS cannot be both source and target."
-
-        }), 400
+    if target != AZURE_TARGET:
+        return jsonify(success=False, message="This assistant supports AWS source to Azure target only."), 400
 
 
     # ------------------------------------------------------
@@ -773,143 +432,6 @@ def aws_connect():
     if result.get("success"):
 
         audit_event("aws_connection_verified", user_id=current_user.id, status="success", category="cloud")
-
-        return jsonify(
-            result
-        )
-
-
-    return jsonify(
-        result
-    ), 401
-
-
-# ==========================================================
-# AZURE CONNECT API
-# ==========================================================
-#
-# Used for Azure source connection.
-# Also used for Azure target validation.
-#
-# ==========================================================
-
-@migration_bp.route(
-    "/api/azure/connect",
-    methods=["POST"]
-)
-def azure_connect():
-
-    data = request.get_json(
-        silent=True
-    ) or {}
-
-
-    # ------------------------------------------------------
-    # GET DATA
-    # ------------------------------------------------------
-
-    tenant_id = data.get(
-        "tenant_id",
-        ""
-    ).strip()
-
-
-    client_id = data.get(
-        "client_id",
-        ""
-    ).strip()
-
-
-    client_secret = data.get(
-        "client_secret",
-        ""
-    ).strip()
-
-
-    subscription_id = data.get(
-        "subscription_id",
-        ""
-    ).strip()
-
-
-    target = data.get(
-        "target",
-        ""
-    ).strip().lower()
-
-
-    # ------------------------------------------------------
-    # VALIDATE INPUT
-    # ------------------------------------------------------
-
-    if not all([
-
-        tenant_id,
-
-        client_id,
-
-        client_secret,
-
-        subscription_id,
-
-        target
-
-    ]):
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "All Azure connection fields are required."
-
-        }), 400
-
-
-    # ------------------------------------------------------
-    # VALIDATE TARGET
-    # ------------------------------------------------------
-
-    if target not in SUPPORTED_CLOUDS:
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Unsupported target cloud."
-
-        }), 400
-
-
-    # ------------------------------------------------------
-    # CONNECT AZURE
-    # ------------------------------------------------------
-
-    result = connect_azure(
-
-        tenant_id=tenant_id,
-
-        client_id=client_id,
-
-        client_secret=client_secret,
-
-        subscription_id=subscription_id,
-
-        connected_cloud=target,
-
-        role="source",
-        user_id=current_user.id
-
-    )
-
-    # ------------------------------------------------------
-    # RETURN RESULT
-    # ------------------------------------------------------
-
-    if result.get("success"):
-
-        audit_event("azure_connection_verified", user_id=current_user.id, status="success", category="cloud")
 
         return jsonify(
             result
@@ -958,44 +480,8 @@ def validate_target_cloud():
     ).strip()
 
 
-    # ------------------------------------------------------
-    # VALIDATE CLOUDS
-    # ------------------------------------------------------
-
-    if source not in SUPPORTED_CLOUDS:
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Unsupported source cloud."
-
-        }), 400
-
-
-    if target not in SUPPORTED_CLOUDS:
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Unsupported target cloud."
-
-        }), 400
-
-
-    if source == target:
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Source and target cloud cannot be the same."
-
-        }), 400
+    if (source, target) != (AWS_SOURCE, AZURE_TARGET):
+        return jsonify(success=False, message="This assistant supports AWS source to Azure target only."), 400
 
 
     # ------------------------------------------------------
@@ -1014,50 +500,7 @@ def validate_target_cloud():
         }), 400
 
 
-    # ------------------------------------------------------
-    # VALIDATE AWS SOURCE SESSION
-    # ------------------------------------------------------
-
-    if source == "aws":
-
-        source_session = owned_aws_session(
-            source_session_id
-        )
-
-
-        if not source_session:
-
-            return jsonify({
-
-                "success": False,
-
-                "message":
-                    "AWS source session expired."
-
-            }), 401
-
-
-    # ------------------------------------------------------
-    # VALIDATE AZURE SOURCE SESSION
-    # ------------------------------------------------------
-
-    elif source == "azure":
-
-        source_session = owned_azure_session(
-            source_session_id
-        )
-
-
-        if not source_session:
-
-            return jsonify({
-
-                "success": False,
-
-                "message":
-                    "Azure source session expired."
-
-            }), 401
+    owned_aws_session(source_session_id)
 
 
     # ======================================================
@@ -1126,7 +569,7 @@ def validate_target_cloud():
 
             subscription_id=subscription_id,
 
-            connected_cloud=source,
+            connected_cloud=AWS_SOURCE,
 
             role="target",
             user_id=current_user.id
@@ -1158,118 +601,6 @@ def validate_target_cloud():
                 result.get("session_id")
 
         })
-
-
-    # ======================================================
-    # GCP TARGET
-    # ======================================================
-
-    elif target == "gcp":
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "GCP target validation is not implemented yet."
-
-        }), 501
-
-
-    # ======================================================
-    # FALLBACK
-    # ======================================================
-
-    return jsonify({
-
-        "success": False,
-
-        "message":
-            "Target validation failed."
-
-    }), 500
-
-
-# ==========================================================
-# SCAN AZURE RESOURCES
-# ==========================================================
-
-@migration_bp.route(
-    "/api/azure/scan",
-    methods=["POST"]
-)
-def azure_scan():
-
-    data = request.get_json(
-        silent=True
-    ) or {}
-
-
-    session_id = data.get(
-        "session_id",
-        ""
-    ).strip()
-
-
-    # ------------------------------------------------------
-    # VALIDATE SESSION ID
-    # ------------------------------------------------------
-
-    if not session_id:
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Migration session is missing."
-
-        }), 400
-
-
-    # ------------------------------------------------------
-    # GET AZURE SESSION
-    # ------------------------------------------------------
-
-    migration = owned_azure_session(
-        session_id
-    )
-
-
-    if not migration:
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Migration session expired. "
-                "Please connect Azure again."
-
-        }), 401
-
-
-    # ------------------------------------------------------
-    # SCAN RESOURCES
-    # ------------------------------------------------------
-
-    result = scan_azure_resources(session_id, user_id=current_user.id)
-
-
-    # ------------------------------------------------------
-    # RETURN RESULT
-    # ------------------------------------------------------
-
-    if result.get("success"):
-
-        return jsonify(
-            result
-        )
-
-
-    return jsonify(
-        result
-    ), 500
 
 # ==========================================================
 # SCAN AWS RESOURCES
@@ -1316,16 +647,8 @@ def aws_scan():
     # VALIDATE TARGET
     # ------------------------------------------------------
 
-    if target not in SUPPORTED_CLOUDS:
-
-        return jsonify({
-
-            "success": False,
-
-            "message":
-                "Unsupported target cloud."
-
-        }), 400
+    if target != AZURE_TARGET:
+        return jsonify(success=False, message="This assistant supports AWS source to Azure target only."), 400
 
 
     # ------------------------------------------------------
@@ -1403,24 +726,15 @@ def create_migration_plan():
     target_session_id = str(data.get("target_session_id", "")).strip()
     source_cloud = str(data.get("source_cloud", "aws")).strip().lower()
     target_cloud = str(data.get("target_cloud", "azure")).strip().lower()
-    if (source_cloud, target_cloud) not in {("aws", "azure"), ("azure", "aws")}:
-        return jsonify(success=False, message="This source-target assessment path is not supported."), 400
+    if (source_cloud, target_cloud) != (AWS_SOURCE, AZURE_TARGET):
+        return jsonify(success=False, message="This assistant supports AWS source to Azure target only."), 400
     if not source_session_id or not target_session_id:
         return jsonify(success=False, message="Source and target cloud sessions are required."), 400
-    if source_cloud == "aws":
-        owned_aws_session(source_session_id)
-    else:
-        owned_azure_session(source_session_id)
-    if target_cloud == "aws":
-        owned_aws_session(target_session_id)
-    else:
-        owned_azure_session(target_session_id)
+    owned_aws_session(source_session_id)
+    owned_azure_session(target_session_id)
     try:
-        if source_cloud == "aws":
-            from app.services.aws_service import scan_resources
-            scan_result = scan_resources(source_session_id, target_cloud, user_id=current_user.id)
-        else:
-            scan_result = scan_azure_resources(source_session_id, user_id=current_user.id)
+        from app.services.aws_service import scan_resources
+        scan_result = scan_resources(source_session_id, target_cloud, user_id=current_user.id)
         if not scan_result.get("success"):
             return jsonify(success=False, message="Cloud discovery is required before generating a plan."), 400
         plan = generate_migration_plan(

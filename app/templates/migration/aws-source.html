@@ -56,34 +56,8 @@ Connect AWS | AI Cloud Migration
 
             <div class="path-cloud">
 
-                {% if target == "azure" %}
-
-                    <img
-                        class="cloud-logo"
-                        src="{{ url_for(
-                            'static',
-                            filename='images/clouds/azure.svg'
-                        ) }}"
-                        alt="Microsoft Azure"
-                    >
-
-                    <span>Azure</span>
-
-
-                {% elif target == "gcp" %}
-
-                    <img
-                        class="cloud-logo"
-                        src="{{ url_for(
-                            'static',
-                            filename='images/clouds/gcp.svg'
-                        ) }}"
-                        alt="Google Cloud"
-                    >
-
-                    <span>Google Cloud</span>
-
-                {% endif %}
+                <img class="cloud-logo" src="{{ url_for('static', filename='images/clouds/azure.svg') }}" alt="Microsoft Azure">
+                <span>Azure</span>
 
             </div>
 
@@ -483,7 +457,7 @@ Connect AWS | AI Cloud Migration
                             <span>
 
                                 After AWS verification, you will
-                                enter Azure or GCP credentials.
+                                enter Azure credentials.
 
                             </span>
 
