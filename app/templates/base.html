@@ -84,6 +84,13 @@
 
     {% endblock %}
 
+    <!-- Shared fixes for the authenticated AWS-to-Azure workflow.  This is
+         deliberately loaded after page styles so legacy selectors cannot
+         leave an active form or report page unstyled. -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/active-workflow.css') }}">
+
 </head>
 <body class="page-wrapper">
 

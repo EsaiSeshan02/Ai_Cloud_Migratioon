@@ -45,7 +45,8 @@ from app.services.migration_plan_service import (
     serialize_plan,
     approve_lambda_execution_target,
 )
-from app.services.report_service import generate_report, serialize_report
+from app.services.report_service import current_report_snapshot
+from app.services.migration_execution_service import request_cancellation
 from app.utils.validators import safe_migration_configuration, valid_s3_bucket_name
 
 
@@ -97,6 +98,8 @@ def public_migration_result(result):
             "transferred_bytes", "verified_files", "skipped_files", "manual_review_files",
             "pending_files", "transferring_files", "processed_files", "completed_batches",
             "current_batch", "retry_attempts", "retriable_files", "logical_batch_size_bytes",
+            "cancellation_requested", "retry_count",
+            "uncertain_external_operation",
         )
         if key in result
     }
@@ -1023,6 +1026,39 @@ def start_lambda_migration():
     return jsonify(public_migration_result(result) | {"reasons": result.get("reasons", [])}), 400
 
 
+@migration_bp.route("/api/migration/lambda/<string:migration_id>/resolve-uncertain", methods=["POST"])
+def resolve_uncertain_lambda_migration(migration_id):
+    """Owner-confirmed blocker resolution; this never marks deployment complete."""
+    migration = Migration.query.filter_by(
+        migration_id=migration_id,
+        user_id=current_user.id,
+        resource_type="lambda",
+    ).first()
+    if not migration:
+        abort(404)
+    data = request.get_json(silent=True) or {}
+    confirmation = str(data.get("confirmation", "")).strip()
+    if confirmation != "target_inspected_no_active_deployment":
+        return jsonify(
+            success=False,
+            status=migration.status,
+            message="Explicit target inspection confirmation is required; no deployment was started.",
+        ), 400
+    from app.services.lambda_migration_service import resolve_uncertain_lambda
+    if not resolve_uncertain_lambda(migration, confirmation):
+        return jsonify(
+            success=False,
+            status=migration.status,
+            message="The Lambda deployment blocker could not be resolved safely.",
+        ), 409
+    return jsonify(
+        success=True,
+        migration_id=migration_id,
+        status="manual_review_required",
+        message="Uncertain deployment blocker resolved. Review the plan and start a fresh approved deployment if appropriate.",
+    ), 200
+
+
 @migration_bp.route("/api/migrations/<string:migration_id>", methods=["GET"])
 def migration_status(migration_id):
     """Expose persisted migration state only to its owner."""
@@ -1031,21 +1067,35 @@ def migration_status(migration_id):
         abort(404)
     if migration.user_id != current_user.id:
         abort(403)
-    return jsonify({"success": True, "migration": migration_progress(migration)})
+    payload = migration_progress(migration)
+    payload["cancellation_requested"] = bool(migration.cancellation_requested)
+    payload["retry_count"] = int(migration.retry_count or 0)
+    return jsonify({"success": True, "migration": payload})
+
+
+@migration_bp.route("/api/migrations/<string:migration_id>/cancel", methods=["POST"])
+def cancel_migration(migration_id):
+    """Request cooperative cancellation for an owner-scoped active execution."""
+    migration = Migration.query.filter_by(migration_id=migration_id, user_id=current_user.id).first()
+    if not migration:
+        abort(404)
+    if not request_cancellation(migration):
+        return jsonify(success=False, message="This migration is already in a terminal state."), 400
+    audit_event("migration_cancellation_requested", user_id=current_user.id,
+                migration_id=migration_id, status=migration.status, category="migration")
+    return jsonify(success=True, migration_id=migration_id, status=migration.status,
+                   message="Cancellation was requested. Current provider work is allowed to reach a truthful outcome."), 202
 
 
 @migration_bp.route("/api/migrations/<string:migration_id>/report", methods=["GET"])
 def migration_report(migration_id):
-    """Persist and return an owner-scoped aggregate execution report."""
+    """Return an owner-scoped aggregate report without mutating execution data."""
     migration = Migration.query.filter_by(migration_id=migration_id).first()
     if not migration:
         abort(404)
     if migration.user_id != current_user.id:
         abort(403)
-    report = generate_report(migration)
-    audit_event("migration_report_generated", user_id=current_user.id,
-                migration_id=migration_id, status=migration.status, category="report")
-    return jsonify(success=True, **serialize_report(report))
+    return jsonify(success=True, **current_report_snapshot(migration))
 
 
 @migration_bp.route("/api/migrations", methods=["GET"])
@@ -1066,9 +1116,9 @@ def migration_details_page(migration_id):
     migration = Migration.query.filter_by(migration_id=migration_id, user_id=current_user.id).first()
     if not migration:
         abort(404)
-    report = generate_report(migration)
+    report = current_report_snapshot(migration)
     records = MigrationFile.query.filter_by(migration_id=migration.id).order_by(MigrationFile.batch_number, MigrationFile.id).limit(200).all()
-    return render_template("migration/details.html", migration=migration, report=serialize_report(report)["report"], records=records)
+    return render_template("migration/details.html", migration=migration, report=report["report"], records=records)
 
 
 @migration_bp.route("/api/migrations/<string:migration_id>/objects", methods=["GET"])
@@ -1114,5 +1164,35 @@ def resume_migration(migration_id):
     if result.get("success"):
         audit_event("s3_migration_resume_started", user_id=current_user.id,
                     migration_id=migration_id, status=result.get("status", "preparing"), category="migration")
+        return jsonify(public_migration_result(result)), 202
+    return jsonify(public_migration_result(result)), 400
+
+
+@migration_bp.route("/api/migrations/<string:migration_id>/retry", methods=["POST"])
+def retry_migration(migration_id):
+    """Explicit, owner-approved retry for a resumable S3 execution only."""
+    migration = Migration.query.filter_by(migration_id=migration_id, user_id=current_user.id).first()
+    if not migration:
+        abort(404)
+    if migration.resource_type != "s3" or migration.status not in {"interrupted", "failed", "completed_with_failures"}:
+        return jsonify(success=False, message="This migration is not eligible for an automatic retry."), 400
+    data = request.get_json(silent=True) or {}
+    source_session_id = str(data.get("source_session_id", "")).strip()
+    target_session_id = str(data.get("target_session_id", "")).strip()
+    if not source_session_id or not target_session_id:
+        return jsonify(success=False, message="Reconnect both clouds before retrying."), 400
+    source = owned_aws_session(source_session_id)
+    target = owned_azure_session(target_session_id)
+    aws_session = source.get("aws_session")
+    if not aws_session:
+        return jsonify(success=False, message="AWS session is unavailable."), 401
+    migration.cancellation_requested = False
+    migration.retry_count = int(migration.retry_count or 0) + 1
+    from app.extensions import db
+    db.session.commit()
+    result = resume_s3_migration(migration, aws_session, target)
+    if result.get("success"):
+        audit_event("migration_retried", user_id=current_user.id, migration_id=migration_id,
+                    status=result.get("status", "preparing"), category="migration")
         return jsonify(public_migration_result(result)), 202
     return jsonify(public_migration_result(result)), 400

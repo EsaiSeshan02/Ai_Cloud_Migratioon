@@ -13,6 +13,8 @@ automatic migrations.
 - `app/mappers/cloud_mapper.py`: authoritative deterministic capability mappings.
 - `app/services/migration_plan_service.py`: persisted owner-scoped preflight plans.
 - `app/services/s3_migration_service.py`: real streaming S3-to-Blob work.
+- `app/services/migration_execution_service.py`: persisted local worker leases,
+  cooperative cancellation, and execution lifecycle rules.
 - `app/models/`: SQLAlchemy users, plans, migrations, object records, reports, and audit events.
 
 ## Supported capability
@@ -41,9 +43,12 @@ as a cross-provider cryptographic integrity assertion.
 
 An execution can reference an approved persisted plan. A database-backed active
 identity prevents duplicate active transfers for the same owner/source/
-destination intent. A process restart marks queued/running work interrupted;
-the user must reconnect both clouds and resume it. This is not a distributed
-durable job queue.
+destination intent. The local worker must also acquire a persisted lease before
+touching a provider; process-local threads are workers, never the source of
+truth. A process restart recovers only unclaimed or expired-lease S3 work as
+`interrupted`; live leased work is preserved. The user must reconnect both
+clouds and explicitly resume recovered work. Cancellation is cooperative and
+never claims a rollback. This is not a distributed durable job queue.
 
 If no selected destination storage account is supplied, the configuration UI
 requires explicit acknowledgement that a new Azure Storage Account may be
@@ -69,6 +74,12 @@ persisted migration becomes `manual_review_required`; the application does not
 guess the provider outcome and does not automatically resume it. Inspect the
 existing Function App, then begin a fresh, approved deployment attempt only if
 that inspection is safe.
+
+Lambda worker leases are not reclaimed by timeout while a Kudu request may be
+in flight. A second start reuses the active persisted identity, and startup
+recovery changes an interrupted deployment to manual review. This avoids
+launching a second external deployment when the first provider request may
+still complete.
 
 Environment variable names are assessed, but their values are never copied to
 Azure or persisted. AWS access-key environment variables are never transferred.
@@ -106,6 +117,41 @@ local development and a single-process demo, not multi-worker migration
 execution. Existing historical duplicate object rows can prevent the legacy
 unique object index from being created and must be reviewed manually before
 retrying that upgrade.
+
+The current head adds the persisted execution lifecycle fields used by local
+workers: a non-secret lease token/expiry, heartbeat, cancellation request, and
+explicit retry count. `flask --app app.py db upgrade` is additive and does not
+delete migrations or migration objects. SQLite remains a single-process demo
+database; its writer serialization is not a substitute for a PostgreSQL-backed
+multi-worker deployment.
+
+## Execution lifecycle and recovery
+
+Execution state is persisted as `preparing`, `running`/Lambda
+`deploying`/`validating`, `cancelling`, `cancelled`, `completed`, failure or
+review outcomes, and `interrupted` where an S3 worker stops. Legal service
+transitions are enforced by the migration services. A worker acquires a
+database-backed lease before cloud work and renews it between S3 objects. Only
+one active identity can exist for a user/source/destination intent. Owners can
+request cancellation through the authenticated, CSRF-protected migration API;
+it is cooperative and does not imply a cloud rollback.
+
+After restart, S3 jobs with no claim or an expired lease are marked
+`interrupted` and may be explicitly resumed only after reconnecting both
+clouds. A live, unexpired worker lease is preserved. Already verified objects
+remain skipped.
+Lambda deployments become `manual_review_required` because the application
+cannot safely infer Kudu's final state from a lost process. Explicit S3 retry
+is owner-scoped and requires fresh cloud sessions. The automatic provider retry
+inside one S3 object transfer remains bounded.
+
+An uncertain Lambda deployment retains its persisted source/target identity as
+a duplicate-deployment blocker. Repeated starts and retries do not call Kudu.
+After inspecting the existing Function App outside the application, the owner
+may explicitly acknowledge `target_inspected_no_active_deployment` through the
+authenticated, CSRF-protected resolution endpoint. This only clears the
+blocker and leaves the migration in manual review; it never claims deployment
+success. A fresh approved deployment is required.
 
 For production-like configuration, set at least `SECRET_KEY`; startup rejects a
 missing production secret. Common configuration includes `DATABASE_URL`,
@@ -163,7 +209,7 @@ assessment/manual-review items and do not show an executable migration control.
 
 This is a production-oriented prototype, not a production deployment claim.
 The in-process worker/execution-session design must be replaced with a shared
-credential/session and durable job system for multi-process production use.
+credential/session and distributed job system for multi-process production use.
 The included Alembic baseline provides safe, additive upgrades for existing
 SQLite data. EC2/RDS/DynamoDB execution
 must not be claimed until separate real execution, verification, cutover, and

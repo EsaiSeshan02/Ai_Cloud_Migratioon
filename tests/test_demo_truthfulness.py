@@ -126,6 +126,36 @@ class DemoTruthfulnessTests(unittest.TestCase):
         self.assertIn('data-route="aws-azure"', solutions)
         self.assertNotIn("migration-select-btn\" data-source", solutions)
 
+    def test_transfer_visual_only_animates_for_persisted_running_states(self):
+        script = (ROOT / "app" / "static" / "js" / "configure-migration.js").read_text(encoding="utf-8")
+        template = (ROOT / "app" / "templates" / "migration" / "configure-migration.html").read_text(encoding="utf-8")
+        dashboard_script = (ROOT / "app" / "static" / "js" / "migration-dashboard.js").read_text(encoding="utf-8")
+        self.assertIn('id="migration-transfer-visual"', template)
+        self.assertIn('setTransferVisualStateForMigration(migration)', script)
+        self.assertIn('["running", "preparing", "deploying", "validating"]', script)
+        self.assertIn('setTransferVisualState("completed"', script)
+        self.assertIn('setTransferVisualState("manual_review"', script)
+        self.assertIn('This resource has no supported execution engine', script)
+        self.assertNotIn('await wait(400);', dashboard_script)
+
+    def test_active_pages_load_shared_ui_and_do_not_advertise_unimplemented_auth_features(self):
+        base = (ROOT / "app" / "templates" / "base.html").read_text(encoding="utf-8")
+        login = (ROOT / "app" / "templates" / "auth" / "login.html").read_text(encoding="utf-8")
+        register = (ROOT / "app" / "templates" / "auth" / "register.html").read_text(encoding="utf-8")
+        self.assertIn("css/active-workflow.css", base)
+        self.assertIn("AWS Resource Discovery", login)
+        self.assertIn("Azure Target Validation", register)
+        self.assertNotIn("Continue with Google", login + register)
+        self.assertNotIn("Multi Cloud Support", login + register)
+
+    def test_navigation_section_links_work_from_authenticated_pages(self):
+        navbar = (ROOT / "app" / "templates" / "components" / "navbar.html").read_text(encoding="utf-8")
+        self.assertIn("{{ url_for('home.home') }}#features", navbar)
+        self.assertIn("{{ url_for('home.home') }}#solutions", navbar)
+        self.assertIn("{{ url_for('home.home') }}#workflow", navbar)
+        self.assertIn("{{ url_for('home.home') }}#docs", navbar)
+        self.assertNotIn('href="#features"', navbar)
+
 
 if __name__ == "__main__":
     unittest.main()

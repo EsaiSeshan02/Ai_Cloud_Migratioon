@@ -1024,3 +1024,69 @@
 .resource-card:hover {
     transform: translateY(-4px);
 }
+
+/* Focus and long-content safeguards for dynamically rendered assessments. */
+.resource-card:focus-visible,
+.start-scan-btn:focus-visible,
+.configure-migration-btn:focus-visible {
+    outline: 3px solid rgba(212, 175, 55, .55);
+    outline-offset: 3px;
+}
+
+.resource-card h3,
+.resource-detail strong {
+    overflow-wrap: anywhere;
+}
+
+.resource-detail {
+    min-width: 0;
+}
+
+.resource-status {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+    .migration-summary-card {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .migration-summary-card .start-scan-btn,
+    #persisted-plan-id {
+        grid-column: 1 / -1;
+    }
+
+    .summary-item:nth-of-type(2n) {
+        border-right: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .resource-card {
+        padding: 1.15rem;
+    }
+
+    .scan-progress-info {
+        gap: .75rem;
+    }
+
+    #scan-status {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dashboard-status-card,
+    .resource-card,
+    .start-scan-btn {
+        transition: none;
+    }
+
+    .dashboard-status-card:hover,
+    .resource-card:hover,
+    .start-scan-btn:hover {
+        transform: none;
+    }
+}

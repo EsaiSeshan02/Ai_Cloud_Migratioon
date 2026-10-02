@@ -1,6 +1,7 @@
 import io
 import unittest
 import zipfile
+from datetime import timedelta
 from unittest.mock import Mock, patch
 from sqlalchemy.exc import IntegrityError
 
@@ -12,6 +13,7 @@ from app.models.migration import MigrationPlan, MigrationPlanResource
 from app.services import lambda_migration_service as service
 from app.services.migration_plan_service import approve_lambda_execution_target
 from app.services.report_service import build_report_payload, generate_report, serialize_report
+from app.utils.time import utc_now
 
 
 class LambdaMigrationServiceTests(unittest.TestCase):
@@ -83,6 +85,66 @@ class LambdaMigrationServiceTests(unittest.TestCase):
         with self.app.app_context():
             self.assertEqual(Migration.query.filter_by(resource_type="lambda").one().status, "completed")
 
+    def test_report_failure_does_not_rewrite_lambda_success(self):
+        target_client = Mock()
+        target_client.web_apps.list_publishing_credentials.return_value = Mock(
+            publishing_user_name="deployment-user", publishing_password="deployment-password")
+        target_client.web_apps.get.return_value = Mock()
+        deployed_function = Mock(); deployed_function.name = "migrated_lambda"
+        target_client.web_apps.list_functions.return_value = [deployed_function]
+        target = {"success": True, "client": target_client, "resource_group": "rg", "function_app_name": "funcapp", "slot": ""}
+        details = {"success": True, "function_arn": "arn:aws:lambda:r:a:function:report-demo", "function_name": "report-demo",
+                   "runtime": "python3.11", "handler": "handler.main", "package_type": "Zip", "layers": [],
+                   "vpc_enabled": False, "event_sources": [], "environment_names": [], "code_location": "https://signed.example/package"}
+        response = Mock(); response.raise_for_status.return_value = None
+        with self.app.app_context(), \
+             patch.object(service, "get_lambda_details", return_value=details), \
+             patch.object(service, "validate_target", return_value=target), \
+             patch.object(service, "_download_and_build_package", return_value=b"real-package-bytes"), \
+             patch("app.services.lambda_migration_service.requests.post", return_value=response), \
+             patch("app.services.report_service.generate_report", side_effect=RuntimeError("report store unavailable")):
+            result = service.deploy_lambda(Mock(), {"credential": object(), "subscription_id": "sub"}, "report-demo",
+                                           {"resource_group": "rg", "function_app_name": "funcapp"}, self.user_id)
+            persisted = Migration.query.filter_by(resource_type="lambda").one()
+        self.assertTrue(result["success"])
+        self.assertEqual(persisted.status, "completed")
+
+    def test_report_failure_does_not_rewrite_lambda_manual_review(self):
+        details = {"success": True, "function_arn": "arn:aws:lambda:r:a:function:review-demo", "function_name": "review-demo",
+                   "runtime": "python3.11", "handler": "handler.main", "package_type": "Zip", "layers": [],
+                   "vpc_enabled": False, "event_sources": [], "environment_names": [], "code_location": "https://signed.example/package"}
+        with self.app.app_context(), \
+             patch.object(service, "get_lambda_details", return_value=details), \
+             patch.object(service, "validate_target", return_value={"success": True, "client": Mock(), "resource_group": "rg", "function_app_name": "funcapp", "slot": ""}), \
+             patch.object(service, "_download_and_build_package", side_effect=service.ManualReviewRequired("unsupported package")), \
+             patch("app.services.report_service.generate_report", side_effect=RuntimeError("report store unavailable")):
+            result = service.deploy_lambda(Mock(), {"credential": object(), "subscription_id": "sub"}, "review-demo",
+                                           {"resource_group": "rg", "function_app_name": "funcapp"}, self.user_id)
+            persisted = Migration.query.filter_by(resource_type="lambda").one()
+        self.assertFalse(result["success"])
+        self.assertEqual(result["status"], "manual_review_required")
+        self.assertEqual(persisted.status, "manual_review_required")
+
+    def test_report_failure_does_not_rewrite_lambda_provider_failure(self):
+        target = {"success": True, "client": Mock(), "resource_group": "rg", "function_app_name": "funcapp", "slot": ""}
+        target["client"].web_apps.list_publishing_credentials.return_value = Mock(
+            publishing_user_name="deployment-user", publishing_password="deployment-password")
+        details = {"success": True, "function_arn": "arn:aws:lambda:r:a:function:failed-report", "function_name": "failed-report",
+                   "runtime": "python3.11", "handler": "handler.main", "package_type": "Zip", "layers": [],
+                   "vpc_enabled": False, "event_sources": [], "environment_names": [], "code_location": "https://signed.example/package"}
+        with self.app.app_context(), \
+             patch.object(service, "get_lambda_details", return_value=details), \
+             patch.object(service, "validate_target", return_value=target), \
+             patch.object(service, "_download_and_build_package", return_value=b"real-package-bytes"), \
+             patch("app.services.lambda_migration_service.requests.post", side_effect=service.requests.HTTPError("provider rejected")), \
+             patch("app.services.report_service.generate_report", side_effect=RuntimeError("report store unavailable")):
+            result = service.deploy_lambda(Mock(), {"credential": object(), "subscription_id": "sub"}, "failed-report",
+                                           {"resource_group": "rg", "function_app_name": "funcapp"}, self.user_id)
+            persisted = Migration.query.filter_by(resource_type="lambda").one()
+        self.assertFalse(result["success"])
+        self.assertEqual(result["status"], "failed")
+        self.assertEqual(persisted.status, "failed")
+
     def test_aws_specific_package_is_held_for_manual_review(self):
         payload = io.BytesIO()
         with zipfile.ZipFile(payload, "w") as archive:
@@ -109,6 +171,76 @@ class LambdaMigrationServiceTests(unittest.TestCase):
         self.assertTrue(result["success"])
         self.assertIn("already active", result["message"])
         validate_target.assert_not_called()
+
+    def test_stale_lambda_worker_cannot_persist_after_claim_was_cleared(self):
+        with self.app.app_context():
+            migration = Migration(migration_id="stale-lambda-worker", user_id=self.user_id,
+                                  source_cloud="aws", target_cloud="azure", resource_type="lambda",
+                                  resource_name="demo", status="manual_review_required", worker_token=None,
+                                  failure_reason="restart recovery")
+            db.session.add(migration); db.session.commit()
+            result = service._persist_lambda_outcome(
+                migration.migration_id, "completed", None, worker_token="old-worker-token"
+            )
+            persisted = Migration.query.filter_by(migration_id=migration.migration_id).one()
+            self.assertIsNone(result)
+            self.assertEqual(persisted.status, "manual_review_required")
+            self.assertIsNone(persisted.worker_token)
+            self.assertEqual(persisted.failure_reason, "restart recovery")
+
+    def test_stale_lambda_worker_cannot_clear_newer_worker_claim(self):
+        from app.services.migration_execution_service import release_claim
+        with self.app.app_context():
+            migration = Migration(migration_id="newer-lambda-worker", user_id=self.user_id,
+                                  source_cloud="aws", target_cloud="azure", resource_type="lambda",
+                                  resource_name="demo", status="deploying", worker_token="current-token")
+            db.session.add(migration); db.session.commit()
+            migration_id = migration.id
+            self.assertFalse(release_claim(migration, "stale-token"))
+            persisted = Migration.query.get(migration_id)
+            self.assertEqual(persisted.worker_token, "current-token")
+
+    def test_expired_lambda_lease_does_not_allow_duplicate_kudu_deployment(self):
+        target_client = Mock()
+        target_client.web_apps.list_publishing_credentials.return_value = Mock(
+            publishing_user_name="deployment-user", publishing_password="deployment-password")
+        target_client.web_apps.get.return_value = Mock()
+        deployed_function = Mock(); deployed_function.name = "migrated_lambda"
+        target_client.web_apps.list_functions.return_value = [deployed_function]
+        target = {"success": True, "client": target_client, "resource_group": "rg",
+                  "function_app_name": "funcapp", "slot": ""}
+        details = {"success": True, "function_arn": "arn:aws:lambda:r:a:function:lease-demo",
+                   "function_name": "lease-demo", "runtime": "python3.11", "handler": "handler.main",
+                   "package_type": "Zip", "layers": [], "vpc_enabled": False, "event_sources": [],
+                   "environment_names": [], "code_location": "https://signed.example/package"}
+        response = Mock(); response.raise_for_status.return_value = None
+        config = {"resource_group": "rg", "function_app_name": "funcapp"}
+
+        def expire_lease_during_kudu(*_args, **_kwargs):
+            with self.app.app_context():
+                migration = Migration.query.filter_by(resource_type="lambda").one()
+                migration.lease_expires_at = utc_now() - timedelta(seconds=1)
+                db.session.commit()
+            duplicate = service.deploy_lambda(Mock(), {}, "lease-demo", config, self.user_id)
+            self.assertTrue(duplicate["success"])
+            self.assertIn("already active", duplicate["message"])
+            return response
+
+        with self.app.app_context(), \
+             patch.object(service, "get_lambda_details", return_value=details), \
+             patch.object(service, "validate_target", return_value=target), \
+             patch.object(service, "_download_and_build_package", return_value=b"package"), \
+             patch("app.services.lambda_migration_service.requests.post", side_effect=expire_lease_during_kudu) as deploy:
+            result = service.deploy_lambda(Mock(), {"credential": object(), "subscription_id": "sub"},
+                                           "lease-demo", config, self.user_id)
+        self.assertFalse(result["success"])
+        self.assertEqual(result["status"], "manual_review_required")
+        self.assertEqual(deploy.call_count, 1)
+        with self.app.app_context():
+            persisted = Migration.query.filter_by(resource_type="lambda").one()
+            self.assertEqual(persisted.status, "manual_review_required")
+            self.assertTrue(persisted.uncertain_external_operation)
+            self.assertIsNotNone(persisted.active_identity)
 
     def test_approved_lambda_target_is_persisted_without_credentials(self):
         with self.app.app_context():
@@ -214,8 +346,118 @@ class LambdaMigrationServiceTests(unittest.TestCase):
             service.mark_incomplete_lambda_migrations_requires_review()
             migration = Migration.query.filter_by(migration_id="interrupted-lambda").one()
         self.assertEqual(migration.status, "manual_review_required")
-        self.assertIsNone(migration.active_identity)
+        self.assertEqual(migration.active_identity, "identity")
+        self.assertTrue(migration.uncertain_external_operation)
         self.assertIn("interrupted", migration.failure_reason)
+
+    def test_uncertain_lambda_identity_blocks_new_deployment_after_recovery(self):
+        details = {"success": True, "function_arn": "arn:aws:lambda:r:a:function:demo", "function_name": "demo",
+                   "runtime": "python3.11", "handler": "handler.main", "package_type": "Zip", "layers": [],
+                   "vpc_enabled": False, "event_sources": [], "environment_names": [], "code_location": "https://signed.example/package"}
+        config = {"resource_group": "rg", "function_app_name": "funcapp"}
+        identity = service._lambda_identity(self.user_id, details["function_arn"], config)
+        with self.app.app_context():
+            db.session.add(Migration(migration_id="uncertain-lambda", user_id=self.user_id, active_identity=identity,
+                                     source_cloud="aws", target_cloud="azure", resource_type="lambda", resource_name="demo",
+                                     status="deploying", worker_token="old-worker"))
+            db.session.commit()
+            service.mark_incomplete_lambda_migrations_requires_review()
+            with patch.object(service, "get_lambda_details", return_value=details), \
+                 patch("app.services.lambda_migration_service.requests.post") as kudu:
+                result = service.deploy_lambda(Mock(), {"credential": object(), "subscription_id": "sub"}, "demo", config, self.user_id)
+        self.assertFalse(result["success"])
+        self.assertEqual(result["status"], "manual_review_required")
+        kudu.assert_not_called()
+
+    def test_uncertain_lambda_blocker_can_only_be_explicitly_resolved(self):
+        from app.services.lambda_migration_service import resolve_uncertain_lambda
+        with self.app.app_context():
+            migration = Migration(migration_id="resolve-lambda", user_id=self.user_id, active_identity="identity",
+                                  source_cloud="aws", target_cloud="azure", resource_type="lambda", resource_name="demo",
+                                  status="manual_review_required", uncertain_external_operation=True)
+            db.session.add(migration); db.session.commit()
+            self.assertFalse(resolve_uncertain_lambda(migration, "force_retry"))
+            self.assertTrue(resolve_uncertain_lambda(migration, "target_inspected_no_active_deployment"))
+            persisted = Migration.query.filter_by(migration_id="resolve-lambda").one()
+        self.assertIsNone(persisted.active_identity)
+        self.assertFalse(persisted.uncertain_external_operation)
+        self.assertEqual(persisted.status, "manual_review_required")
+
+    def test_stale_worker_cannot_change_state_after_uncertain_resolution_and_fresh_claim(self):
+        """A late pre-restart worker cannot affect the fresh post-resolution attempt."""
+        from app.services.lambda_migration_service import resolve_uncertain_lambda
+        from app.services.migration_execution_service import claim_migration, release_claim
+
+        with self.app.app_context():
+            original = Migration(
+                migration_id="uncertain-original",
+                user_id=self.user_id,
+                active_identity="lambda-identity",
+                source_cloud="aws",
+                target_cloud="azure",
+                resource_type="lambda",
+                resource_name="demo",
+                status="deploying",
+                worker_token="original-worker-token",
+            )
+            db.session.add(original)
+            db.session.commit()
+
+            service.mark_incomplete_lambda_migrations_requires_review()
+            db.session.refresh(original)
+            self.assertTrue(original.uncertain_external_operation)
+            self.assertEqual(original.active_identity, "lambda-identity")
+            self.assertIsNone(original.worker_token)
+
+            self.assertTrue(resolve_uncertain_lambda(
+                original, "target_inspected_no_active_deployment"
+            ))
+            db.session.refresh(original)
+            self.assertFalse(original.uncertain_external_operation)
+            self.assertIsNone(original.active_identity)
+
+            fresh = Migration(
+                migration_id="fresh-approved-attempt",
+                user_id=self.user_id,
+                active_identity="lambda-identity",
+                source_cloud="aws",
+                target_cloud="azure",
+                resource_type="lambda",
+                resource_name="demo",
+                status="preparing",
+            )
+            db.session.add(fresh)
+            db.session.commit()
+            fresh_token = claim_migration(
+                fresh.migration_id,
+                worker_token="fresh-worker-token",
+                allowed_statuses={"preparing"},
+                reclaim_expired=False,
+            )
+            self.assertEqual(fresh_token, "fresh-worker-token")
+
+            # The old worker can neither record an outcome for its resolved
+            # migration nor release the newer attempt's persisted claim.
+            self.assertIsNone(service._persist_lambda_outcome(
+                original.migration_id,
+                "completed",
+                worker_token="original-worker-token",
+            ))
+            self.assertFalse(release_claim(original, "original-worker-token"))
+            self.assertFalse(release_claim(fresh, "original-worker-token"))
+
+            db.session.expire_all()
+            persisted_original = Migration.query.filter_by(
+                migration_id="uncertain-original"
+            ).one()
+            persisted_fresh = Migration.query.filter_by(
+                migration_id="fresh-approved-attempt"
+            ).one()
+            self.assertEqual(persisted_original.status, "manual_review_required")
+            self.assertIsNone(persisted_original.active_identity)
+            self.assertEqual(persisted_fresh.status, "preparing")
+            self.assertEqual(persisted_fresh.active_identity, "lambda-identity")
+            self.assertEqual(persisted_fresh.worker_token, "fresh-worker-token")
 
     def test_database_constraint_prevents_two_active_lambda_records(self):
         with self.app.app_context():

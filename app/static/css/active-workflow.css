@@ -1,0 +1,180 @@
+/* Active AWS-to-Azure workflow polish.
+   These selectors intentionally cover only reachable application pages. */
+
+.dashboard-section,
+.login-page,
+.register-page,
+.aws-source-page,
+.cloud-connection-page {
+    min-height: 100vh;
+    padding: calc(var(--navbar-height) + 3rem) 0 5rem;
+    background: var(--bg-primary);
+}
+
+/* Shared surfaces used by history, details, and auth. */
+.pixel-card,
+.migration-config-form-card,
+.aws-connection-card,
+.aws-security-card,
+.cloud-connection-card {
+    background: color-mix(in srgb, var(--bg-card) 94%, transparent);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+}
+
+.pixel-card { padding: 1.75rem; }
+
+.dashboard-section {
+    width: min(1100px, calc(100% - 2.5rem));
+    margin: 0 auto;
+}
+
+.dashboard-section > .pixel-card + .report-list,
+.dashboard-section > .pixel-card + .report-grid,
+.dashboard-section > .report-grid,
+.dashboard-section > .pixel-card + .pixel-card { margin-top: 1.5rem; }
+
+.dashboard-section h1 { font-size: clamp(2rem, 4vw, 3rem); line-height: 1.15; }
+.dashboard-section h3 { font-size: 1.1rem; }
+.dashboard-section p { color: var(--text-secondary); margin-top: .65rem; overflow-wrap: anywhere; }
+.dashboard-section strong { color: var(--text-primary); }
+.eyebrow { color: var(--color-primary) !important; font-size: .72rem; font-weight: 700; letter-spacing: .12em; }
+
+.report-list { display: grid; gap: 1rem; margin-top: 1.5rem; }
+.report-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: .5rem 1.5rem; }
+.report-item h3, .report-item p { grid-column: 1; }
+.report-item a { grid-column: 2; grid-row: 1 / span 4; justify-self: end; }
+.btn-primary, .btn-secondary, .aws-connect-btn, .validate-clouds-btn,
+.save-configuration-btn, .start-migration-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    min-height: 2.9rem;
+    padding: .75rem 1.2rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-full);
+    background: var(--color-primary);
+    color: #171717;
+    font-weight: 700;
+    line-height: 1.2;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+.btn-secondary { background: var(--bg-card); border-color: var(--border-medium); color: var(--text-primary); }
+.btn-primary:hover, .btn-secondary:hover, .aws-connect-btn:hover, .validate-clouds-btn:hover,
+.save-configuration-btn:hover, .start-migration-btn:not(:disabled):hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+.save-configuration-btn:disabled, .start-migration-btn:disabled { opacity: .55; cursor: not-allowed; }
+
+.report-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+.report-grid .pixel-card { min-width: 0; }
+.table-responsive { margin-top: 1rem; overflow-x: auto; border: 1px solid var(--border-light); border-radius: var(--radius-md); }
+.report-table { min-width: 650px; }
+.report-table th, .report-table td { padding: .8rem 1rem; text-align: left; border-bottom: 1px solid var(--border-light); }
+.report-table th { background: var(--bg-secondary); font-size: .78rem; letter-spacing: .04em; }
+
+/* Login and registration: existing pages had no stylesheet at all. */
+.login-container, .register-container {
+    width: min(1100px, calc(100% - 2.5rem));
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(320px, .85fr);
+    overflow: hidden;
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+}
+.login-left, .register-left { padding: clamp(2rem, 5vw, 4.5rem); background: linear-gradient(145deg, var(--bg-secondary), var(--bg-card)); }
+.login-logo, .register-logo { display: flex; align-items: center; gap: .8rem; margin-bottom: 4rem; }
+.logo-box { display: grid; width: 2.75rem; height: 2.75rem; place-items: center; color: var(--color-primary); background: rgba(212,175,55,.12); border-radius: var(--radius-md); }
+.login-logo h2, .register-logo h2 { font-family: var(--font-logo); font-size: 1.3rem; }
+.login-logo span, .register-logo span { color: var(--text-secondary); font-size: .85rem; }
+.login-tag, .register-tag { display: inline-flex; padding: .45rem .8rem; color: var(--color-primary); background: rgba(212,175,55,.1); border-radius: var(--radius-full); font-size: .78rem; font-weight: 700; }
+.login-content h1, .register-content h1 { margin: 1rem 0; font-size: clamp(2.2rem, 4vw, 3.5rem); line-height: 1.1; }
+.login-content > p, .register-content > p { max-width: 38rem; color: var(--text-secondary); line-height: 1.75; }
+.login-features, .register-features { display: grid; gap: .85rem; margin-top: 2rem; color: var(--text-secondary); }
+.login-features div, .register-features div { display: flex; align-items: center; gap: .75rem; }
+.login-features svg, .register-features svg { width: 1.15rem; height: 1.15rem; flex: 0 0 auto; color: var(--color-primary); }
+.login-right, .register-right { display: grid; place-items: center; padding: clamp(1.25rem, 3vw, 3rem); }
+.login-card, .register-card { width: min(100%, 430px); padding: 0; border: 0; box-shadow: none; }
+.login-card h2, .register-card h2 { font-size: 2rem; }
+.login-card > p, .register-card > p { margin: .4rem 0 1.8rem; color: var(--text-secondary); }
+.input-group { margin-top: 1rem; }
+.input-group label { display: block; margin-bottom: .45rem; color: var(--text-primary); font-size: .9rem; font-weight: 700; }
+.input-group input, .cloud-connection-card input, .migration-config-form-card input,
+.migration-config-form-card select, .aws-source-page .input-wrapper input, .aws-source-page .input-wrapper select {
+    width: 100%; min-height: 3rem; padding: .75rem .9rem;
+    background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: var(--radius-md);
+    color: var(--text-primary);
+}
+.input-group input:focus, .cloud-connection-card input:focus, .migration-config-form-card input:focus,
+.migration-config-form-card select:focus, .aws-source-page .input-wrapper input:focus, .aws-source-page .input-wrapper select:focus {
+    border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(212,175,55,.16);
+}
+.remember, .checkbox { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin: 1.2rem 0; font-size: .88rem; }
+.remember label, .checkbox { color: var(--text-secondary); }
+.remember a, .login-link a, .register-link a { color: var(--color-primary-dark); font-weight: 700; }
+.login-card .btn { width: 100%; border: 0; border-radius: var(--radius-full); background: var(--color-primary); color: #171717; font-family: var(--font-primary); font-weight: 700; }
+.register-link, .login-link { margin-top: 1.5rem; text-align: center; color: var(--text-secondary); font-size: .9rem; }
+.form-message { margin: 0 0 1rem; padding: .7rem .8rem; border-radius: var(--radius-sm); background: rgba(239,68,68,.1); color: #b42318; }
+
+/* AWS source form: legacy stylesheet targets a previous template structure. */
+.aws-source-page .container, .cloud-connection-page .container { width: min(1100px, calc(100% - 2.5rem)); margin: 0 auto; }
+.migration-path { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 2rem; }
+.path-cloud { display: inline-flex; align-items: center; gap: .55rem; padding: .65rem .95rem; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-full); font-weight: 700; }
+.aws-source-page .cloud-logo { width: 2rem; height: 2rem; object-fit: contain; }
+.path-arrow { color: var(--color-primary); }
+.aws-source-header, .connection-page-header { max-width: 760px; margin: 0 auto 2.5rem; text-align: center; }
+.source-badge, .connection-badge { display: inline-flex; align-items: center; gap: .45rem; margin-bottom: .9rem; padding: .45rem .75rem; color: var(--color-primary-dark); background: rgba(212,175,55,.1); border-radius: var(--radius-full); font-size: .76rem; font-weight: 700; letter-spacing: .06em; }
+.aws-source-header h1, .connection-page-header h1 { font-size: clamp(2.1rem, 4vw, 3.35rem); line-height: 1.15; }
+.aws-source-header h1 span, .connection-page-header h1 span { color: var(--color-primary); }
+.aws-source-header p, .connection-page-header p { margin-top: .8rem; color: var(--text-secondary); line-height: 1.7; }
+.aws-source-grid, .cloud-connection-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; align-items: start; }
+.aws-connection-card, .aws-security-card, .cloud-connection-card { padding: clamp(1.35rem, 3vw, 2rem); }
+.card-heading { display: flex; align-items: flex-start; gap: .85rem; margin-bottom: 1.6rem; }
+.card-heading-icon, .security-icon { display: grid; place-items: center; flex: 0 0 auto; width: 2.7rem; height: 2.7rem; color: var(--color-primary); background: rgba(212,175,55,.12); border-radius: var(--radius-md); }
+.card-heading h2 { font-size: 1.35rem; line-height: 1.25; }
+.card-heading p, .aws-security-card > p { margin-top: .4rem; color: var(--text-secondary); line-height: 1.6; }
+.aws-source-page .form-group, .cloud-connection-card .form-group, .migration-config-form-card .form-group { margin-top: 1.15rem; }
+.aws-source-page .form-group label, .cloud-connection-card .form-group label, .migration-config-form-card .form-group > label { display: block; margin-bottom: .45rem; font-weight: 700; font-size: .9rem; }
+.aws-source-page .input-wrapper { position: relative; }
+.aws-source-page .input-wrapper > svg { position: absolute; left: .85rem; top: 50%; width: 1rem; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
+.aws-source-page .input-wrapper input, .aws-source-page .input-wrapper select { padding-left: 2.65rem; }
+.aws-source-page .password-toggle { position: absolute; display: grid; place-items: center; right: .45rem; top: .45rem; width: 2.1rem; height: 2.1rem; border-radius: .5rem; color: var(--text-secondary); }
+.connection-status { display: flex; align-items: center; gap: .5rem; min-height: 2.5rem; margin-top: 1rem; padding: .65rem .75rem; color: var(--text-secondary); background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: var(--radius-sm); font-size: .88rem; }
+.status-dot { width: .55rem; height: .55rem; flex: 0 0 auto; border-radius: 50%; background: var(--text-muted); }
+.connection-status.success .status-dot { background: var(--success); }.connection-status.error .status-dot { background: var(--danger); }.connection-status.loading .status-dot { background: var(--color-primary); }
+.aws-connect-btn, .validate-clouds-btn { width: 100%; margin-top: 1rem; }
+.security-items { display: grid; gap: .75rem; margin-top: 1.2rem; }
+.security-item { display: flex; gap: .7rem; padding: .8rem; border: 1px solid var(--border-light); border-radius: var(--radius-md); background: var(--bg-secondary); }
+.security-item > svg { flex: 0 0 auto; width: 1.1rem; color: var(--color-primary); }
+.security-item strong, .security-item span { display: block; }.security-item span { margin-top: .15rem; color: var(--text-secondary); font-size: .84rem; line-height: 1.5; }
+
+/* Azure target inputs in the current template are not wrapped by its legacy selectors. */
+.cloud-connection-card .connection-label { display: block; margin-bottom: .3rem; color: var(--color-primary-dark); font-size: .75rem; font-weight: 700; letter-spacing: .08em; }
+.cloud-connection-card .card-heading h2 { margin: .15rem 0; }
+.verified-cloud-info { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-light); }
+.verified-item { display: flex; align-items: center; gap: .5rem; color: var(--success); font-weight: 700; }
+.validation-results { margin-top: 1.25rem; padding: 1rem; border-radius: var(--radius-md); color: var(--text-secondary); }
+.validation-results.success { background: rgba(34,197,94,.1); color: #16764a; }.validation-results.error { background: rgba(239,68,68,.1); color: #b42318; }
+
+/* Configuration forms share the dashboard header but had no form-card rules. */
+.migration-config-form-card { max-width: 900px; margin: 1.5rem auto 0; padding: clamp(1.35rem, 4vw, 2.5rem); }
+.configuration-form-header { margin-bottom: 1.5rem; }.configuration-form-header h2 { margin: .35rem 0; font-size: 1.7rem; }.configuration-form-header p, .migration-config-form-card small { color: var(--text-secondary); line-height: 1.6; }
+.migration-config-form-card .form-group > label input[type="checkbox"] { width: 1rem; min-height: auto; margin-right: .4rem; accent-color: var(--color-primary-dark); }
+.configuration-status { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1.5rem; padding: 1rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: var(--radius-md); }
+.configuration-status span, .configuration-status small { display: block; color: var(--text-secondary); font-size: .83rem; }.configuration-status strong { display: block; margin-top: .2rem; color: var(--text-primary); }
+.configuration-status svg { flex: 0 0 auto; color: var(--color-primary); }.configuration-actions { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 1.5rem; }.configuration-actions > button { flex: 1 1 14rem; }
+
+@media (max-width: 800px) {
+    .login-container, .register-container, .aws-source-grid, .cloud-connection-grid, .report-grid { grid-template-columns: 1fr; }
+    .login-left, .register-left { display: none; }
+    .report-item { grid-template-columns: 1fr; }.report-item a { grid-column: 1; grid-row: auto; justify-self: start; margin-top: .7rem; }
+}
+@media (max-width: 600px) {
+    .dashboard-section, .login-container, .register-container, .aws-source-page .container, .cloud-connection-page .container { width: min(100% - 1.5rem, 1100px); }
+    .dashboard-section, .login-page, .register-page, .aws-source-page, .cloud-connection-page { padding-top: calc(var(--navbar-height) + 1.5rem); }
+    .pixel-card, .aws-connection-card, .aws-security-card, .cloud-connection-card, .migration-config-form-card { padding: 1.1rem; }
+    .migration-path { gap: .55rem; }.path-cloud { padding: .5rem .65rem; font-size: .8rem; }
+}

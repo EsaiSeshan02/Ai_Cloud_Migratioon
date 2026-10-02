@@ -25,6 +25,15 @@ from sqlalchemy.exc import IntegrityError
 from app.extensions import db
 from app.utils.time import utc_now
 from app.models.migration import Migration
+from app.security.audit_logger import audit_event
+from app.services.migration_execution_service import (
+    cancellation_requested,
+    claim_migration,
+    commit_worker_changes,
+    finalize_cancelled,
+    release_claim,
+    renew_claim,
+)
 
 try:  # Kept lazy-safe for developers until requirements are installed.
     from azure.mgmt.web import WebSiteManagementClient
@@ -40,7 +49,7 @@ _HANDLER = re.compile(r"^([A-Za-z_][A-Za-z0-9_\.]{0,240})\.([A-Za-z_][A-Za-z0-9_
 _RESOURCE_GROUP = re.compile(r"^[A-Za-z0-9_.()\-]{1,90}$")
 _FUNCTION_APP = re.compile(r"^[a-z0-9-]{2,60}$")
 _SLOT = re.compile(r"^[A-Za-z0-9-]{1,60}$")
-_ACTIVE_LAMBDA_STATES = {"preparing", "deploying", "validating"}
+_ACTIVE_LAMBDA_STATES = {"preparing", "deploying", "validating", "cancelling"}
 
 
 class ManualReviewRequired(ValueError):
@@ -239,7 +248,10 @@ def validate_target(target, configuration):
 def _active_lambda_migration(identity):
     return Migration.query.filter(
         Migration.active_identity == identity,
-        Migration.status.in_(_ACTIVE_LAMBDA_STATES),
+        (
+            Migration.status.in_(_ACTIVE_LAMBDA_STATES)
+            | ((Migration.status == "manual_review_required") & Migration.uncertain_external_operation.is_(True))
+        ),
     ).first()
 
 
@@ -278,16 +290,35 @@ def _safe_deployment_failure_reason(error):
     return "Deployment or target validation failed."
 
 
-def _persist_lambda_outcome(migration_id, status, failure_reason=None):
+def _persist_lambda_outcome(migration_id, status, failure_reason=None, worker_token=None,
+                            uncertain_external_operation=False):
     """Persist a terminal Lambda state without storing raw provider errors."""
-    migration = Migration.query.filter_by(migration_id=migration_id).first()
-    if not migration:
+    if worker_token is None:
         return None
-    migration.status = status
-    migration.active_identity = None
-    migration.failure_reason = failure_reason[:255] if failure_reason else None
-    migration.completed_at = utc_now()
+    from sqlalchemy import update
+    result = db.session.execute(
+        update(Migration)
+        .where(Migration.migration_id == migration_id, Migration.worker_token == worker_token)
+        .values(
+            status=status,
+            active_identity=None if not uncertain_external_operation else Migration.active_identity,
+            worker_token=None,
+            lease_expires_at=None,
+            failure_reason=failure_reason[:255] if failure_reason else None,
+            uncertain_external_operation=bool(uncertain_external_operation),
+            completed_at=utc_now(),
+        )
+        .execution_options(synchronize_session=False)
+    )
+    if result.rowcount != 1:
+        db.session.rollback()
+        return None
     db.session.commit()
+    migration = Migration.query.filter_by(migration_id=migration_id).first()
+    from app.services.report_service import generate_report_safely
+    generate_report_safely(migration)
+    audit_event("migration_manual_review_required" if status == "manual_review_required" else "migration_failed",
+                user_id=migration.user_id, migration_id=migration.migration_id, status=status, category="migration")
     return migration
 
 
@@ -305,12 +336,16 @@ def mark_incomplete_lambda_migrations_requires_review():
         Migration.status.in_(_ACTIVE_LAMBDA_STATES),
     ).update({
         Migration.status: "manual_review_required",
-        Migration.active_identity: None,
+        # Keep active_identity as a durable duplicate-deployment blocker.
+        Migration.uncertain_external_operation: True,
+        Migration.worker_token: None,
+        Migration.lease_expires_at: None,
         Migration.failure_reason: "Deployment was interrupted by an application restart; inspect the target before retrying.",
         Migration.completed_at: utc_now(),
     }, synchronize_session=False)
     if updated:
         db.session.commit()
+        audit_event("migration_worker_recovery", status="manual_review_required", category="migration")
     return updated
 
 
@@ -327,6 +362,10 @@ def deploy_lambda(aws_session, azure_target, function_name, configuration, user_
     identity = _lambda_identity(user_id, details["function_arn"], configuration)
     existing = _active_lambda_migration(identity)
     if existing:
+        if existing.uncertain_external_operation:
+            return {"success": False, "migration_id": existing.migration_id,
+                    "status": "manual_review_required",
+                    "message": "An uncertain Lambda deployment is blocked pending explicit target inspection."}
         return {"success": True, "migration_id": existing.migration_id, "status": existing.status,
                 "message": "Existing Lambda migration is already active."}
     safe_config = {"function_arn": details["function_arn"], "runtime": details["runtime"], "handler": details["handler"],
@@ -345,36 +384,159 @@ def deploy_lambda(aws_session, azure_target, function_name, configuration, user_
         db.session.rollback()
         existing = _active_lambda_migration(identity)
         if existing:
+            if existing.uncertain_external_operation:
+                return {"success": False, "migration_id": existing.migration_id,
+                        "status": "manual_review_required",
+                        "message": "An uncertain Lambda deployment is blocked pending explicit target inspection."}
             return {"success": True, "migration_id": existing.migration_id, "status": existing.status,
                     "message": "Existing Lambda migration is already active."}
         return {"success": False, "message": "Lambda migration could not be prepared safely."}
+    # Lambda deployment is synchronous and has no durable provider operation
+    # ID.  Do not reclaim an expired lease while Kudu may still be processing;
+    # restart recovery explicitly marks the migration for manual review.
+    claim = claim_migration(
+        migration.migration_id,
+        allowed_statuses=_ACTIVE_LAMBDA_STATES,
+        reclaim_expired=False,
+    )
+    if not claim:
+        existing = _active_lambda_migration(identity)
+        if existing:
+            if existing.uncertain_external_operation:
+                return {"success": False, "migration_id": existing.migration_id,
+                        "status": "manual_review_required",
+                        "message": "An uncertain Lambda deployment is blocked pending explicit target inspection."}
+            return {"success": True, "migration_id": existing.migration_id, "status": existing.status,
+                    "message": "Existing Lambda migration is already active."}
+        return {"success": False, "migration_id": migration.migration_id,
+                "message": "Lambda deployment could not be claimed safely."}
+    audit_event("migration_worker_started", user_id=migration.user_id,
+                migration_id=migration.migration_id, status="preparing", category="migration")
     target = validate_target(azure_target, configuration)
     if not target.get("success"):
-        migration = _persist_lambda_outcome(migration.migration_id, "failed", "Azure Function App target validation failed.")
+        migration = _persist_lambda_outcome(migration.migration_id, "failed", "Azure Function App target validation failed.", claim)
+        if migration is None:
+            return {"success": False, "migration_id": details["function_name"], "status": "interrupted",
+                    "message": "Lambda worker lost its claim before recording target validation."}
         return {"success": False, "migration_id": migration.migration_id, "status": "failed",
                 "message": "Azure Function App validation failed. Check target and permissions."}
     try:
-        migration.status = "deploying"; db.session.commit()
+        if cancellation_requested(migration.migration_id):
+            if not finalize_cancelled(migration, claim):
+                current = Migration.query.filter_by(migration_id=migration.migration_id).first()
+                return {"success": False, "migration_id": migration.migration_id,
+                        "status": current.status if current else "manual_review_required",
+                        "message": "Lambda cancellation could not be persisted safely."}
+            return {"success": False, "migration_id": migration.migration_id, "status": "cancelled",
+                    "message": "Lambda deployment was cancelled before provider deployment started."}
+        migration.status = "deploying"
+        if not commit_worker_changes(migration.migration_id, claim):
+            raise RuntimeError("Lambda worker claim was lost before deployment.")
         payload = _download_and_build_package(details["code_location"], details["handler"])
+        if cancellation_requested(migration.migration_id):
+            if not finalize_cancelled(migration, claim):
+                current = Migration.query.filter_by(migration_id=migration.migration_id).first()
+                return {"success": False, "migration_id": migration.migration_id,
+                        "status": current.status if current else "manual_review_required",
+                        "message": "Lambda cancellation could not be persisted safely."}
+            return {"success": False, "migration_id": migration.migration_id, "status": "cancelled",
+                    "message": "Lambda deployment was cancelled before provider deployment started."}
+        if not renew_claim(migration.migration_id, claim):
+            raise RuntimeError("Lambda deployment worker claim was lost.")
         credentials = (target["client"].web_apps.list_publishing_credentials_slot(target["resource_group"], target["function_app_name"], target["slot"])
                        if target["slot"] else target["client"].web_apps.list_publishing_credentials(target["resource_group"], target["function_app_name"]))
         kudu = f"https://{target['function_app_name']}{('-' + target['slot']) if target['slot'] else ''}.scm.azurewebsites.net/api/zipdeploy?isAsync=false"
         response = requests.post(kudu, data=payload, auth=(credentials.publishing_user_name, credentials.publishing_password), timeout=(15, 300), headers={"Content-Type": "application/zip"})
         response.raise_for_status()
-        migration.status = "validating"; db.session.commit()
+        if not renew_claim(migration.migration_id, claim):
+            raise RuntimeError("Lambda deployment worker claim was lost before validation.")
+        migration.status = "validating"
+        if not commit_worker_changes(migration.migration_id, claim):
+            raise RuntimeError("Lambda worker claim was lost before validation.")
         _validate_deployed_function(target)
-        migration.status = "completed"; migration.completed_at = utc_now(); migration.active_identity = None; db.session.commit()
+        migration.status = "completed"; migration.completed_at = utc_now(); migration.active_identity = None
+        if not commit_worker_changes(migration.migration_id, claim):
+            return {"success": False, "migration_id": migration.migration_id, "status": "manual_review_required",
+                    "message": "Provider deployment finished, but this worker lost its claim before recording validation."}
+        if not release_claim(migration, claim):
+            return {"success": False, "migration_id": migration.migration_id, "status": "manual_review_required",
+                    "message": "Provider deployment finished, but worker ownership could not be released safely."}
+        db.session.refresh(migration)
+        from app.services.report_service import generate_report_safely
+        generate_report_safely(migration)
+        audit_event("migration_completed", user_id=migration.user_id,
+                    migration_id=migration.migration_id, status="completed", category="migration")
         return {"success": True, "migration_id": migration.migration_id, "status": "completed", "message": "Azure Functions deployment completed and target validation succeeded."}
     except ManualReviewRequired as exc:
         db.session.rollback()
-        migration = _persist_lambda_outcome(migration.migration_id, "manual_review_required", str(exc))
+        migration = _persist_lambda_outcome(migration.migration_id, "manual_review_required", str(exc), claim)
+        if migration is None:
+            return {"success": False, "status": "manual_review_required", "message": "Lambda outcome requires manual review."}
         current_app.logger.info("lambda_deployment_manual_review operation=package_assessment")
         return {"success": False, "migration_id": migration.migration_id, "status": "manual_review_required",
                 "message": "Lambda package requires manual review before deployment.", "reasons": [str(exc)]}
     except Exception as error:
         db.session.rollback()
-        failure_reason = _safe_deployment_failure_reason(error)
-        migration = _persist_lambda_outcome(migration.migration_id, "failed", failure_reason)
-        current_app.logger.error("lambda_deployment_failed operation=deploy category=cloud")
-        return {"success": False, "migration_id": migration.migration_id, "status": "failed",
-                "message": "Lambda deployment failed; review target permissions and deployment diagnostics."}
+        claim_lost = "worker claim was lost" in str(error).lower()
+        failure_reason = (
+            "Provider deployment may have completed; inspect the target before retrying."
+            if claim_lost else _safe_deployment_failure_reason(error)
+        )
+        outcome_status = "manual_review_required" if claim_lost else "failed"
+        migration = _persist_lambda_outcome(
+            migration.migration_id,
+            outcome_status,
+            failure_reason,
+            claim,
+            uncertain_external_operation=claim_lost,
+        )
+        if migration is None:
+            return {"success": False, "status": "manual_review_required",
+                    "message": "Lambda outcome requires manual review."}
+        if claim_lost:
+            current_app.logger.warning(
+                "lambda_deployment_manual_review operation=deploy category=uncertain_outcome"
+            )
+        else:
+            current_app.logger.error("lambda_deployment_failed operation=deploy category=cloud")
+        return {"success": False, "migration_id": migration.migration_id, "status": outcome_status,
+                "message": (
+                    "Lambda deployment outcome requires manual review; inspect the target before retrying."
+                    if claim_lost else "Lambda deployment failed; review target permissions and deployment diagnostics."
+                )}
+
+
+def resolve_uncertain_lambda(migration, confirmation):
+    """Clear only an owner-confirmed uncertainty blocker, never claim success."""
+    if not isinstance(migration, Migration) or migration.resource_type != "lambda":
+        return False
+    if confirmation != "target_inspected_no_active_deployment":
+        return False
+    from sqlalchemy import update
+    result = db.session.execute(
+        update(Migration)
+        .where(
+            Migration.id == migration.id,
+            Migration.status == "manual_review_required",
+            Migration.uncertain_external_operation.is_(True),
+            Migration.worker_token.is_(None),
+        )
+        .values(
+            uncertain_external_operation=False,
+            active_identity=None,
+            failure_reason="Owner confirmed the target was inspected; a fresh approved deployment is required.",
+        )
+        .execution_options(synchronize_session=False)
+    )
+    if result.rowcount != 1:
+        db.session.rollback()
+        return False
+    db.session.commit()
+    audit_event(
+        "lambda_uncertain_blocker_resolved",
+        user_id=migration.user_id,
+        migration_id=migration.migration_id,
+        status="manual_review_required",
+        category="migration",
+    )
+    return True

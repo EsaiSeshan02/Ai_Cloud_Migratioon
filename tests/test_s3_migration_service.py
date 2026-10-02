@@ -226,6 +226,17 @@ class S3MigrationServiceTests(unittest.TestCase):
             self.assertEqual(record.verification_status, "size_mismatch")
             self.assertEqual(record.bytes_transferred, 0)
 
+    def test_report_failure_does_not_rewrite_successful_outcome(self):
+        blob, s3 = _Blob(), _S3Client(b"payload")
+        with self.app.app_context(), \
+             patch.object(service, "_container_client", return_value=_Container(blob)), \
+             patch("app.services.report_service.generate_report", side_effect=RuntimeError("report store unavailable")):
+            result = service.execute_s3_migration("s3-phase2-test", _AwsSession(s3), {})
+            persisted = Migration.query.filter_by(migration_id="s3-phase2-test").one()
+        self.assertTrue(result["success"])
+        self.assertEqual(persisted.status, "completed")
+        self.assertEqual(s3.calls, 1)
+
     def test_retry_counts_and_transferred_bytes_are_persisted(self):
         blob, s3 = _Blob(fail_once=True), _S3Client(b"payload")
         with self.app.app_context(), patch.object(service, "_container_client", return_value=_Container(blob)), patch.object(service.time, "sleep"):
@@ -246,6 +257,24 @@ class S3MigrationServiceTests(unittest.TestCase):
             result = service.execute_s3_migration("s3-phase2-test", _AwsSession(s3), {})
             self.assertFalse(result["success"])
             self.assertEqual(s3.calls, 0)
+
+    def test_stale_worker_cannot_mark_interrupted_after_claim_changes(self):
+        blob, s3 = _Blob(), _S3Client()
+
+        def replace_claim_then_fail(*_args):
+            migration = Migration.query.filter_by(migration_id=self.migration_id).one()
+            migration.worker_token = "new-worker-token"
+            migration.lease_expires_at = service.utc_now()
+            db.session.commit()
+            raise RuntimeError("simulated stale worker")
+
+        with self.app.app_context(), patch.object(service, "_container_client", side_effect=replace_claim_then_fail):
+            result = service.execute_s3_migration(self.migration_id, _AwsSession(s3), {})
+            persisted = Migration.query.filter_by(migration_id=self.migration_id).one()
+            self.assertFalse(result["success"])
+            self.assertEqual(persisted.status, "running")
+            self.assertEqual(persisted.worker_token, "new-worker-token")
+            self.assertIsNotNone(persisted.lease_expires_at)
 
     def test_repeated_start_reuses_persisted_active_migration(self):
         with self.app.app_context():

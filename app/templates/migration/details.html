@@ -7,6 +7,15 @@
     <h1>{{ migration.resource_name }}</h1>
     <p>{{ migration.source_cloud|upper }} → {{ migration.target_cloud|upper }} · Status: <strong>{{ report.status }}</strong></p>
     <p>Plan: {{ report.plan_id or 'No persisted plan reference (legacy execution)' }}</p>
+    {% if migration.status in ['preparing', 'running', 'deploying', 'validating', 'cancelling'] %}
+    <form method="post" action="{{ url_for('migration.cancel_migration', migration_id=migration.migration_id) }}" class="report-actions">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn-secondary">Request safe cancellation</button>
+    </form>
+    <p>Cancellation is cooperative. A provider operation already accepted by AWS or Azure is recorded truthfully; no rollback is implied.</p>
+    {% elif migration.status in ['interrupted', 'failed', 'completed_with_failures'] and migration.resource_type == 's3' %}
+    <p>Reconnect both cloud sessions in the configuration workflow before requesting an explicit S3 retry. Verified objects remain skipped.</p>
+    {% endif %}
     {% if migration.resource_type == 'lambda' %}
     <p>Validation: Azure Function App management-plane validation after deployment. It is not a business-level function invocation test.</p>
     {% if report.lambda_deployment.failure_reason %}<p>Safe outcome: {{ report.lambda_deployment.failure_reason }}</p>{% endif %}

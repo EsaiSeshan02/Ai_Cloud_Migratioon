@@ -228,6 +228,20 @@ class Migration(db.Model):
     # Provider diagnostics and credentials must never be persisted.
     failure_reason = db.Column(db.String(255), nullable=True)
 
+    # A synchronous Lambda/Kudu call can outlive this process.  When its
+    # outcome is unknown, retain the logical identity as a durable blocker
+    # until an owner explicitly confirms the target was inspected.
+    uncertain_external_operation = db.Column(db.Boolean, nullable=False, default=False)
+
+    # Persisted worker lifecycle. Credentials remain in the short-lived cloud
+    # session only; these fields describe ownership of local execution work.
+    cancellation_requested = db.Column(db.Boolean, nullable=False, default=False)
+    worker_token = db.Column(db.String(64), nullable=True, index=True)
+    lease_expires_at = db.Column(UTCDateTime(), nullable=True, index=True)
+    last_heartbeat_at = db.Column(UTCDateTime(), nullable=True)
+    retry_count = db.Column(db.Integer, nullable=False, default=0)
+    updated_at = db.Column(UTCDateTime(), nullable=False, default=utc_now, onupdate=utc_now)
+
     # ------------------------------------------------------
     # TIMESTAMPS
     # ------------------------------------------------------

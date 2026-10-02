@@ -494,14 +494,11 @@ document.addEventListener(
             connectionStatus.className =
                 `connection-status ${type}`;
 
-
-            connectionStatus.innerHTML = `
-
-                <span class="status-dot"></span>
-
-                ${message}
-
-            `;
+            /* Provider error text is untrusted. Keep the status display
+               textual instead of interpolating it as HTML. */
+            const dot = document.createElement("span");
+            dot.className = "status-dot";
+            connectionStatus.replaceChildren(dot, document.createTextNode(` ${message}`));
 
         }
 

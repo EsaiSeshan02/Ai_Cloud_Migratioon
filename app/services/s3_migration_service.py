@@ -16,12 +16,20 @@ from azure.core.exceptions import AzureError, ResourceExistsError, ResourceNotFo
 from azure.mgmt.storage import StorageManagementClient
 from azure.storage.blob import BlobServiceClient
 from flask import current_app
-from sqlalchemy import inspect
+from sqlalchemy import inspect, or_
 from sqlalchemy.exc import IntegrityError
 
 from app.extensions import db
 from app.models.migration import Migration, MigrationFile
+from app.security.audit_logger import audit_event
 from app.security.logging_utils import log_event
+from app.services.migration_execution_service import (
+    cancellation_requested,
+    claim_migration,
+    commit_worker_changes,
+    finalize_cancelled,
+    renew_claim,
+)
 from app.utils.time import utc_now
 
 GB = 1024 * 1024 * 1024
@@ -33,14 +41,15 @@ _active_migrations = set()
 
 # These states describe persisted execution, not simulated progress.  A
 # browser may safely poll ``preparing`` while a worker is queued.
-_ACTIVE_STATES = {"preparing", "running"}
+_ACTIVE_STATES = {"preparing", "running", "cancelling"}
 _RESUMABLE_STATES = {"interrupted", "failed", "completed_with_failures"}
 _TERMINAL_STATES = {"completed", "completed_with_review", "cancelled"}
 _TERMINAL_FILE_STATES = {"verified", "skipped", "failed", "manual_review"}
 _ALLOWED_TRANSITIONS = {
     "pending": {"preparing"},
-    "preparing": {"running", "interrupted", "failed", "completed", "cancelled"},
-    "running": {"interrupted", "failed", "completed", "completed_with_failures", "completed_with_review"},
+    "preparing": {"running", "interrupted", "failed", "completed", "cancelled", "cancelling"},
+    "running": {"interrupted", "failed", "completed", "completed_with_failures", "completed_with_review", "cancelling", "cancelled"},
+    "cancelling": {"cancelled", "completed", "completed_with_failures", "completed_with_review"},
     # Direct synchronous execution is retained for the existing compatibility
     # wrapper and can safely continue an interrupted persisted migration.
     "interrupted": {"preparing", "running"},
@@ -222,7 +231,7 @@ def _is_transient(error):
     return isinstance(error, AzureError) and not isinstance(error, (ResourceExistsError, ResourceNotFoundError))
 
 
-def _transfer_one(s3_client, bucket_name, record, container_client):
+def _transfer_one(s3_client, bucket_name, record, container_client, worker_token=None):
     """Stream and size-verify one object; Azure SDK controls transport chunks.
 
     The application's 10 GB batches are logical scheduling groups.  This
@@ -248,7 +257,10 @@ def _transfer_one(s3_client, bucket_name, record, container_client):
             record.last_attempt_at = utc_now()
             # Persist retry evidence before making a provider request so a
             # restart does not erase the fact that a transfer was attempted.
-            db.session.commit()
+            if worker_token is None:
+                db.session.commit()
+            elif not commit_worker_changes(record.migration.migration_id, worker_token):
+                raise RuntimeError("Migration worker claim was lost before object transfer.")
             response = s3_client.get_object(Bucket=bucket_name, Key=record.object_key)
             body = response["Body"]
             source_size = int(response.get("ContentLength", record.size_bytes))
@@ -284,7 +296,7 @@ def _transfer_one(s3_client, bucket_name, record, container_client):
     return "failed", "Object transfer failed after bounded retries.", None, None, 0
 
 
-def _finalize(migration):
+def _finalize(migration, worker_token=None):
     _refresh_counts(migration)
     statuses = {item.status for item in MigrationFile.query.filter_by(migration_id=migration.id).all()}
     if not statuses or statuses <= {"verified", "skipped"}:
@@ -299,7 +311,14 @@ def _finalize(migration):
         current_app.logger.error("s3_invalid_state_transition operation=finalize category=state")
         return False
     migration.completed_at = utc_now()
-    db.session.commit()
+    migration.worker_token = None
+    migration.lease_expires_at = None
+    if worker_token is None:
+        db.session.commit()
+    elif not commit_worker_changes(migration.migration_id, worker_token):
+        return False
+    from app.services.report_service import generate_report_safely
+    generate_report_safely(migration)
     return True
 
 
@@ -344,51 +363,116 @@ def migration_progress(migration):
         "completed_batches": completed_batches,
         "current_batch": current_batch,
         "retry_attempts": retry_attempts,
+        "retry_count": int(migration.retry_count or 0),
+        "cancellation_requested": bool(migration.cancellation_requested),
+        "uncertain_external_operation": bool(getattr(migration, "uncertain_external_operation", False)),
         "retriable_files": status_counts["failed"] + status_counts["transferring"],
         "logical_batch_size_bytes": BATCH_SIZE_LIMIT,
     }
 
 
-def execute_s3_migration(migration_id, aws_session, azure_session):
+def execute_s3_migration(migration_id, aws_session, azure_session, worker_token=None):
     """Execute pending/failed records; safe to invoke again for a resume."""
     migration = Migration.query.filter_by(migration_id=migration_id, resource_type="s3").first()
     if not migration:
         return {"success": False, "message": "Migration was not found."}
     if migration.status not in _ACTIVE_STATES | _RESUMABLE_STATES:
         return {"success": False, "migration_id": migration_id, "message": "Migration is not in a runnable state."}
+    claim = claim_migration(migration_id, worker_token, _ACTIVE_STATES | _RESUMABLE_STATES)
+    if not claim:
+        if cancellation_requested(migration_id):
+            return {"success": False, "migration_id": migration_id, "message": "Migration cancellation is in progress."}
+        return {"success": False, "migration_id": migration_id, "message": "Migration is already claimed by another worker."}
+    db.session.expire_all()
+    migration = Migration.query.filter_by(migration_id=migration_id, resource_type="s3").first()
     try:
         if not _transition(migration, "running"):
             return {"success": False, "migration_id": migration_id, "message": "Migration state transition was rejected."}
         migration.started_at = migration.started_at or utc_now()
-        db.session.commit()
+        if not commit_worker_changes(migration_id, claim):
+            raise RuntimeError("Migration worker claim was lost before execution.")
+        audit_event("migration_worker_started", user_id=migration.user_id,
+                    migration_id=migration.migration_id, status="running", category="migration")
         s3_client, container_client = aws_session.client("s3"), _container_client(azure_session, migration)
         records = MigrationFile.query.filter_by(migration_id=migration.id).order_by(MigrationFile.batch_number, MigrationFile.id).all()
         for record in records:
+            if cancellation_requested(migration_id):
+                if not finalize_cancelled(migration, claim):
+                    current = Migration.query.filter_by(migration_id=migration_id).first()
+                    return migration_progress(current or migration) | {
+                        "success": False,
+                        "message": "Migration cancellation could not be persisted safely.",
+                    }
+                audit_event("migration_cancelled", user_id=migration.user_id,
+                            migration_id=migration.migration_id, status="cancelled", category="migration")
+                log_event(current_app.logger, "s3_migration_cancelled", user_id=migration.user_id,
+                          migration_id=migration.migration_id, operation="transfer", status="cancelled")
+                return migration_progress(migration)
+            if not renew_claim(migration_id, claim):
+                raise RuntimeError("Migration worker claim was lost.")
             if record.status in {"verified", "skipped", "manual_review"}:
                 continue
             if record.status == "completed":
                 _set_file_result(record, "manual_review", "Legacy completion has no persisted verification evidence.", "legacy_unverified")
-                db.session.commit()
+                if not commit_worker_changes(migration_id, claim):
+                    raise RuntimeError("Migration worker claim was lost while recording an object result.")
                 continue
             record.status = "transferring"
             record.started_at = record.started_at or utc_now()
             record.error_message = None
-            db.session.commit()
-            status, message, verification, destination_etag, transferred = _transfer_one(s3_client, migration.resource_name, record, container_client)
+            if not commit_worker_changes(migration_id, claim):
+                raise RuntimeError("Migration worker claim was lost before object transfer.")
+            status, message, verification, destination_etag, transferred = _transfer_one(
+                s3_client, migration.resource_name, record, container_client, claim
+            )
             _set_file_result(record, status, message, verification, destination_etag, transferred)
             _refresh_counts(migration)
-            db.session.commit()
-        if not _finalize(migration):
+            if not commit_worker_changes(migration_id, claim):
+                raise RuntimeError("Migration worker claim was lost while saving object results.")
+        # If all persisted work completed before the cancellation request was
+        # observed, preserve the actual provider outcome instead of claiming a
+        # rollback that does not exist.
+        if cancellation_requested(migration_id):
+            _refresh_counts(migration)
+            if migration.uploaded_files < migration.total_files:
+                if not finalize_cancelled(migration, claim):
+                    current = Migration.query.filter_by(migration_id=migration_id).first()
+                    return migration_progress(current or migration) | {
+                        "success": False,
+                        "message": "Migration cancellation could not be persisted safely.",
+                    }
+                return migration_progress(migration)
+        if not renew_claim(migration_id, claim):
+            raise RuntimeError("Migration worker claim was lost before finalization.")
+        if not _finalize(migration, claim):
             return {"success": False, "migration_id": migration_id, "message": "Migration finalization was rejected."}
         log_event(current_app.logger, "s3_migration_finished", user_id=migration.user_id,
                   migration_id=migration.migration_id, operation="transfer", status=migration.status)
+        audit_event(
+            "migration_completed" if migration.status == "completed" else "migration_failed",
+            user_id=migration.user_id, migration_id=migration.migration_id,
+            status=migration.status, category="migration",
+        )
         return migration_progress(migration)
     except Exception:
         db.session.rollback()
         current_app.logger.error("s3_migration_failed migration_id=%s operation=transfer category=unexpected", migration_id)
-        migration = Migration.query.filter_by(migration_id=migration_id).first()
-        if migration and _transition(migration, "interrupted"):
+        interrupted = False
+        if claim is not None:
+            from sqlalchemy import update
+            result = db.session.execute(
+                update(Migration)
+                .where(Migration.migration_id == migration_id, Migration.worker_token == claim)
+                .values(status="interrupted", worker_token=None, lease_expires_at=None)
+            )
+            interrupted = result.rowcount == 1
             db.session.commit()
+        migration = Migration.query.filter_by(migration_id=migration_id).first()
+        if migration and interrupted:
+            from app.services.report_service import generate_report_safely
+            generate_report_safely(migration)
+            audit_event("migration_interrupted", user_id=migration.user_id,
+                        migration_id=migration.migration_id, status="interrupted", category="migration")
         return {"success": False, "migration_id": migration_id, "message": "Migration was interrupted and can be resumed."}
 
 
@@ -458,6 +542,8 @@ def _prepare_migration(aws_session, azure_session, bucket_name, configuration, u
             _transition(migration, "completed")
             migration.completed_at = utc_now()
             db.session.commit()
+            from app.services.report_service import generate_report_safely
+            generate_report_safely(migration)
             return migration_progress(migration)
         resource_group, account, region = _destination_from_configuration(azure_session, migration, configuration, bucket_name)
         migration.destination_resource_group = resource_group
@@ -471,6 +557,10 @@ def _prepare_migration(aws_session, azure_session, bucket_name, configuration, u
         if migration:
             if _transition(migration, "failed"):
                 db.session.commit()
+            from app.services.report_service import generate_report_safely
+            generate_report_safely(migration)
+            audit_event("migration_failed", user_id=migration.user_id,
+                        migration_id=migration.migration_id, status="failed", category="migration")
         current_app.logger.error("s3_destination_prepare_failed operation=storage category=cloud")
         return {"success": False, "migration_id": migration.migration_id, "message": "Migration destination preparation failed."}
 
@@ -541,7 +631,37 @@ def mark_incomplete_migrations_interrupted():
     """A restart leaves no falsely active migration state behind."""
     if "migrations" not in inspect(db.engine).get_table_names():
         return
-    Migration.query.filter(Migration.status.in_(["preparing", "running"])).update(
-        {Migration.status: "interrupted"}, synchronize_session=False
+    # The cloud sessions used by this local prototype are memory-only.  Do
+    # not silently requeue after a restart: owners reconnect and explicitly
+    # resume S3 from its verified object records.  A persisted cancellation
+    # request is safe to finalize because no later object can have started.
+    now = utc_now()
+    recoverable_claim = or_(
+        Migration.worker_token.is_(None),
+        Migration.lease_expires_at <= now,
     )
+    cancelled = Migration.query.filter(
+        Migration.resource_type == "s3",
+        Migration.cancellation_requested.is_(True),
+        Migration.status.in_(["preparing", "running", "cancelling"]),
+        recoverable_claim,
+    ).update({
+        Migration.status: "cancelled",
+        Migration.active_identity: None,
+        Migration.worker_token: None,
+        Migration.lease_expires_at: None,
+        Migration.completed_at: utc_now(),
+    }, synchronize_session=False)
+    interrupted = Migration.query.filter(
+        Migration.resource_type == "s3",
+        Migration.cancellation_requested.is_(False),
+        Migration.status.in_(["preparing", "running"]),
+        recoverable_claim,
+    ).update({
+        Migration.status: "interrupted",
+        Migration.worker_token: None,
+        Migration.lease_expires_at: None,
+    }, synchronize_session=False)
     db.session.commit()
+    if cancelled or interrupted:
+        audit_event("migration_worker_recovery", status="interrupted", category="migration")

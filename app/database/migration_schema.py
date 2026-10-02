@@ -25,6 +25,13 @@ _COLUMNS = {
         "destination_provisioning_mode": "VARCHAR(32)",
         "execution_configuration": "TEXT NOT NULL DEFAULT '{}'",
         "failure_reason": "VARCHAR(255)",
+        "uncertain_external_operation": "BOOLEAN NOT NULL DEFAULT 0",
+        "cancellation_requested": "BOOLEAN NOT NULL DEFAULT 0",
+        "worker_token": "VARCHAR(64)",
+        "lease_expires_at": "DATETIME",
+        "last_heartbeat_at": "DATETIME",
+        "retry_count": "INTEGER NOT NULL DEFAULT 0",
+        "updated_at": "DATETIME",
     },
     "migration_files": {
         "source_etag": "VARCHAR(256)",
@@ -63,6 +70,14 @@ def upgrade_legacy_schema(connection=None):
         bind.execute(text(
             "CREATE UNIQUE INDEX IF NOT EXISTS uq_migrations_active_identity "
             "ON migrations (active_identity)"
+        ))
+        bind.execute(text(
+            "CREATE INDEX IF NOT EXISTS ix_migrations_worker_token "
+            "ON migrations (worker_token)"
+        ))
+        bind.execute(text(
+            "CREATE INDEX IF NOT EXISTS ix_migrations_lease_expires_at "
+            "ON migrations (lease_expires_at)"
         ))
     if "migration_files" in set(inspect(bind).get_table_names()):
         # Existing historical duplicate rows must not be deleted by an

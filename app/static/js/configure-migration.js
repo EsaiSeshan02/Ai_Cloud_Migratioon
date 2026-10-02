@@ -107,6 +107,8 @@ function initializeConfigureMigration() {
         resource
     );
 
+    setTransferVisualState("pending", "Ready for an approved migration", "Particles animate only while a real provider operation is running.");
+
     configureServiceSpecificFields(resource);
 
 
@@ -1381,11 +1383,13 @@ async function startLambdaMigration(sourceSessionId, targetSessionId, resource, 
     const status = document.getElementById("configuration-status");
     const functionName = resource.name || resource.resource_name || "";
     if (!functionName || !configuration.resource_group || !configuration.function_app_name) {
+        setTransferVisualState("manual_review", "Target configuration required", "Lambda deployment requires an existing Azure Function App and an approved plan.");
         alert("Select a Lambda and provide an existing Azure resource group and Function App.");
         return;
     }
     if (button) setMigrationButtonState(button, "loading");
     if (status) status.textContent = "Validating Lambda and Azure Function App...";
+    setTransferVisualState("pending", "Validating deployment target", "No deployment animation is shown until the provider operation begins.");
     try {
         const response = await fetch("/api/migration/lambda/start", {
             method: "POST", headers: {"Content-Type": "application/json"},
@@ -1408,14 +1412,18 @@ async function startLambdaMigration(sourceSessionId, targetSessionId, resource, 
         if (result.status === "completed") {
             if (status) status.textContent = "Deployment completed and target validated";
             if (button) setMigrationButtonState(button, "success");
+            setTransferVisualState("completed", "Deployment completed and target validated", "Azure confirmed the supported Function App deployment.");
             alert(result.message || "Lambda deployment completed.");
             return;
         }
         if (status) status.textContent = "Deployment is already active; review migration history before retrying.";
         if (button) setMigrationButtonState(button, "error");
+        setTransferVisualState("pending", "Deployment already active", "Review the existing persisted migration; no duplicate deployment was started.");
         alert(result.message || "Lambda deployment is already active.");
     } catch (error) {
         if (status) status.textContent = "Manual review or deployment failure";
+        const state = /manual review|uncertain/i.test(error.message || "") ? "manual_review" : "failed";
+        setTransferVisualState(state, state === "manual_review" ? "Manual review required" : "Deployment failed", "No completion is shown until Azure deployment and validation both succeed.");
         alert(error.message || "Lambda migration could not be completed.");
         if (button) setMigrationButtonState(button, "error");
     }
@@ -1447,6 +1455,11 @@ function configureServiceSpecificFields(resource) {
 
     const planningNotice = document.getElementById("planning-only-notice");
     if (planningNotice) planningNotice.hidden = path !== "planning";
+    if (path === "planning") {
+        setTransferVisualState("manual_review", "Planning / manual review required", "This resource has no supported execution engine in the current AWS → Azure prototype.");
+    } else if (path === "lambda") {
+        setTransferVisualState("pending", "Ready for validated Lambda deployment", "The dedicated workflow still requires an approved plan, supported package, and existing Azure Function App.");
+    }
 
     const saveButton = document.querySelector(".save-configuration-btn");
     const startButton = document.getElementById("start-migration-btn");
@@ -1514,6 +1527,8 @@ async function startS3Migration(
             "Migration in Progress";
 
     }
+
+    setTransferVisualState("pending", "Starting S3 migration", "Waiting for the persisted migration to be created.");
 
 
     try {
@@ -1585,6 +1600,8 @@ async function startS3Migration(
 
             }
 
+            setTransferVisualState("running", "S3 transfer running", "Pixel flow reflects the persisted S3 migration state.");
+
 
             setMigrationButtonState(
                 startMigrationButton,
@@ -1638,6 +1655,8 @@ async function startS3Migration(
 
         }
 
+        setTransferVisualState("failed", "Migration failed", "Review the safe migration status and report before retrying.");
+
 
         setMigrationButtonState(
             startMigrationButton,
@@ -1678,6 +1697,7 @@ async function monitorS3Migration(migrationId, statusElement, button) {
                     : "";
                 statusElement.textContent = `${migration.status}: ${processed}/${migration.total_files} objects${batch}${retries}`;
             }
+            setTransferVisualStateForMigration(migration);
             if (["running", "preparing"].includes(migration.status)) {
                 window.setTimeout(poll, 2000);
                 return;
@@ -1694,6 +1714,49 @@ async function monitorS3Migration(migrationId, statusElement, button) {
         }
     };
     await poll();
+}
+
+
+/* ==========================================================
+                REAL MIGRATION TRANSFER VISUAL
+========================================================== */
+
+function setTransferVisualState(state, label, detail) {
+    const visual = document.getElementById("migration-transfer-visual");
+    if (!visual) return;
+    const normalized = ["pending", "running", "completed", "failed", "cancelled", "manual_review"].includes(state)
+        ? state
+        : "pending";
+    visual.dataset.state = normalized;
+    const status = document.getElementById("transfer-visual-status");
+    const description = document.getElementById("transfer-visual-detail");
+    if (status) status.textContent = label;
+    if (description) description.textContent = detail;
+}
+
+function setTransferVisualStateForMigration(migration) {
+    const status = String(migration.status || "pending").toLowerCase();
+    if (["running", "preparing", "deploying", "validating"].includes(status)) {
+        setTransferVisualState("running", `Migration ${status}`, "Pixel flow reflects the persisted migration state.");
+        return;
+    }
+    if (status === "completed") {
+        setTransferVisualState("completed", "Migration completed", "The persisted backend status confirms completion.");
+        return;
+    }
+    if (status === "cancelled") {
+        setTransferVisualState("cancelled", "Migration cancelled", "No further transfer is being shown.");
+        return;
+    }
+    if (["manual_review_required", "interrupted", "completed_with_review"].includes(status)) {
+        setTransferVisualState("manual_review", "Manual review required", "The migration requires review before another action is taken.");
+        return;
+    }
+    if (["failed", "completed_with_failures"].includes(status)) {
+        setTransferVisualState("failed", "Migration failed", "Review persisted results before retrying eligible S3 work.");
+        return;
+    }
+    setTransferVisualState("pending", `Migration ${status}`, "No transfer animation is shown for this state.");
 }
 
 

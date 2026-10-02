@@ -64,8 +64,10 @@ class DatabaseVersioningTests(unittest.TestCase):
         self.assertTrue((ROOT / "alembic.ini").is_file())
         self.assertTrue((ROOT / "Migrations" / "env.py").is_file())
         self.assertTrue((ROOT / "Migrations" / "versions" / "20260927_01_baseline_current_schema.py").is_file())
+        self.assertTrue((ROOT / "Migrations" / "versions" / "20260927_02_execution_lifecycle.py").is_file())
+        self.assertTrue((ROOT / "Migrations" / "versions" / "20260927_03_lambda_uncertain_blocker.py").is_file())
         script = ScriptDirectory.from_config(Config(str(ROOT / "alembic.ini")))
-        self.assertEqual(script.get_current_head(), "20260927_01")
+        self.assertEqual(script.get_current_head(), "20260927_03")
 
     def test_flask_migrate_uses_repository_alembic_configuration(self):
         with self.app.app_context():
@@ -96,7 +98,11 @@ class DatabaseVersioningTests(unittest.TestCase):
             inspector = inspect(engine)
             migration_columns = {column["name"] for column in inspector.get_columns("migrations")}
             file_columns = {column["name"] for column in inspector.get_columns("migration_files")}
-            self.assertTrue({"plan_id", "active_identity", "execution_configuration", "failure_reason", "transferred_bytes"}.issubset(migration_columns))
+            self.assertTrue({
+                "plan_id", "active_identity", "execution_configuration", "failure_reason", "transferred_bytes",
+                "cancellation_requested", "worker_token", "lease_expires_at", "last_heartbeat_at", "retry_count", "updated_at",
+                "uncertain_external_operation",
+            }.issubset(migration_columns))
             self.assertTrue({"source_etag", "destination_etag", "verification_status", "attempt_count", "bytes_transferred"}.issubset(file_columns))
             with engine.connect() as connection:
                 self.assertEqual(connection.execute(text("SELECT migration_id FROM migrations WHERE id = 1")).scalar_one(), "legacy-migration")

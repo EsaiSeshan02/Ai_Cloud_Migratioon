@@ -3,6 +3,8 @@
 import json
 import uuid
 
+from flask import current_app
+
 from app.extensions import db
 from app.models.migration import Migration, MigrationFile
 from app.models.report import Report
@@ -38,6 +40,9 @@ def build_report_payload(migration):
             "provisioning_mode": migration.destination_provisioning_mode,
         },
         "status": migration.status,
+        "cancellation_requested": bool(migration.cancellation_requested),
+        "explicit_retry_count": int(migration.retry_count or 0),
+        "failure_reason": migration.failure_reason,
         "started_at": started.isoformat() if started else None,
         "completed_at": ended.isoformat() if ended else None,
         "duration_seconds": duration_seconds,
@@ -50,6 +55,7 @@ def build_report_payload(migration):
         "retry_attempts": progress["retry_attempts"],
         "verification_summary": verification,
         "verification_scope": "destination_size_and_metadata_verification",
+        "uncertain_external_operation": bool(getattr(migration, "uncertain_external_operation", False)),
     }
     if migration.resource_type == "lambda":
         try:
@@ -80,6 +86,42 @@ def generate_report(migration):
     report.generated_at = utc_now()
     db.session.commit()
     return report
+
+
+def generate_report_safely(migration):
+    """Attempt post-outcome bookkeeping without changing the outcome.
+
+    Execution state is committed before this helper is called.  A report is
+    useful audit data, but a report-generation/database failure must never
+    send control back through a provider-failure path or rewrite a terminal
+    migration result.
+    """
+    try:
+        return generate_report(migration)
+    except Exception:
+        db.session.rollback()
+        current_app.logger.warning(
+            "migration_report_generation_failed operation=report category=database"
+        )
+        return None
+
+
+def current_report_snapshot(migration):
+    """Read an existing report without mutating state.
+
+    Pre-report historical migrations can still be viewed truthfully from their
+    persisted execution state. New terminal executions create a report at the
+    outcome boundary rather than during an HTTP GET.
+    """
+    report = Report.query.filter_by(migration_id=migration.id).first()
+    if report is not None:
+        return serialize_report(report)
+    return {
+        "report_id": None,
+        "generated_at": None,
+        "status": migration.status,
+        "report": build_report_payload(migration),
+    }
 
 
 def serialize_report(report):

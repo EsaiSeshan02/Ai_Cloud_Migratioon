@@ -129,6 +129,30 @@ class LambdaRouteSecurityTests(unittest.TestCase):
         with self.app.app_context():
             self.assertEqual(Migration.query.filter_by(resource_type="lambda").count(), 1)
 
+    def test_uncertain_lambda_route_blocks_start_until_explicit_resolution(self):
+        self._login_owner()
+        details = {"success": True, "function_arn": "arn:aws:lambda:r:a:function:demo", "function_name": "demo", "runtime": "python3.11",
+                   "handler": "handler.main", "package_type": "Zip", "layers": [], "vpc_enabled": False, "event_sources": [], "environment_names": []}
+        identity = _lambda_identity(self.owner_id, details["function_arn"], self._payload()["configuration"])
+        with self.app.app_context():
+            db.session.add(Migration(migration_id="uncertain-route", user_id=self.owner_id, active_identity=identity,
+                                     source_cloud="aws", target_cloud="azure", resource_type="lambda", resource_name="demo",
+                                     status="manual_review_required", uncertain_external_operation=True))
+            db.session.commit()
+        with patch("app.services.lambda_migration_service.get_lambda_details", return_value=details), \
+             patch("app.services.lambda_migration_service.requests.post") as kudu:
+            blocked = self.client.post("/api/migration/lambda/start", json=self._payload(), headers={"X-CSRFToken": self._csrf()})
+        self.assertEqual(blocked.status_code, 400)
+        self.assertEqual(blocked.get_json()["status"], "manual_review_required")
+        kudu.assert_not_called()
+        resolved = self.client.post(
+            "/api/migration/lambda/uncertain-route/resolve-uncertain",
+            json={"confirmation": "target_inspected_no_active_deployment"},
+            headers={"X-CSRFToken": self._csrf()},
+        )
+        self.assertEqual(resolved.status_code, 200)
+        self.assertEqual(resolved.get_json()["status"], "manual_review_required")
+
 
 if __name__ == "__main__":
     unittest.main()

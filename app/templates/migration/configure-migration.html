@@ -204,6 +204,43 @@ Configure Migration | AI Cloud Migration
         </div>
 
 
+        <!-- ==================================================
+                    AWS → AZURE TRANSFER STATUS
+        ================================================== -->
+
+        <section
+            class="migration-transfer-visual"
+            id="migration-transfer-visual"
+            data-state="pending"
+            aria-live="polite"
+            aria-label="AWS to Azure migration status"
+        >
+            <div class="transfer-cloud transfer-cloud-source">
+                <img src="{{ url_for('static', filename='images/clouds/aws.svg') }}" alt="AWS source cloud">
+                <span>AWS</span>
+            </div>
+
+            <div class="transfer-route" aria-hidden="true">
+                <span class="transfer-route-line"></span>
+                <span class="transfer-particles">
+                    <i></i><i></i><i></i><i></i><i></i>
+                </span>
+                <span class="transfer-route-arrow">→</span>
+            </div>
+
+            <div class="transfer-cloud transfer-cloud-target">
+                <img src="{{ url_for('static', filename='images/clouds/azure.svg') }}" alt="Azure target cloud">
+                <span>Azure</span>
+            </div>
+
+            <div class="transfer-visual-copy">
+                <span class="transfer-visual-label">AWS → AZURE</span>
+                <strong id="transfer-visual-status">Ready for an approved migration</strong>
+                <small id="transfer-visual-detail">Particles animate only while a real provider operation is running.</small>
+            </div>
+        </section>
+
+
 
         <!-- ============================================
                     CONFIGURATION FORM

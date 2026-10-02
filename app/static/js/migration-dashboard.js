@@ -214,41 +214,12 @@ async function startResourceScan(
     }
 
 
-    /* ==============================================
-            START PROGRESS
-    ============================================== */
-
-    updateScanStatus(
-        "Connecting to cloud...",
-        10,
-        "scanning"
-    );
+    // The provider scan endpoint has no streamed progress contract. Keep the
+    // state indeterminate until it returns rather than inventing percentages.
+    updateScanStatus("Scanning the connected AWS account…", 0, "scanning");
 
 
     try {
-
-        /* ==========================================
-                PROGRESS SIMULATION
-        ========================================== */
-
-        await wait(400);
-
-        updateScanStatus(
-            "Discovering cloud resources...",
-            35,
-            "scanning"
-        );
-
-
-        await wait(400);
-
-
-        updateScanStatus(
-            "Scanning supported services...",
-            60,
-            "scanning"
-        );
-
 
         /* ==========================================
                 CALL BACKEND
@@ -291,16 +262,6 @@ async function startResourceScan(
             response.ok &&
             result.success
         ) {
-
-            updateScanStatus(
-                "Processing migration recommendations...",
-                80,
-                "scanning"
-            );
-
-
-            await wait(400);
-
 
             /* ======================================
                     SAVE DATA
@@ -677,12 +638,16 @@ function displayScanResults(
 
             const resourceCard =
                 document.createElement(
-                    "div"
+                    "article"
                 );
 
 
             resourceCard.className =
                 "resource-card";
+
+            resourceCard.tabIndex = 0;
+            resourceCard.setAttribute("role", "button");
+            resourceCard.setAttribute("aria-label", `Review ${resource.name || "resource"} assessment`);
 
             /* ==========================================
             MAKE RESOURCE CARD CLICKABLE
@@ -748,6 +713,13 @@ function displayScanResults(
 
                 }
             );
+
+            resourceCard.addEventListener("keydown", (event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    resourceCard.click();
+                }
+            });
 
 
             /* ==========================================
@@ -897,7 +869,7 @@ function displayScanResults(
 
                         <strong>
 
-                            ${resource.compatibility || 0}%
+                            ${escapeHTML(String(resource.compatibility ?? 0))}%
 
                         </strong>
 
@@ -948,7 +920,7 @@ function displayScanResults(
                 <button class="configure-migration-btn">
                     <span>
 
-                        ${isReady ? "Configure S3 Migration" : "Review Assessment"}
+                        ${isReady ? "Configure Supported Migration" : "Review Assessment"}
 
                     </span>
 
@@ -958,47 +930,6 @@ function displayScanResults(
 
             `;
             
-            resourceCard.addEventListener(
-                "click",
-                () => {
-
-                    /* ==========================================
-                            STORE SELECTED RESOURCE
-                    ========================================== */
-
-                    sessionStorage.setItem(
-                        "selected_migration_resource",
-                        JSON.stringify(resource)
-
-                    );
-
-
-                    /* ==========================================
-                        GO TO CONFIGURE PAGE
-                    ========================================== */
-
-                    const sourceCloud =
-                        document.getElementById("source-cloud").value;
-
-                    const targetCloud =
-                        document.getElementById("target-cloud").value;
-
-                    const sourceSessionId =
-                        document.getElementById("source-session-id").value;
-
-                    const targetSessionId =
-                        document.getElementById("target-session-id").value;
-
-                    window.location.href =
-                        `/migration/configure?source=${encodeURIComponent(sourceCloud)}` +
-                        `&target=${encodeURIComponent(targetCloud)}` +
-                        `&source_session_id=${encodeURIComponent(sourceSessionId)}` +
-                        `&target_session_id=${encodeURIComponent(targetSessionId)}`;
-
-                }
-            );
-
-
             resourcesGrid.appendChild(
                 resourceCard
             );
@@ -1206,30 +1137,6 @@ function resetScanButton(
         lucide.createIcons();
 
     }
-
-}
-
-
-/* ==========================================================
-                WAIT HELPER
-========================================================== */
-
-function wait(
-    milliseconds
-) {
-
-    return new Promise(
-
-        resolve => {
-
-            setTimeout(
-                resolve,
-                milliseconds
-            );
-
-        }
-
-    );
 
 }
 
