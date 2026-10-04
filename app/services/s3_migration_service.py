@@ -1,8 +1,3 @@
-"""Persisted, streaming S3-to-Azure-Blob migration support.
-
-Each object is read from S3's streaming body and passed directly to Azure.
-The 10 GB batches are logical scheduling groups, never in-memory buffers.
-"""
 import hashlib
 import json
 import re
@@ -39,8 +34,6 @@ MAX_TRANSFER_ATTEMPTS = 3
 _executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="s3-migration")
 _active_migrations = set()
 
-# These states describe persisted execution, not simulated progress.  A
-# browser may safely poll ``preparing`` while a worker is queued.
 _ACTIVE_STATES = {"preparing", "running", "cancelling"}
 _RESUMABLE_STATES = {"interrupted", "failed", "completed_with_failures"}
 _TERMINAL_STATES = {"completed", "completed_with_review", "cancelled"}
@@ -50,8 +43,6 @@ _ALLOWED_TRANSITIONS = {
     "preparing": {"running", "interrupted", "failed", "completed", "cancelled", "cancelling"},
     "running": {"interrupted", "failed", "completed", "completed_with_failures", "completed_with_review", "cancelling", "cancelled"},
     "cancelling": {"cancelled", "completed", "completed_with_failures", "completed_with_review"},
-    # Direct synchronous execution is retained for the existing compatibility
-    # wrapper and can safely continue an interrupted persisted migration.
     "interrupted": {"preparing", "running"},
     "failed": {"preparing", "running"},
     "completed_with_failures": {"preparing", "running"},
@@ -69,9 +60,6 @@ def _transition(migration, new_status):
     if new_status not in _ALLOWED_TRANSITIONS.get(current, set()):
         return False
     migration.status = new_status
-    # Interrupted and failed records retain their identity so a subsequent
-    # start cannot silently create competing work; the owner must resume or
-    # explicitly resolve the persisted migration.
     if new_status in _TERMINAL_STATES:
         migration.active_identity = None
     return True
@@ -631,10 +619,6 @@ def mark_incomplete_migrations_interrupted():
     """A restart leaves no falsely active migration state behind."""
     if "migrations" not in inspect(db.engine).get_table_names():
         return
-    # The cloud sessions used by this local prototype are memory-only.  Do
-    # not silently requeue after a restart: owners reconnect and explicitly
-    # resume S3 from its verified object records.  A persisted cancellation
-    # request is safe to finalize because no later object can have started.
     now = utc_now()
     recoverable_claim = or_(
         Migration.worker_token.is_(None),

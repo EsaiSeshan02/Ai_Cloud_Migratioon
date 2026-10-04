@@ -1,11 +1,3 @@
-"""Persisted execution claims and safe lifecycle helpers.
-
-The database is the authority for an execution claim.  The local thread pool
-used by the prototype is only a worker implementation: it must acquire a
-claim before touching a cloud provider and it loses that claim on completion,
-failure, cancellation, or application-start recovery.
-"""
-
 from __future__ import annotations
 
 import uuid
@@ -147,9 +139,6 @@ def request_cancellation(migration):
     if migration.status in TERMINAL_STATUSES:
         return False
     migration.cancellation_requested = True
-    # Queued/interrupted work has no active provider call in this prototype,
-    # so it can be finalised immediately. A claimed worker observes the flag
-    # cooperatively between safe provider operations.
     if migration.worker_token is None and migration.status in {"queued", "preparing", "interrupted", "failed", "completed_with_failures"}:
         return finalize_cancelled(migration)
     if migration.status not in {"cancelling", "cancelled"}:
@@ -182,10 +171,4 @@ def finalize_cancelled(migration, worker_token=None):
 
 
 def mark_stale_executions_for_recovery():
-    """Return active jobs that need service-specific restart classification.
-
-    Credentials are intentionally memory-only, so this helper never requeues
-    work itself.  S3 can later be resumed after reconnecting clouds; Lambda
-    remains manual review because Kudu completion cannot be inferred safely.
-    """
     return Migration.query.filter(Migration.status.in_(ACTIVE_STATUSES)).all()

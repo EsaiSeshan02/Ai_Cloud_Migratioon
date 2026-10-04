@@ -1,18 +1,3 @@
-"""
-==========================================================
-AI CLOUD MIGRATION
-AWS SERVICE
-==========================================================
-
-Business Logic Layer
-
-Routes
-    ↓
-AWS Service
-    ↓
-AWS Scanner
-"""
-
 import uuid
 import time
 import boto3
@@ -28,18 +13,9 @@ from botocore.exceptions import (
     BotoCoreError
 )
 
-
-# ==========================================================
-# TEMPORARY MIGRATION SESSIONS
-# ==========================================================
-
 migration_sessions = {}
 
 SESSION_TIMEOUT = 15 * 60
-
-# ==========================================================
-# CREATE TEMP SESSION
-# ==========================================================
 
 def create_session(
     aws_session,
@@ -68,10 +44,6 @@ def create_session(
     }
 
     return session_id
-
-# ==========================================================
-# GET SESSION
-# ==========================================================
 
 def get_session(session_id):
 
@@ -103,20 +75,12 @@ def get_session(session_id):
 
     return migration
 
-# ==========================================================
-# REMOVE SESSION
-# ==========================================================
-
 def remove_session(session_id):
 
     migration_sessions.pop(
         session_id,
         None
     )
-
-# ==========================================================
-# CONNECT AWS
-# ==========================================================
 
 def connect_aws(
 
@@ -133,10 +97,6 @@ def connect_aws(
 
     try:
 
-        # ------------------------------------------
-        # Create AWS Session
-        # ------------------------------------------
-
         aws_session = boto3.Session(
 
             aws_access_key_id=access_key,
@@ -147,17 +107,9 @@ def connect_aws(
 
         )
 
-        # ------------------------------------------
-        # Verify Identity
-        # ------------------------------------------
-
         sts = aws_session.client("sts")
 
         identity = sts.get_caller_identity()
-
-        # ------------------------------------------
-        # Create Migration Session
-        # ------------------------------------------
 
         session_id = create_session(
 
@@ -224,10 +176,6 @@ def connect_aws(
                 "Unexpected AWS connection error."
 
         }
-
-# ==========================================================
-# SCAN AWS RESOURCES
-# ==========================================================
 
 def scan_resources(session_id, target="azure", user_id=None):
 

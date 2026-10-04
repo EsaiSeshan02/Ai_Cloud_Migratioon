@@ -1,5 +1,3 @@
-"""Safe, persisted reports derived from real migration state only."""
-
 import json
 import uuid
 

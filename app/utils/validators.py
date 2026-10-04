@@ -1,5 +1,3 @@
-"""Small allow-list validators for browser/API migration inputs."""
-
 import re
 
 _S3_BUCKET = re.compile(r"^(?!\d+\.\d+\.\d+\.\d+$)(?!.*\.\.)[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$")
@@ -24,7 +22,5 @@ def safe_migration_configuration(value):
     if not isinstance(value, dict):
         return False
     account = value.get("destination_storage_account")
-    # Legacy UI sends a free-form target label which the S3 service normalizes
-    # to a container name. Validate only an explicit container identifier.
     container = value.get("container_name")
     return (not account or valid_azure_storage_account_name(account)) and (not container or valid_azure_container_name(container))

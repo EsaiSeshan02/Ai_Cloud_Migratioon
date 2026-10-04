@@ -1,16 +1,8 @@
-"""Safe AWS inventory discovery for the AWS-to-Azure assessment workflow.
-
-Discovery reads provider metadata only. It never reads S3 object contents,
-database data, Lambda environment values, or cloud credentials.
-"""
-
 from flask import current_app
 from botocore.exceptions import BotoCoreError, ClientError
 
 
 def _scan_failure(event, message):
-    # Provider exception strings may include account/resource details. Keep
-    # diagnostics categorical rather than writing raw SDK tracebacks.
     current_app.logger.error("%s operation=scan category=cloud", event)
     return {"success": False, "count": 0, "resources": [], "message": message}
 
@@ -117,9 +109,6 @@ def scan_s3(session):
     try:
         s3 = session.client("s3")
         resources = []
-        # list_buckets is not a paginated AWS API. Object inventory is
-        # intentionally not listed here; data migration enumerates objects only
-        # after an owner explicitly starts an S3 migration.
         for bucket in s3.list_buckets().get("Buckets", []):
             name = bucket.get("Name", "Unnamed")
             created = bucket.get("CreationDate")

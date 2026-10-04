@@ -1,5 +1,3 @@
-"""Backward-compatible facade for the authoritative mapper."""
-
 from app.mappers.cloud_mapper import CLOUD_MAPPINGS, get_cloud_mapping
 
 

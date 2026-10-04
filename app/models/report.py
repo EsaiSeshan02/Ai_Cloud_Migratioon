@@ -1,5 +1,3 @@
-"""Persisted, owner-scoped migration report snapshots."""
-
 from app.extensions import db
 from app.utils.time import UTCDateTime, utc_now
 

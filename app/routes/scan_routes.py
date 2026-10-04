@@ -1,10 +1,3 @@
-"""AWS scan compatibility helpers.
-
-The only registered HTTP route is ``migration.aws_scan`` in
-``migration_routes.py``. Keeping that route authoritative ensures its
-authentication, CSRF, and cloud-session ownership checks cannot be bypassed.
-"""
-
 from app.services.aws_service import scan_resources
 
 

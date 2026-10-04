@@ -1,9 +1,3 @@
-"""Deterministic AWS-to-Azure assessment recommendations.
-
-Despite the historical module name, this is not an LLM. It preserves the
-authoritative mapping classification and cannot authorize cloud execution.
-"""
-
 from app.mappers.cloud_mapper import get_cloud_mapping
 
 

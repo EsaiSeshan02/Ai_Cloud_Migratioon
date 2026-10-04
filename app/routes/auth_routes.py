@@ -1,5 +1,3 @@
-"""Authentication routes for the existing Flask-Login/Bcrypt setup."""
-
 import re
 
 from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for

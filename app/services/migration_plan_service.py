@@ -1,10 +1,3 @@
-"""Persisted, owner-scoped migration assessment plans.
-
-This service is deliberately assessment-only.  It records safe scanner
-metadata and deterministic recommendations, never cloud credentials, database
-passwords, Lambda environment values, or execution results.
-"""
-
 import json
 import uuid
 

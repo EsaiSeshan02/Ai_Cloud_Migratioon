@@ -1,5 +1,3 @@
-"""Centralized, safe error responses for browser pages and JSON APIs."""
-
 from flask import jsonify, render_template, request
 from flask_login import current_user
 from flask_wtf.csrf import CSRFError

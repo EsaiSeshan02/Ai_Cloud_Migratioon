@@ -1,10 +1,3 @@
-"""Persist uncertain Lambda external-operation blockers.
-
-Revision ID: 20260927_03
-Revises: 20260927_02
-Create Date: 2026-09-28
-"""
-
 from alembic import op
 import sqlalchemy as sa
 
@@ -31,5 +24,4 @@ def upgrade():
 
 
 def downgrade():
-    # Forward-only data policy: do not remove a persisted safety blocker.
     pass

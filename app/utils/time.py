@@ -1,5 +1,3 @@
-"""Timezone-aware timestamp helpers for application-owned persistence."""
-
 from datetime import UTC, datetime
 
 from sqlalchemy import DateTime
@@ -12,13 +10,6 @@ def utc_now():
 
 
 class UTCDateTime(TypeDecorator):
-    """Store UTC timestamps and restore legacy SQLite values as aware UTC.
-
-    SQLite has no native timezone-aware datetime type. Existing application
-    timestamps were UTC-naive, so legacy values are interpreted as UTC rather
-    than being shifted during the versioned upgrade.
-    """
-
     impl = DateTime(timezone=True)
     cache_ok = True
 

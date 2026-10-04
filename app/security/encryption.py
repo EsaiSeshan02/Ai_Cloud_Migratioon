@@ -1,11 +1,4 @@
-"""Authenticated encryption helper for future persisted secret material.
-
-Cloud credentials are deliberately not persisted by this prototype.  This
-module exists for values that genuinely require protected at-rest storage.
-"""
-
 from cryptography.fernet import Fernet, InvalidToken
-
 
 class CredentialCipher:
     def __init__(self, key):

@@ -1,10 +1,3 @@
-"""Small in-process rate limiter used when no shared limiter is configured.
-
-It is intentionally conservative and protects browser-facing sensitive routes
-in a single-process prototype. Deployments with multiple workers should
-replace it with a shared Flask-Limiter/Redis backend.
-"""
-
 import time
 from collections import defaultdict, deque
 from threading import Lock

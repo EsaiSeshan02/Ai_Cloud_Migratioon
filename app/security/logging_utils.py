@@ -1,5 +1,3 @@
-"""Safe, structured application logging helpers."""
-
 import logging
 import re
 

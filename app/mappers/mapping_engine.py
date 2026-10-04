@@ -1,12 +1,3 @@
-"""
-==========================================================
-AI CLOUD MIGRATION
-MAPPING ENGINE
-==========================================================
-
-Generates migration plans from AI recommendations.
-"""
-
 from app.utils.time import utc_now
 
 
@@ -40,9 +31,6 @@ class MappingEngine:
             "total_resources":
                 len(recommendations),
 
-            # Scanner metadata does not include a reliable transfer rate, object
-            # inventory, image-conversion path, or cutover window.  Do not make
-            # up a per-resource duration estimate.
             "estimated_duration": "requires_assessment",
 
             "status":

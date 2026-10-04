@@ -1,10 +1,3 @@
-"""Immutable baseline for the current persisted application schema.
-
-Revision ID: 20260927_01
-Revises:
-Create Date: 2026-09-27
-"""
-
 from alembic import op
 import sqlalchemy as sa
 

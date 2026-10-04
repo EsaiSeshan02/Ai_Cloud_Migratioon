@@ -1,10 +1,3 @@
-"""
-==========================================================
-AI CLOUD MIGRATION
-APPLICATION FACTORY
-==========================================================
-"""
-
 import os
 
 from flask import Flask, jsonify, request
@@ -27,10 +20,6 @@ from app.models.migration import (
     MigrationFile
 )
 
-# ==========================================================
-# CREATE APPLICATION
-# ==========================================================
-
 def create_app(test_config=None):
 
     app = Flask(
@@ -43,11 +32,6 @@ def create_app(test_config=None):
 
     )
 
-
-    # ======================================================
-    # LOAD CONFIGURATION
-    # ======================================================
-
     config_class = DevelopmentConfig if os.getenv("APP_ENV", "").lower() == "development" else Config
     app.config.from_object(config_class)
     if test_config:
@@ -56,10 +40,6 @@ def create_app(test_config=None):
     if not app.config.get("SECRET_KEY"):
         raise RuntimeError("SECRET_KEY must be configured outside development mode.")
 
-    # ======================================================
-    # INITIALIZE EXTENSIONS
-    # ======================================================
-
     db.init_app(app)
     migrate.init_app(app, db)
     bcrypt.init_app(app)
@@ -67,10 +47,6 @@ def create_app(test_config=None):
     csrf.init_app(app)
     configure_logging(app)
     register_error_handlers(app)
-
-    # ==========================================================
-    # DATABASE MODELS
-    # ==========================================================
 
     from app.models.user import User
     
@@ -81,13 +57,7 @@ def create_app(test_config=None):
     from app.models.report import Report
     from app.database.migration_schema import upgrade_phase2_migration_schema
     with app.app_context():
-        # Preserve the pre-Alembic startup compatibility path: a database from
-        # an earlier release can be opened safely before its formal baseline
-        # revision is stamped. The helper is additive only; ``flask db
-        # upgrade`` remains the reproducible versioning command.
         upgrade_phase2_migration_schema()
-        # A worker cannot survive a Flask process restart.  Persist the
-        # interruption so its owner can explicitly reconnect and resume.
         from app.services.s3_migration_service import mark_incomplete_migrations_interrupted
         from app.services.lambda_migration_service import mark_incomplete_lambda_migrations_requires_review
         mark_incomplete_migrations_interrupted()
@@ -109,11 +79,6 @@ def create_app(test_config=None):
             limiter.enforce(120, 300)
         return None
 
-
-    # ======================================================
-    # CREATE REQUIRED FOLDERS
-    # ======================================================
-
     os.makedirs(
 
         app.config["UPLOAD_FOLDER"],
@@ -121,11 +86,6 @@ def create_app(test_config=None):
         exist_ok=True
 
     )
-
-
-    # ======================================================
-    # REGISTER BLUEPRINTS
-    # ======================================================
 
     from app.routes.home_routes import home_bp
 
@@ -159,10 +119,5 @@ def create_app(test_config=None):
         if app.config.get("HSTS_ENABLED"):
             response.headers.setdefault("Strict-Transport-Security", f"max-age={app.config['HSTS_MAX_AGE']}; includeSubDomains")
         return response
-
-
-    # ======================================================
-    # RETURN APPLICATION
-    # ======================================================
 
     return app

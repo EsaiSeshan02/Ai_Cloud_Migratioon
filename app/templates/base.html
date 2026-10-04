@@ -3,10 +3,6 @@
 
 <head>
 
-    <!-- ===================================================== -->
-    <!-- META -->
-    <!-- ===================================================== -->
-
     <meta charset="UTF-8">
 
     <meta
@@ -27,11 +23,6 @@
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-
-    <!-- ===================================================== -->
-    <!-- TITLE -->
-    <!-- ===================================================== -->
-
     <title>
 
         {% block title %}
@@ -42,19 +33,9 @@
 
     </title>
 
-
-    <!-- ===================================================== -->
-    <!-- FAVICON -->
-    <!-- ===================================================== -->
-
     <link
         rel="icon"
         href="{{ url_for('static', filename='images/logos/favicon.png') }}">
-
-
-    <!-- ===================================================== -->
-    <!-- CSS -->
-    <!-- ===================================================== -->
 
     <link
         rel="stylesheet"
@@ -84,9 +65,6 @@
 
     {% endblock %}
 
-    <!-- Shared fixes for the authenticated AWS-to-Azure workflow.  This is
-         deliberately loaded after page styles so legacy selectors cannot
-         leave an active form or report page unstyled. -->
     <link
         rel="stylesheet"
         href="{{ url_for('static', filename='css/active-workflow.css') }}">
@@ -94,27 +72,13 @@
 </head>
 <body class="page-wrapper">
 
-    <!-- ===================================================== -->
-    <!-- LOADER (Future) -->
-    <!-- ===================================================== -->
-
     <div id="page-loader" class="hidden">
 
         <div class="loader"></div>
 
     </div>
 
-
-    <!-- ===================================================== -->
-    <!-- NAVBAR -->
-    <!-- ===================================================== -->
-
     {% include 'components/navbar.html' %}
-
-
-    <!-- ===================================================== -->
-    <!-- MAIN CONTENT -->
-    <!-- ===================================================== -->
 
     <main class="main-content">
 
@@ -124,20 +88,10 @@
 
     </main>
 
-
-    <!-- ===================================================== -->
-    <!-- FOOTER -->
-    <!-- ===================================================== -->
-
     {% include 'components/footer.html' %}
-
-        <!-- ===================================================== -->
-    <!-- JAVASCRIPT -->
-    <!-- ===================================================== -->
 
     <script>
 
-        /* Add the CSRF token to same-origin state-changing fetch requests. */
         (() => {
             const originalFetch = window.fetch.bind(window);
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
@@ -151,12 +105,6 @@
                 return originalFetch(input, init);
             };
         })();
-
-        /*
-        ======================================================
-                INITIAL THEME LOADER
-        ======================================================
-        */
 
         (() => {
 

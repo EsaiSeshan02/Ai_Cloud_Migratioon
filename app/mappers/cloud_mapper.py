@@ -1,10 +1,3 @@
-"""Authoritative deterministic mappings for the AWS-to-Azure prototype.
-
-This project supports one provider direction only: AWS as source and Azure as
-target. Mapping capability is never an execution promise; S3 and the
-separately validated Lambda subset are the only execution services.
-"""
-
 from copy import deepcopy
 
 SUPPORTED_EXECUTION = "supported_execution"
@@ -47,8 +40,6 @@ _RDS_ENGINE_MAPPINGS = {
     "sqlserver": ("Azure SQL Managed Instance", 70),
 }
 
-# Compatibility export retained for existing imports. It deliberately contains
-# only the official AWS → Azure scope.
 CLOUD_MAPPINGS = {"AWS": {"Azure": AWS_AZURE_MAPPINGS}}
 
 

@@ -1,5 +1,3 @@
-"""Audit-log facade for sensitive operations without credential data."""
-
 from flask import current_app
 
 from app.extensions import db

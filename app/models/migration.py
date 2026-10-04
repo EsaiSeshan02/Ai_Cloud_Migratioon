@@ -1,27 +1,3 @@
-"""
-==========================================================
-AI CLOUD MIGRATION
-MIGRATION DATABASE MODELS
-==========================================================
-
-Stores:
-
-    - Migration-level information
-    - Individual migrated files
-    - Migration progress
-    - Migration status
-    - Failed file information
-
-These models will later be used for:
-
-    - Resume support
-    - Retry failed files
-    - Migration history
-    - Progress tracking
-    - Migration reports
-"""
-
-
 from app.extensions import db
 from app.utils.time import UTCDateTime, utc_now
 
@@ -76,27 +52,16 @@ class MigrationPlanResource(db.Model):
     created_at = db.Column(UTCDateTime(), nullable=False, default=utc_now)
     updated_at = db.Column(UTCDateTime(), nullable=False, default=utc_now, onupdate=utc_now)
 
-
-# ==========================================================
-# MIGRATION MODEL
-# ==========================================================
-
 class Migration(db.Model):
 
     __tablename__ = "migrations"
 
-    # ------------------------------------------------------
-    # PRIMARY KEY
-    # ------------------------------------------------------
 
     id = db.Column(
         db.Integer,
         primary_key=True
     )
 
-    # ------------------------------------------------------
-    # MIGRATION IDENTIFIER
-    # ------------------------------------------------------
 
     migration_id = db.Column(
         db.String(64),
@@ -104,10 +69,6 @@ class Migration(db.Model):
         nullable=False,
         index=True
     )
-
-    # ------------------------------------------------------
-    # USER
-    # ------------------------------------------------------
 
     user_id = db.Column(
         db.Integer,
@@ -118,17 +79,9 @@ class Migration(db.Model):
         index=True
     )
 
-    # Optional for historical rows created before owner-scoped execution was
-    # introduced. New executions always supply an owner.
     plan_id = db.Column(db.Integer, db.ForeignKey("migration_plans.id"), nullable=True, index=True)
 
-    # Set only while a migration is active. The database unique index protects
-    # against duplicate starts across web workers without changing old rows.
     active_identity = db.Column(db.String(64), nullable=True, unique=True, index=True)
-
-    # ------------------------------------------------------
-    # SOURCE / TARGET
-    # ------------------------------------------------------
 
     source_cloud = db.Column(
         db.String(20),
@@ -140,10 +93,6 @@ class Migration(db.Model):
         nullable=False
     )
 
-    # ------------------------------------------------------
-    # RESOURCE INFORMATION
-    # ------------------------------------------------------
-
     resource_type = db.Column(
         db.String(50),
         nullable=False
@@ -154,19 +103,11 @@ class Migration(db.Model):
         nullable=False
     )
 
-    # ------------------------------------------------------
-    # MIGRATION STATUS
-    # ------------------------------------------------------
-
     status = db.Column(
         db.String(30),
         nullable=False,
         default="pending"
     )
-
-    # ------------------------------------------------------
-    # FILE COUNTERS
-    # ------------------------------------------------------
 
     total_files = db.Column(
         db.Integer,
@@ -186,27 +127,17 @@ class Migration(db.Model):
         nullable=False
     )
 
-    # ------------------------------------------------------
-    # DATA SIZE
-    # ------------------------------------------------------
-
     total_size_bytes = db.Column(
         db.BigInteger,
         default=0,
         nullable=False
     )
 
-    # Completed transfer bytes only.  Bytes for a Blob merely found during a
-    # resume are deliberately not counted as newly transferred.
     transferred_bytes = db.Column(
         db.BigInteger,
         default=0,
         nullable=False
     )
-
-    # ------------------------------------------------------
-    # BATCH INFORMATION
-    # ------------------------------------------------------
 
     total_batches = db.Column(
         db.Integer,
@@ -214,37 +145,20 @@ class Migration(db.Model):
         nullable=False
     )
 
-    # Destination details are persisted so an interrupted S3 migration can be
-    # resumed after the web process restarts.  They intentionally contain no
-    # credentials; Azure keys are retrieved again from an authenticated target
-    # session when a user resumes work.
     destination_resource_group = db.Column(db.String(255), nullable=True)
     destination_storage_account = db.Column(db.String(64), nullable=True)
     destination_container = db.Column(db.String(63), nullable=True)
     target_region = db.Column(db.String(64), nullable=True)
     destination_provisioning_mode = db.Column(db.String(32), nullable=True)
     execution_configuration = db.Column(db.Text, nullable=False, default="{}")
-    # Only short, application-defined failure categories are stored here.
-    # Provider diagnostics and credentials must never be persisted.
     failure_reason = db.Column(db.String(255), nullable=True)
-
-    # A synchronous Lambda/Kudu call can outlive this process.  When its
-    # outcome is unknown, retain the logical identity as a durable blocker
-    # until an owner explicitly confirms the target was inspected.
     uncertain_external_operation = db.Column(db.Boolean, nullable=False, default=False)
-
-    # Persisted worker lifecycle. Credentials remain in the short-lived cloud
-    # session only; these fields describe ownership of local execution work.
     cancellation_requested = db.Column(db.Boolean, nullable=False, default=False)
     worker_token = db.Column(db.String(64), nullable=True, index=True)
     lease_expires_at = db.Column(UTCDateTime(), nullable=True, index=True)
     last_heartbeat_at = db.Column(UTCDateTime(), nullable=True)
     retry_count = db.Column(db.Integer, nullable=False, default=0)
     updated_at = db.Column(UTCDateTime(), nullable=False, default=utc_now, onupdate=utc_now)
-
-    # ------------------------------------------------------
-    # TIMESTAMPS
-    # ------------------------------------------------------
 
     started_at = db.Column(
         UTCDateTime(),
@@ -263,10 +177,6 @@ class Migration(db.Model):
         nullable=False
     )
 
-    # ------------------------------------------------------
-    # RELATIONSHIP
-    # ------------------------------------------------------
-
     files = db.relationship(
         "MigrationFile",
         backref="migration",
@@ -277,10 +187,6 @@ class Migration(db.Model):
     plan = db.relationship("MigrationPlan", backref="executions", foreign_keys=[plan_id])
     reports = db.relationship("Report", backref="migration", lazy=True, cascade="all, delete-orphan")
 
-    # ------------------------------------------------------
-    # REPRESENTATION
-    # ------------------------------------------------------
-
     def __repr__(self):
 
         return (
@@ -289,27 +195,14 @@ class Migration(db.Model):
             f"{self.status}>"
         )
 
-
-# ==========================================================
-# MIGRATION FILE MODEL
-# ==========================================================
-
 class MigrationFile(db.Model):
 
     __tablename__ = "migration_files"
-
-    # ------------------------------------------------------
-    # PRIMARY KEY
-    # ------------------------------------------------------
 
     id = db.Column(
         db.Integer,
         primary_key=True
     )
-
-    # ------------------------------------------------------
-    # MIGRATION RELATIONSHIP
-    # ------------------------------------------------------
 
     migration_id = db.Column(
         db.Integer,
@@ -319,10 +212,6 @@ class MigrationFile(db.Model):
         nullable=False,
         index=True
     )
-
-    # ------------------------------------------------------
-    # OBJECT / FILE INFORMATION
-    # ------------------------------------------------------
 
     object_key = db.Column(
         db.String(1024),
@@ -339,19 +228,11 @@ class MigrationFile(db.Model):
         nullable=False
     )
 
-    # ------------------------------------------------------
-    # BATCH
-    # ------------------------------------------------------
-
     batch_number = db.Column(
         db.Integer,
         default=1,
         nullable=False
     )
-
-    # ------------------------------------------------------
-    # FILE STATUS
-    # ------------------------------------------------------
 
     status = db.Column(
         db.String(30),
@@ -359,29 +240,17 @@ class MigrationFile(db.Model):
         default="pending"
     )
 
-    # ------------------------------------------------------
-    # ERROR INFORMATION
-    # ------------------------------------------------------
-
     error_message = db.Column(
         db.Text,
         nullable=True
     )
 
-    # Provider ETags are retained as operational metadata only.  An S3 ETag
-    # is not always an MD5 checksum (for example multipart uploads), so the
-    # transfer service never treats matching ETags across providers as proof
-    # of content equality.
     source_etag = db.Column(db.String(256), nullable=True)
     destination_etag = db.Column(db.String(256), nullable=True)
     verification_status = db.Column(db.String(40), nullable=True)
     attempt_count = db.Column(db.Integer, default=0, nullable=False)
     last_attempt_at = db.Column(UTCDateTime(), nullable=True)
     bytes_transferred = db.Column(db.BigInteger, default=0, nullable=False)
-
-    # ------------------------------------------------------
-    # TIMESTAMPS
-    # ------------------------------------------------------
 
     started_at = db.Column(
         UTCDateTime(),
@@ -398,10 +267,6 @@ class MigrationFile(db.Model):
         default=utc_now,
         nullable=False
     )
-
-    # ------------------------------------------------------
-    # REPRESENTATION
-    # ------------------------------------------------------
 
     def __repr__(self):
 

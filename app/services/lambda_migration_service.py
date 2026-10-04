@@ -1,11 +1,3 @@
-"""Real, deliberately narrow Lambda-to-Azure-Functions deployment support.
-
-Only Python ZIP functions without layers, VPC configuration, or discovered AWS
-event-source mappings are eligible. Deployment targets are existing Function
-Apps selected by the owner; this service never creates Azure infrastructure or
-persists AWS/Azure credentials.
-"""
-
 import hashlib
 import io
 import json

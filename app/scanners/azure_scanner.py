@@ -1,9 +1,3 @@
-"""Safe, normalized Azure resource discovery helpers.
-
-The scanner deliberately reads resource-management metadata only.  It never
-requests keys, connection strings, database credentials, or function secrets.
-"""
-
 from flask import current_app
 
 

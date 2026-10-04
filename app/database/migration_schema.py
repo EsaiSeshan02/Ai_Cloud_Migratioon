@@ -1,17 +1,9 @@
-"""Forward-only compatibility helpers used by the Alembic baseline.
-
-The helpers deliberately add missing legacy columns and indexes only. They
-never drop, recreate, or delete application data. New databases are created
-from SQLAlchemy metadata by the baseline revision.
-"""
-
 from sqlalchemy import inspect, text
 
 from app.extensions import db
 from app.models.migration import MigrationPlan, MigrationPlanResource
 from app.models.report import Report
 from app.security.audit_logger import AuditEvent
-
 
 _COLUMNS = {
     "migrations": {
@@ -57,15 +49,12 @@ def upgrade_legacy_schema(connection=None):
             if column_name not in present:
                 bind.execute(text(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {sql_type}"))
 
-    # Migration plans are new additive tables.  Creating them with checkfirst
-    # preserves all existing user, migration, and migration-file records.
     if "users" in existing_tables:
         MigrationPlan.__table__.create(bind=bind, checkfirst=True)
         MigrationPlanResource.__table__.create(bind=bind, checkfirst=True)
         Report.__table__.create(bind=bind, checkfirst=True)
         AuditEvent.__table__.create(bind=bind, checkfirst=True)
 
-    # Historical records receive NULL active identities and remain compatible.
     if "migrations" in set(inspect(bind).get_table_names()):
         bind.execute(text(
             "CREATE UNIQUE INDEX IF NOT EXISTS uq_migrations_active_identity "
@@ -80,16 +69,14 @@ def upgrade_legacy_schema(connection=None):
             "ON migrations (lease_expires_at)"
         ))
     if "migration_files" in set(inspect(bind).get_table_names()):
-        # Existing historical duplicate rows must not be deleted by an
-        # upgrade. New databases receive the model-level unique constraint.
+
         try:
             bind.execute(text(
                 "CREATE UNIQUE INDEX IF NOT EXISTS uq_migration_files_object "
                 "ON migration_files (migration_id, object_key)"
             ))
         except Exception:
-            # Existing duplicate historical rows prevent a unique index.
-            # Preserve them and let the operator resolve them before retrying.
+
             pass
 
 

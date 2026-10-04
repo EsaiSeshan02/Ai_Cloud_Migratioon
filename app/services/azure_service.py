@@ -7,17 +7,7 @@ from azure.mgmt.resource.resources import (
 import uuid
 from flask import current_app
 
-
-# ==========================================================
-# AZURE MIGRATION SESSIONS
-# ==========================================================
-
 azure_sessions = {}
-
-
-# ==========================================================
-# CONNECT AZURE
-# ==========================================================
 
 def connect_azure(
     tenant_id,
@@ -34,10 +24,6 @@ def connect_azure(
 
     try:
 
-        # --------------------------------------------------
-        # CREATE CREDENTIAL
-        # --------------------------------------------------
-
         credential = ClientSecretCredential(
 
             tenant_id=tenant_id,
@@ -48,11 +34,6 @@ def connect_azure(
 
         )
 
-
-        # --------------------------------------------------
-        # RESOURCE MANAGEMENT CLIENT
-        # --------------------------------------------------
-
         resource_client = ResourceManagementClient(
 
             credential,
@@ -60,19 +41,6 @@ def connect_azure(
             subscription_id
 
         )
-
-
-        # --------------------------------------------------
-        # TEST CONNECTION
-        # --------------------------------------------------
-        #
-        # This verifies that:
-        #
-        # 1. Credentials are valid
-        # 2. Azure authentication succeeds
-        # 3. Subscription can be accessed
-        #
-        # --------------------------------------------------
 
         list(
 
@@ -84,21 +52,11 @@ def connect_azure(
 
         )
 
-
-        # --------------------------------------------------
-        # CREATE SESSION ID
-        # --------------------------------------------------
-
         session_id = str(
 
             uuid.uuid4()
 
         )
-
-
-        # --------------------------------------------------
-        # SAVE SESSION
-        # --------------------------------------------------
 
         azure_sessions[session_id] = {
 
@@ -128,11 +86,6 @@ def connect_azure(
             "user_id": user_id
 
         }
-
-
-        # --------------------------------------------------
-        # SUCCESS RESPONSE
-        # --------------------------------------------------
 
         return {
 
@@ -171,11 +124,6 @@ def connect_azure(
                 "Azure authentication or connection failed."
 
         }
-
-
-# ==========================================================
-# GET AZURE SESSION
-# ==========================================================
 
 def get_azure_session(
     session_id

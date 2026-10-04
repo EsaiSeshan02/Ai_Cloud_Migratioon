@@ -1,10 +1,3 @@
-"""Add persisted execution-lease and cancellation fields.
-
-Revision ID: 20260927_02
-Revises: 20260927_01
-Create Date: 2026-09-27
-"""
-
 from alembic import op
 import sqlalchemy as sa
 
